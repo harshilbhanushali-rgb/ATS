@@ -23,7 +23,9 @@ const OfferCard: React.FC<OfferCardProps> = ({ candidate, requisition, onOfferAc
 
   const { salary, startDate, offerLetterUrl, offerNotes } = candidate.offerDetails;
 
-  const startDatePassed = onConfirmJoined && new Date(startDate) <= new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDatePassed = onConfirmJoined && new Date(startDate) < today;
 
   return (
     <Card className="mb-6 border-blue-200 hover:border-blue-300 transition-all duration-300">
