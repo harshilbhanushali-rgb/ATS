@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Candidate, Requisition, CandidateStage } from '../types';
+import { CandidateStage } from '../types';
 import OfferCard from './OfferCard';
 import Card from './Card';
 import { Delete as BackspaceIcon } from 'lucide-react';
@@ -7,31 +7,43 @@ import { useAppData } from '../contexts/AppDataContext';
 import { useModalState } from '../contexts/ModalStateContext';
 
 const OfferHubView: React.FC = () => {
-  const { candidates: allCandidates, requisitions: allRequisitions, offerAccepted: onOfferAccepted, offerDeclined: onOfferDeclined } = useAppData();
+  const {
+    candidates: allCandidates,
+    requisitions: allRequisitions,
+    offerAccepted: onOfferAccepted,
+    offerDeclined: onOfferDeclined,
+    confirmJoined: onConfirmJoined,
+  } = useAppData();
   const { openOfferModal: onEditOffer } = useModalState();
   const [offerSearchTerm, setOfferSearchTerm] = useState('');
   const [offerRequisitionFilter, setOfferRequisitionFilter] = useState('');
+  const [activeTab, setActiveTab] = useState<'extended' | 'accepted'>('extended');
 
-  const candidatesWithOffersInitially = useMemo(() => {
-    return allCandidates.filter(
-      candidate => candidate.stage === CandidateStage.OFFER_EXTENDED && candidate.offerDetails
-    );
-  }, [allCandidates]);
+  const extendedCandidates = useMemo(
+    () => allCandidates.filter(c => c.stage === CandidateStage.OFFER_EXTENDED && c.offerDetails),
+    [allCandidates]
+  );
+
+  const acceptedCandidates = useMemo(
+    () => allCandidates.filter(c => c.stage === CandidateStage.OFFER_ACCEPTED && c.offerDetails),
+    [allCandidates]
+  );
+
+  const activeCandidates = activeTab === 'extended' ? extendedCandidates : acceptedCandidates;
 
   const uniqueRequisitionRolesWithOffers = useMemo(() => {
     const roles = new Set<string>();
-    candidatesWithOffersInitially.forEach(candidate => {
+    activeCandidates.forEach(candidate => {
       const req = allRequisitions.find(r => r.id === candidate.requisitionId);
       if (req) roles.add(req.role);
     });
     return Array.from(roles).sort();
-  }, [candidatesWithOffersInitially, allRequisitions]);
+  }, [activeCandidates, allRequisitions]);
 
-  const filteredCandidatesWithOffers = useMemo(() => {
-    return candidatesWithOffersInitially.filter(candidate => {
+  const filteredCandidates = useMemo(() => {
+    return activeCandidates.filter(candidate => {
       const term = offerSearchTerm.toLowerCase();
       const matchesSearch = term === '' || candidate.name.toLowerCase().includes(term) || candidate.email.toLowerCase().includes(term);
-      
       let matchesRequisition = true;
       if (offerRequisitionFilter !== '') {
         const req = allRequisitions.find(r => r.id === candidate.requisitionId);
@@ -39,13 +51,13 @@ const OfferHubView: React.FC = () => {
       }
       return matchesSearch && matchesRequisition;
     });
-  }, [candidatesWithOffersInitially, offerSearchTerm, offerRequisitionFilter, allRequisitions]);
+  }, [activeCandidates, offerSearchTerm, offerRequisitionFilter, allRequisitions]);
 
   const handleClearOfferFilters = () => {
     setOfferSearchTerm('');
     setOfferRequisitionFilter('');
   };
-  
+
   const inputClass = "mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-xs text-xs placeholder:text-slate-400";
   const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 
@@ -54,6 +66,39 @@ const OfferHubView: React.FC = () => {
       <div className="pb-5 border-b border-slate-200">
         <h1 className="text-2xl font-bold leading-6 text-slate-900 font-display tracking-tight sm:truncate">Manage Candidate Offers</h1>
         <p className="mt-2 text-sm text-slate-500">Review, update, or record decisions for candidates who have received offers.</p>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab('extended')}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
+            activeTab === 'extended'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200'
+              : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+          }`}
+        >
+          Offers Extended
+          {extendedCandidates.length > 0 && (
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]">
+              {extendedCandidates.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('accepted')}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
+            activeTab === 'accepted'
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-200'
+              : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-300 hover:text-emerald-600'
+          }`}
+        >
+          Awaiting Joining
+          {acceptedCandidates.length > 0 && (
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]">
+              {acceptedCandidates.length}
+            </span>
+          )}
+        </button>
       </div>
 
       <Card title="Filters" className="mb-6">
@@ -88,25 +133,28 @@ const OfferHubView: React.FC = () => {
         </div>
       </Card>
 
-      {filteredCandidatesWithOffers.length === 0 ? (
+      {filteredCandidates.length === 0 ? (
         <Card className="shadow-xl">
           <div className="p-8 text-center">
             <svg className="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5.586-1.414a1 1 0 00-1.414-1.414l-1.071 1.071-1.071-1.071a1 1 0 10-1.414 1.414l1.071 1.071-1.071 1.071a1 1 0 101.414 1.414l1.071-1.071 1.071 1.071a1 1 0 101.414-1.414L17.414 15l1.172-1.172a1 1 0 000-1.414l-1.172-1.172zM12 21a9 9 0 100-18 9 9 0 000 18z" />
             </svg>
             <h3 className="mt-2 text-lg font-medium text-slate-800">
-                {candidatesWithOffersInitially.length === 0 ? "No Active Offers" : "No Offers Match Your Filters"}
+              {activeCandidates.length === 0
+                ? activeTab === 'extended' ? 'No Active Offers' : 'No Accepted Offers'
+                : 'No Offers Match Your Filters'}
             </h3>
             <p className="mt-1 text-sm text-slate-500">
-                {candidatesWithOffersInitially.length === 0 
-                    ? "There are currently no candidates with offers extended. Prepare offers from the 'HM Hub'."
-                    : "Try adjusting your filters or clear them to see all active offers."
-                }
+              {activeCandidates.length === 0
+                ? activeTab === 'extended'
+                  ? "There are currently no candidates with offers extended. Prepare offers from the 'HM Hub'."
+                  : "No candidates have accepted their offer yet."
+                : 'Try adjusting your filters or clear them to see all offers.'}
             </p>
           </div>
         </Card>
       ) : (
-        filteredCandidatesWithOffers.map(candidate => {
+        filteredCandidates.map(candidate => {
           const requisition = allRequisitions.find(r => r.id === candidate.requisitionId);
           if (!requisition) {
             console.warn(`Requisition not found for candidate ${candidate.id} with requisitionId ${candidate.requisitionId}`);
@@ -124,6 +172,7 @@ const OfferHubView: React.FC = () => {
               onOfferAccepted={onOfferAccepted}
               onOfferDeclined={onOfferDeclined}
               onEditOffer={onEditOffer}
+              onConfirmJoined={activeTab === 'accepted' ? onConfirmJoined : undefined}
             />
           );
         })
