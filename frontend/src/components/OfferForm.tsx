@@ -60,14 +60,14 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, candidate, requisition,
     onSubmit(candidate.id, offerDetailsToSubmit);
   };
 
-  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-sm placeholder:text-slate-400";
+  const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest";
   const requiredSpan = <span className="text-red-500">*</span>;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <p className="text-lg font-semibold text-indigo-700">Prepare Offer for: {candidate.name}</p>
-      <p className="text-sm text-gray-500 -mt-4">Requisition: {requisition.role} (Current Budget: {requisition.cost.amount.toLocaleString()} {requisition.cost.currency})</p>
+      <p className="text-lg font-semibold text-blue-700">Prepare Offer for: {candidate.name}</p>
+      <p className="text-sm text-slate-500 -mt-4">Requisition: {requisition.role} (Current Budget: {requisition.cost.amount.toLocaleString()} {requisition.cost.currency})</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
         <div className="grid grid-cols-2 gap-2">
@@ -100,14 +100,14 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, candidate, requisition,
         </div>
       </div>
 
-      <div className="pt-5 border-t border-gray-200 mt-8">
+      <div className="pt-5 border-t border-slate-100 mt-8">
         <div className="flex justify-end space-x-3">
           <button type="button" onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors">
             Cancel
           </button>
           <button type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
             {candidate.offerDetails ? 'Update Offer' : 'Submit Offer to Candidate'}
           </button>
         </div>

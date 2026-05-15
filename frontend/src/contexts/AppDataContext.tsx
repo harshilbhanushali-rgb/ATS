@@ -44,6 +44,7 @@ export interface AppDataContextValue {
   generateAIDebriefSummary: (candidate: Candidate, requisition: Requisition, interviews: Interview[]) => void;
   recordFinalDecision: (candidateId: string, decision: 'HIRE' | 'REJECT') => void;
   archiveRequisition: (id: string) => Promise<void>;
+  reactivateRequisition: (id: string) => Promise<void>;
   clearData: () => void;
 }
 

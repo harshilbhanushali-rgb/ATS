@@ -17,9 +17,9 @@ const AdminView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
 
   const tabButtonClass = (tabName: AdminTab) =>
-    `px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 font-display tracking-tight ${
+    `px-5 py-2 text-sm font-bold rounded-xl transition-all duration-200 font-display ${
       activeTab === tabName
-        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+        ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
         : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
     }`;
 
@@ -32,7 +32,7 @@ const AdminView: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <Card className="!p-8">
-        <div className="flex flex-wrap gap-3 border-b border-slate-100 pb-6 mb-8">
+        <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-5 mb-6">
           <button onClick={() => setActiveTab('users')} className={tabButtonClass('users')}>
             User Management
           </button>
@@ -64,8 +64,8 @@ const AdminView: React.FC = () => {
             {activeTab === 'system' && (
                 <div className="max-w-2xl mx-auto py-12">
                     <div className="flex flex-col items-center text-center mb-10">
-                        <div className="w-20 h-20 bg-rose-50 rounded-[2.5rem] flex items-center justify-center mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-10 h-10 text-rose-600">
+                        <div className="w-20 h-20 bg-rose-50 rounded-[2.5rem] flex items-center justify-center mb-6 border border-rose-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-10 h-10 text-rose-500">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                             </svg>
                         </div>
@@ -73,13 +73,13 @@ const AdminView: React.FC = () => {
                         <p className="text-slate-500">Perform critical system operations and data management tasks.</p>
                     </div>
 
-                    <div className="bg-white rounded-3xl border border-slate-100 shadow-soft overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                         <div className="p-8">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                                 <div className="flex-grow">
                                     <h4 className="text-lg font-bold text-slate-900 font-display tracking-tight mb-2">Clear All Data</h4>
                                     <p className="text-sm text-slate-500 leading-relaxed">
-                                        Permanently delete all candidates, requisitions, and interview logs. 
+                                        Permanently delete all candidates, requisitions, and interview logs.
                                         <span className="block mt-2 text-rose-600 font-bold text-xs uppercase tracking-wider">This action cannot be undone.</span>
                                     </p>
                                 </div>

@@ -84,8 +84,8 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
     handleCancel(); // Reset form after saving
   };
 
-  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-sm transition-all";
+  const labelClass = "block text-sm font-medium text-slate-700";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -93,14 +93,14 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
         <Card title="Scorecard Templates">
           <ul className="space-y-2 max-h-[60vh] overflow-y-auto">
             {templates.map(template => (
-              <li key={template.id} className="p-3 border rounded-md bg-white hover:bg-gray-50 flex justify-between items-center">
+              <li key={template.id} className="p-3 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 flex justify-between items-center transition-colors">
                 <div>
-                  <p className="font-medium text-indigo-700">{template.name}</p>
-                  <p className="text-xs text-gray-500">{template.competencies.length} competencies</p>
+                  <p className="font-medium text-blue-600">{template.name}</p>
+                  <p className="text-xs text-slate-400">{template.competencies.length} competencies</p>
                 </div>
                 <button
                   onClick={() => handleStartEditing(template)}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
                   aria-label={`Edit ${template.name}`}
                 >
                   <PencilIcon className="w-4 h-4" />
@@ -124,13 +124,13 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
             </div>
 
             <div>
-              <h3 className="text-md font-medium text-gray-800 mb-2">Competencies</h3>
+              <h3 className="text-md font-medium text-slate-700 mb-2">Competencies</h3>
               <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-2">
                 {formData.competencies.map((comp, index) => (
-                  <div key={index} className="p-3 border rounded-md bg-gray-50 relative">
+                  <div key={index} className="p-3 border border-slate-200 rounded-xl bg-slate-50 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-medium text-gray-600">Competency Name <span className="text-red-500">*</span></label>
+                        <label className="text-xs font-medium text-slate-600">Competency Name <span className="text-rose-500">*</span></label>
                         <input
                           type="text"
                           value={comp.name}
@@ -140,7 +140,7 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-gray-600">Description / What to look for</label>
+                        <label className="text-xs font-medium text-slate-600">Description / What to look for</label>
                         <input
                           type="text"
                           value={comp.description}
@@ -169,11 +169,11 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
               </button>
             </div>
 
-            <div className="pt-5 border-t border-gray-200 flex justify-end space-x-3">
-              <button type="button" onClick={handleCancel} className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <div className="pt-5 border-t border-slate-200 flex justify-end space-x-3">
+              <button type="button" onClick={handleCancel} className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-colors">
                 Cancel
               </button>
-              <button type="submit" className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+              <button type="submit" className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
                 {editingTemplate ? 'Update Template' : 'Save Template'}
               </button>
             </div>

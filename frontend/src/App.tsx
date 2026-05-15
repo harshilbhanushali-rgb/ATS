@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const getCurrentUserId = useCallback(() => loggedInUser?.id || 'system', [loggedInUser]);
   const getCurrentUserName = useCallback(() => loggedInUser?.name || 'System', [loggedInUser]);
 
-  const { requisitions, isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal, saveRequisition, refetchWithFilters, archiveRequisition } =
+  const { requisitions, isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal, saveRequisition, refetchWithFilters, archiveRequisition, reactivateRequisition } =
     useRequisitions({ getCurrentUserId, loggedInUserId: loggedInUser?.id });
 
   const {
@@ -174,6 +174,7 @@ const App: React.FC = () => {
             findAiCandidateMatches, assignCandidateFromAIPool,
             saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
             archiveRequisition,
+            reactivateRequisition,
             clearData: handleClearData,
           }}>
             <ModalStateContext.Provider value={{

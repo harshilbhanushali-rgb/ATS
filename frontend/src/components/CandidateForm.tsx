@@ -133,8 +133,8 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
     onSubmit(finalCandidate, defaultTalentPoolId);
   };
 
-  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-sm disabled:bg-slate-50 disabled:opacity-60 transition-all";
+  const labelClass = "block text-sm font-medium text-slate-700";
   const requiredSpan = <span className="text-red-500">*</span>;
   const isNewForPool = defaultTalentPoolId && !initialData;
 
@@ -183,7 +183,7 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
             <option value="">{isNewForPool ? 'Talent Pool Only (No Requisition)' : 'Select Requisition'}</option>
             {requisitions.map(req => <option key={req.id} value={req.id}>{req.role} (ID: {req.id})</option>)}
           </select>
-           {defaultTalentPoolId && <p className="text-xs text-gray-500 mt-1">This candidate will be added to the selected Talent Pool.</p>}
+           {defaultTalentPoolId && <p className="text-xs text-slate-400 mt-1">This candidate will be added to the selected Talent Pool.</p>}
         </div>
         <div className="md:col-span-2">
           <label htmlFor="resumeUrl" className={labelClass}>Resume URL (Optional)</label>
@@ -227,14 +227,14 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
         </div>
       </div>
 
-      <div className="pt-5 border-t border-gray-200 mt-8">
+      <div className="pt-5 border-t border-slate-200 mt-8">
         <div className="flex justify-end space-x-3">
           <button type="button" onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-colors">
             Cancel
           </button>
           <button type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
             {initialData ? 'Update Candidate' : 'Add Candidate'}
           </button>
         </div>

@@ -1,13 +1,18 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import Modal from './Modal';
 import { Requisition, Priority, RequisitionStatus, FunctionArea, Candidate, Interview, CandidateStage } from '../types';
 import Card from './Card';
+import AnimatedCounter from './ui/AnimatedCounter';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector, TooltipProps } from 'recharts';
 import { getDashboardInsights } from '../services/aiApi';
 import { Sparkles as SparklesIcon } from 'lucide-react';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { useAppData } from '../contexts/AppDataContext';
+
+const staggerContainer = { hidden: {}, visible: { transition: { staggerChildren: 0.09 } } };
+const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } } };
 
 const COLORS_STATUS = ['#6366f1', '#a855f7', '#10b981', '#94a3b8', '#ef4444', '#f59e0b']; // Indigo, Purple, Green, Slate, Red, Amber
 const COLORS_PRIORITY = ['#f43f5e', '#fbbf24']; // Rose, Amber
@@ -40,7 +45,7 @@ const ActiveShape = <T extends { cx?: number, cy?: number, midAngle?: number, in
 
   return (
     <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill || '#333'} className="font-semibold text-base sm:text-lg">
+      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill || '#1e293b'} className="font-semibold text-base sm:text-lg">
         {payload.name}
       </text>
       <Sector
@@ -63,9 +68,9 @@ const ActiveShape = <T extends { cx?: number, cy?: number, midAngle?: number, in
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" className="text-xs sm:text-sm">{`${value} ${payload.unit || 'Items'}`}</text>
-      { percent > 0 && 
-        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={16} textAnchor={textAnchor} fill="#999" className="text-xs">
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#334155" className="text-xs sm:text-sm">{`${value} ${payload.unit || 'Items'}`}</text>
+      { percent > 0 &&
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={16} textAnchor={textAnchor} fill="#64748b" className="text-xs">
           {`(Rate ${(percent * 100).toFixed(1)}%)`}
         </text>
       }
@@ -76,8 +81,8 @@ const ActiveShape = <T extends { cx?: number, cy?: number, midAngle?: number, in
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 shadow-lg rounded-md border border-gray-200 text-sm">
-        <p className="font-semibold text-gray-800">{`${label}`}</p>
+      <div className="bg-white p-3 shadow-lg rounded-xl border border-slate-200 text-sm">
+        <p className="font-semibold text-slate-800 mb-1">{`${label}`}</p>
         {payload.map((pld, index) => (
           <p key={index} style={{ color: pld.color }}>
             {`${pld.name}: ${pld.value?.toLocaleString()}`}
@@ -287,36 +292,43 @@ const Dashboard: React.FC = () => {
   }, [requisitions]);
 
 
-  const KpiItem: React.FC<{label: string; value: string | number; currency?: string; subValue?: string; className?: string}> = 
-    ({label, value, currency, subValue, className = ''}) => (
-    <div className={`bg-white p-6 shadow-soft rounded-2xl border border-slate-100/80 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${className}`}>
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{label}</h4>
+  const KpiItem: React.FC<{label: string; value: string | number; currency?: string; subValue?: string; className?: string}> =
+    ({label, value, currency, subValue, className = ''}) => {
+    const numericValue = typeof value === 'number' ? value : parseFloat(String(value));
+    const isNumeric = !isNaN(numericValue) && typeof value !== 'string';
+    return (
+    <motion.div variants={fadeUp} className={`bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-shadow duration-300 hover:shadow-md hover:shadow-blue-100 ${className}`}>
+        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{label}</h4>
         <div className="flex items-baseline">
             <p className="text-3xl font-bold text-slate-900 font-display tracking-tight">
-                {value}
+                {isNumeric
+                  ? <AnimatedCounter value={numericValue} decimals={Number.isInteger(numericValue) ? 0 : 1} />
+                  : value}
             </p>
             {currency && <span className="text-sm font-semibold text-slate-400 ml-1.5">{currency}</span>}
         </div>
         {subValue && <p className="text-xs font-medium text-slate-400 mt-2 flex items-center">
-            <span className="w-1 h-1 rounded-full bg-indigo-400 mr-1.5"></span>
+            <span className="w-1 h-1 rounded-full bg-blue-500 mr-1.5"></span>
             {subValue}
         </p>}
-    </div>
-  );
+    </motion.div>
+    );
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <button
+        <motion.button
           onClick={handleGenerateReport}
           disabled={isGeneratingReport}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          whileTap={{ scale: 0.97 }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-blue-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isGeneratingReport
             ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
             : <SparklesIcon className="w-4 h-4" />}
           {isGeneratingReport ? 'Generating...' : 'Generate AI Report'}
-        </button>
+        </motion.button>
       </div>
 
       <Modal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} title="AI Hiring Report" size="xl">
@@ -330,8 +342,8 @@ const Dashboard: React.FC = () => {
             {reportInsights.map((insight, i) => {
               const [label, ...rest] = insight.split(':');
               return (
-                <li key={i} className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
-                  <span className="font-bold text-indigo-700">{label}:</span>
+                <li key={i} className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <span className="font-bold text-blue-700">{label}:</span>
                   <span className="text-slate-700"> {rest.join(':')}</span>
                 </li>
               );
@@ -342,7 +354,7 @@ const Dashboard: React.FC = () => {
 
       {/* KPIs Section */}
       <Card title="Key Performance Indicators" bodyClassName="p-3 md:p-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+        <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4" variants={staggerContainer} initial="hidden" animate="visible">
             <KpiItem label="Avg. Time to Hire" value={kpiStats.avgTimeToHire} subValue="Days (App to Accept)" />
             <KpiItem label="Avg. Time to Fill" value={kpiStats.avgTimeToFill} subValue="Days (Req to Accept)" />
             <KpiItem label="Offer Acceptance Rate" value={kpiStats.offerAcceptanceRatio} />
@@ -350,7 +362,7 @@ const Dashboard: React.FC = () => {
             {Object.entries(kpiStats.avgCostPerHire).length > 0 ? Object.entries(kpiStats.avgCostPerHire).map(([currency, cost]) => (
                 <KpiItem key={currency} label={`Avg. Salary (${currency})`} value={cost} />
             )) : <KpiItem label="Avg. Salary" value="N/A" subValue="No offers yet" />}
-        </div>
+        </motion.div>
       </Card>
 
       {/* Pipeline Funnel Section */}
@@ -358,9 +370,9 @@ const Dashboard: React.FC = () => {
         <Card title="Hiring Pipeline Funnel" className="lg:col-span-2">
             <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={pipelineFunnelData.chartData} layout="horizontal" margin={{ top: 5, right: 20, left: 0, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                    <XAxis dataKey="name" angle={-20} textAnchor="end" height={50} interval={0} tick={{fontSize: 11}}/>
-                    <YAxis allowDecimals={false} tick={{fontSize: 11}}/>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" height={50} interval={0} tick={{fontSize: 11, fill: '#64748b'}} axisLine={{stroke: '#e2e8f0'}} tickLine={false}/>
+                    <YAxis allowDecimals={false} tick={{fontSize: 11, fill: '#64748b'}}/>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
                     <Bar dataKey="value" name="Candidates" radius={[4, 4, 0, 0]}>
@@ -374,10 +386,10 @@ const Dashboard: React.FC = () => {
         <Card title="Conversion Rates" bodyClassName="p-3 md:p-4">
             <ul className="space-y-2.5">
                 {pipelineFunnelData.conversionRates.map(rate => (
-                    <li key={`${rate.from}-${rate.to}`} className="p-2.5 bg-slate-50 rounded-md border border-slate-200">
+                    <li key={`${rate.from}-${rate.to}`} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                         <div className="flex justify-between items-center">
-                            <span className="text-xs font-medium text-slate-600 w-2/3 truncate">{rate.from} <span className="text-indigo-500 mx-1">&rarr;</span> {rate.to}</span>
-                            <span className="text-sm font-semibold text-indigo-600">{rate.rate}</span>
+                            <span className="text-xs font-medium text-slate-500 w-2/3 truncate">{rate.from} <span className="text-blue-500 mx-1">&rarr;</span> {rate.to}</span>
+                            <span className="text-sm font-semibold text-blue-600">{rate.rate}</span>
                         </div>
                     </li>
                 ))}
@@ -441,12 +453,12 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <KpiItem label="Open Reqs" value={summaryStats.open} className="bg-blue-50 border-blue-200" />
-        <KpiItem label="P0 Critical Reqs" value={summaryStats.p0} className="bg-red-50 border-red-200" />
-        <KpiItem label="P1 Critical Reqs" value={summaryStats.p1} className="bg-yellow-50 border-yellow-200" />
-        <KpiItem label="Total Reqs" value={summaryStats.total} className="bg-slate-100 border-slate-300" />
-      </div>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6" variants={staggerContainer} initial="hidden" animate="visible">
+        <KpiItem label="Open Reqs" value={summaryStats.open} className="border-blue-200 bg-blue-50" />
+        <KpiItem label="P0 Critical Reqs" value={summaryStats.p0} className="border-rose-200 bg-rose-50" />
+        <KpiItem label="P1 Critical Reqs" value={summaryStats.p1} className="border-amber-200 bg-amber-50" />
+        <KpiItem label="Total Reqs" value={summaryStats.total} className="border-slate-200 bg-white" />
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Requisitions by Priority">
@@ -468,9 +480,9 @@ const Dashboard: React.FC = () => {
         <Card title="Requisitions by Function">
             <ResponsiveContainer width="100%" height={450}>
                 <BarChart layout="vertical" data={requisitionsByFunction} margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0"/>
                 <XAxis type="number" tick={{fontSize: 11}} />
-                <YAxis dataKey="name" type="category" width={95} tick={{fontSize: 11, width: 90 }} interval={0} />
+                <YAxis dataKey="name" type="category" width={95} tick={{fontSize: 11, width: 90, fill: '#64748b' }} interval={0} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend iconSize={10} wrapperStyle={{fontSize: "12px"}}/>
                 <Bar dataKey="value" name="Count" barSize={18} radius={[0, 4, 4, 0]}>

@@ -61,8 +61,8 @@ const TalentPoolForm: React.FC<TalentPoolFormProps> = ({ onSubmit, initialData, 
     onSubmit(finalPool);
   };
 
-  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-sm placeholder:text-slate-400";
+  const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest";
   const requiredSpan = <span className="text-red-500">*</span>;
 
   return (
@@ -78,17 +78,17 @@ const TalentPoolForm: React.FC<TalentPoolFormProps> = ({ onSubmit, initialData, 
       <div>
         <label htmlFor="tagsString" className={labelClass}>Tags (comma-separated)</label>
         <input type="text" name="tagsString" id="tagsString" value={formData.tagsString} onChange={handleChange} className={inputClass} placeholder="e.g., Engineering, Frontend, React, Senior" />
-        <p className="text-xs text-gray-500 mt-1">Tags help in organizing and searching pools. Separate with commas.</p>
+        <p className="text-xs text-slate-500 mt-1">Tags help in organizing and searching pools. Separate with commas.</p>
       </div>
 
-      <div className="pt-5 border-t border-gray-200 mt-8">
+      <div className="pt-5 border-t border-slate-100 mt-8">
         <div className="flex justify-end space-x-3">
           <button type="button" onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors">
             Cancel
           </button>
           <button type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors">
+            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
             {initialData ? 'Update Pool' : 'Create Pool'}
           </button>
         </div>

@@ -46,14 +46,14 @@ const OfferHubView: React.FC = () => {
     setOfferRequisitionFilter('');
   };
   
-  const inputClass = "mt-1 block w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-xs text-xs";
-  const labelClass = "block text-xs font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-xs text-xs placeholder:text-slate-400";
+  const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 
   return (
     <div className="space-y-6">
-      <div className="pb-5 border-b border-gray-200">
-        <h1 className="text-2xl font-semibold leading-6 text-gray-900 sm:truncate">Manage Candidate Offers</h1>
-        <p className="mt-2 text-sm text-gray-500">Review, update, or record decisions for candidates who have received offers.</p>
+      <div className="pb-5 border-b border-slate-200">
+        <h1 className="text-2xl font-bold leading-6 text-slate-900 font-display tracking-tight sm:truncate">Manage Candidate Offers</h1>
+        <p className="mt-2 text-sm text-slate-500">Review, update, or record decisions for candidates who have received offers.</p>
       </div>
 
       <Card title="Filters" className="mb-6">
@@ -80,7 +80,7 @@ const OfferHubView: React.FC = () => {
           </div>
           <button
             onClick={handleClearOfferFilters}
-            className="w-full sm:w-auto flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500 h-[2.25rem] mt-1 sm:mt-0"
+            className="w-full sm:w-auto flex items-center justify-center px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors h-[2.25rem] mt-1 sm:mt-0"
             title="Clear offer filters"
           >
             <BackspaceIcon className="w-3.5 h-3.5 mr-1" /> Clear
@@ -91,13 +91,13 @@ const OfferHubView: React.FC = () => {
       {filteredCandidatesWithOffers.length === 0 ? (
         <Card className="shadow-xl">
           <div className="p-8 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <svg className="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5.586-1.414a1 1 0 00-1.414-1.414l-1.071 1.071-1.071-1.071a1 1 0 10-1.414 1.414l1.071 1.071-1.071 1.071a1 1 0 101.414 1.414l1.071-1.071 1.071 1.071a1 1 0 101.414-1.414L17.414 15l1.172-1.172a1 1 0 000-1.414l-1.172-1.172zM12 21a9 9 0 100-18 9 9 0 000 18z" />
             </svg>
-            <h3 className="mt-2 text-lg font-medium text-gray-900">
+            <h3 className="mt-2 text-lg font-medium text-slate-800">
                 {candidatesWithOffersInitially.length === 0 ? "No Active Offers" : "No Offers Match Your Filters"}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-slate-500">
                 {candidatesWithOffersInitially.length === 0 
                     ? "There are currently no candidates with offers extended. Prepare offers from the 'HM Hub'."
                     : "Try adjusting your filters or clear them to see all active offers."

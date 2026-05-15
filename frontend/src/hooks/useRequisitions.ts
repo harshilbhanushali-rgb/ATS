@@ -96,6 +96,13 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
     );
   }, []);
 
+  const reactivateRequisition = useCallback(async (id: string) => {
+    await crudApi.patchRequisition(id, { reqStatus: RequisitionStatus.OPEN });
+    setRequisitions((prev) =>
+      prev.map((r) => r.id === id ? { ...r, reqStatus: RequisitionStatus.OPEN } : r)
+    );
+  }, []);
+
   return {
     requisitions,
     setRequisitions,
@@ -108,5 +115,6 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
     deleteRequisition,
     refetchWithFilters,
     archiveRequisition,
+    reactivateRequisition,
   };
 };

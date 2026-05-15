@@ -60,14 +60,14 @@ const UserManagementView: React.FC<UserManagementViewProps> = ({ users, setUsers
     }
   };
 
-  const inputClass = "mt-1 block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-inner-soft placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-sm font-medium";
+  const inputClass = "mt-1 block w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all text-sm font-medium";
   const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1";
 
   return (
     <div className="space-y-8">
-      <Card className="!p-8 bg-slate-50/50 border-dashed border-2 border-slate-200 shadow-none">
+      <Card className="!p-8 border-dashed border-2 border-blue-200">
         <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
+            <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-sm shadow-blue-200">
                 <PlusIcon className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 font-display tracking-tight">Add New User</h3>
@@ -93,12 +93,12 @@ const UserManagementView: React.FC<UserManagementViewProps> = ({ users, setUsers
             <label className={labelClass}>Password</label>
             <input type="password" name="password" value={newUser.password} onChange={handleInputChange} className={inputClass} placeholder="Set password" required />
           </div>
-          <button type="submit" disabled={isSubmitting} className="h-[46px] flex items-center justify-center bg-slate-900 text-white font-bold py-2 px-6 rounded-xl shadow-lg shadow-slate-900/10 hover:bg-indigo-600 hover:shadow-indigo-600/20 transition-all duration-300 text-sm disabled:opacity-60">
+          <button type="submit" disabled={isSubmitting} className="h-[46px] flex items-center justify-center bg-blue-600 text-white font-bold py-2 px-6 rounded-xl shadow-sm shadow-blue-200 hover:bg-blue-700 transition-colors duration-200 text-sm disabled:opacity-60">
             {isSubmitting ? 'Saving...' : 'Add User'}
           </button>
         </form>
         {error && (
-            <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2 text-rose-600 text-xs font-bold">
+            <div className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                 </svg>
@@ -107,49 +107,49 @@ const UserManagementView: React.FC<UserManagementViewProps> = ({ users, setUsers
         )}
       </Card>
 
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-soft overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-display">Current Users</h3>
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider font-display">Current Users</h3>
             <span className="px-2.5 py-1 bg-slate-200 text-slate-600 text-[10px] font-bold rounded-full">{users.length} Total</span>
         </div>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="min-w-full divide-y divide-slate-100">
             <thead>
-              <tr className="bg-slate-50/30">
-                <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-8 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+              <tr className="bg-slate-50">
+                <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</th>
+                <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {users.map(user => (
-                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-5 whitespace-nowrap">
+                <tr key={user.id} className="hover:bg-blue-50/40 transition-colors group">
+                  <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xs">
+                          <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center text-blue-700 font-bold text-xs">
                               {user.name.charAt(0)}
                           </div>
-                          <span className="text-sm font-bold text-slate-900">{user.name}</span>
+                          <span className="text-sm font-bold text-slate-800">{user.name}</span>
                       </div>
                   </td>
-                  <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-500">{user.email}</td>
-                  <td className="px-8 py-5 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
-                          user.role === UserRole.ADMIN ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                          user.role === UserRole.RECRUITER ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                          'bg-amber-50 text-amber-600 border-amber-100'
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
+                          user.role === UserRole.ADMIN ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                          user.role === UserRole.RECRUITER ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          'bg-amber-50 text-amber-700 border-amber-200'
                       }`}>
                           {user.role}
                       </span>
                   </td>
-                  <td className="px-8 py-5 whitespace-nowrap text-right">
-                    <button 
-                        onClick={() => handleDeleteUser(user.id)} 
-                        className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200" 
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                         aria-label={`Delete ${user.name}`}
                     >
-                      <TrashIcon className="w-5 h-5" />
+                      <TrashIcon className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>

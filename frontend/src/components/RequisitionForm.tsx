@@ -154,6 +154,8 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
   }, [formData]);
 
 
+  const CLOSED_STATUSES: RequisitionStatus[] = [RequisitionStatus.CANCELLED, RequisitionStatus.JOINED];
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const cost: Cost = {
@@ -166,12 +168,17 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
         return;
     }
 
+    // Closed statuses auto-archive the requisition
+    const resolvedStatus = CLOSED_STATUSES.includes(formData.reqStatus as RequisitionStatus)
+      ? RequisitionStatus.ARCHIVED
+      : formData.reqStatus;
+
     const requisitionToSubmit: Omit<Requisition, 'id' | 'reqApprovalDate'> = {
       priority: formData.priority,
       role: formData.role,
       hireType: formData.hireType,
       cost: cost,
-      reqStatus: formData.reqStatus,
+      reqStatus: resolvedStatus,
       location: formData.location,
       function: formData.function,
       newOrBackfill: formData.newOrBackfill,
@@ -206,8 +213,8 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
     onSubmit(finalRequisition);
   };
 
-  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-50";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full px-3 py-2 bg-white border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 sm:text-sm disabled:opacity-50 placeholder:text-slate-400";
+  const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest";
   const requiredSpan = <span className="text-red-500">*</span>;
 
   const isArchived = initialData?.reqStatus === RequisitionStatus.ARCHIVED;
@@ -215,7 +222,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {isArchived && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm font-medium">
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-4 py-3 text-sm font-medium">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5 shrink-0">
             <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
           </svg>
@@ -246,14 +253,14 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
                 type="button" 
                 onClick={handleSuggestPriority} 
                 disabled={isAiLoading || !formData.role || !formData.function || !canUseAIPrioritySuggestion}
-                className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed h-[2.375rem] mt-1"
+                className="w-full flex items-center justify-center px-4 py-2 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed h-[2.375rem] mt-1 transition-colors"
                 title={!canUseAIPrioritySuggestion ? "This feature is available for Admin or Lead Recruiter roles." : "Suggest priority based on role and function using AI"}
             >
                 <SparklesIcon className="w-5 h-5 mr-2" />
                 {isAiLoading && aiSuggestions.some(s=>s.field==='priority') ? 'Suggesting...' : 'AI Suggest Priority'}
             </button>
             {!canUseAIPrioritySuggestion && (
-                 <p className="text-xs text-yellow-600 mt-1">Admin/Lead Recruiter role required for AI Priority Suggestion.</p>
+                 <p className="text-xs text-amber-600 mt-1">Admin/Lead Recruiter role required for AI Priority Suggestion.</p>
             )}
         </div>
       
@@ -280,8 +287,16 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
         <div>
           <label htmlFor="reqStatus" className={labelClass}>Requisition Status {requiredSpan}</label>
           <select name="reqStatus" id="reqStatus" value={formData.reqStatus} onChange={handleChange} className={inputClass} required>
-            {Object.values(RequisitionStatus).map(status => <option key={status} value={status}>{status}</option>)}
+            {Object.values(RequisitionStatus).filter(s => s !== RequisitionStatus.ARCHIVED).map(status => <option key={status} value={status}>{status}</option>)}
           </select>
+          {CLOSED_STATUSES.includes(formData.reqStatus as RequisitionStatus) && (
+            <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-3.5 h-3.5 shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              Saving with this status will automatically archive the requisition.
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="location" className={labelClass}>Location {requiredSpan}</label>
@@ -340,7 +355,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
                 type="button"
                 onClick={() => jdFileInputRef.current?.click()}
                 disabled={isExtractingJd}
-                className="flex items-center text-xs text-indigo-600 hover:text-indigo-800 font-medium py-1 px-2 rounded-md hover:bg-indigo-50 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                className="flex items-center text-xs text-blue-600 hover:text-blue-700 font-medium py-1 px-2 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-wait"
             >
                 {isExtractingJd ? (
                     <>
@@ -369,38 +384,38 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
       
       <div className="mt-6">
             <button type="button" onClick={handleFullAISuggestion} disabled={isAiLoading || !formData.role}
-                className="w-full flex items-center justify-center px-4 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                 <SparklesIcon className="w-5 h-5 mr-2" />
                 {isAiLoading && aiSuggestions.some(s=>s.field==='general') ? 'Getting AI Insights...' : 'Get AI Insights for this Requisition'}
             </button>
       </div>
 
       {aiSuggestions.length > 0 && (
-        <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-md shadow">
-          <h4 className="text-md font-semibold text-indigo-800 mb-3 flex items-center">
-            <SparklesIcon className="w-5 h-5 mr-2 text-indigo-600" />
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <h4 className="text-md font-semibold text-blue-700 mb-3 flex items-center">
+            <SparklesIcon className="w-5 h-5 mr-2 text-blue-500" />
             AI Suggestions
           </h4>
           <ul className="space-y-2">
             {aiSuggestions.map((s, i) => (
-              <li key={i} className="text-sm text-indigo-700 bg-indigo-100 p-2 rounded">
+              <li key={i} className="text-sm text-slate-700 bg-white border border-slate-200 p-2 rounded-lg">
                 <strong className="capitalize">{s.field === 'general' ? 'General Note' : s.field}:</strong> {s.suggestion}
-                {s.reasoning && <span className="text-xs block text-indigo-500 italic mt-1">- {s.reasoning}</span>}
+                {s.reasoning && <span className="text-xs block text-slate-500 italic mt-1">- {s.reasoning}</span>}
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div className="pt-5 border-t border-gray-200 mt-8">
+      <div className="pt-5 border-t border-slate-100 mt-8">
         <div className="flex justify-end space-x-3">
           <button type="button" onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors">
             Cancel
           </button>
           <button type="submit"
             disabled={isArchived}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
             {initialData ? 'Update Requisition' : 'Create Requisition'}
           </button>
         </div>

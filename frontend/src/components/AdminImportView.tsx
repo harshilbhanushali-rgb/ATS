@@ -72,7 +72,7 @@ const AdminImportView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="!p-8 bg-slate-50/50 border-dashed border-2 border-slate-200 shadow-none">
+      <Card className="!p-8 border-dashed border-2 border-blue-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
             <svg
@@ -97,9 +97,9 @@ const AdminImportView: React.FC = () => {
             <p className="text-sm text-slate-500">
               Admin-only. Use dry-run to validate before writing.
             </p>
-            <div className="mt-4 text-sm text-slate-600 space-y-2">
+            <div className="mt-4 text-sm text-slate-500 space-y-2">
               <p>Valid columns/fields:</p>
-              <ul className="list-disc list-inside ml-4 text-slate-600">
+              <ul className="list-disc list-inside ml-4 text-slate-500">
                 <li><strong>name</strong></li>
                 <li><strong>email</strong></li>
                 <li><strong>role</strong> (optional, defaults to Recruiter)</li>
@@ -109,8 +109,8 @@ const AdminImportView: React.FC = () => {
           </div>
         </div>
 
-        <div className="mb-6 p-4 rounded-3xl bg-slate-50 border border-slate-200">
-          <h4 className="text-sm font-bold text-slate-900 mb-3">Example file formats</h4>
+        <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <h4 className="text-sm font-bold text-slate-700 mb-3">Example file formats</h4>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">CSV</p>
@@ -155,22 +155,12 @@ Bob Lee,bob@example.com,Recruiter,`}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <label className="flex items-center gap-2 text-sm text-slate-600">
-              <input
-                type="checkbox"
-                checked={dryRun}
-                onChange={(event) => setDryRun(event.target.checked)}
-                className="h-4 w-4 text-emerald-600 rounded"
-              />
+            <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+              <input type="checkbox" checked={dryRun} onChange={(event) => setDryRun(event.target.checked)} className="h-4 w-4 rounded accent-blue-600" />
               Dry run (no DB writes)
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-600">
-              <input
-                type="checkbox"
-                checked={allowUpdate}
-                onChange={(event) => setAllowUpdate(event.target.checked)}
-                className="h-4 w-4 text-emerald-600 rounded"
-              />
+            <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+              <input type="checkbox" checked={allowUpdate} onChange={(event) => setAllowUpdate(event.target.checked)} className="h-4 w-4 rounded accent-blue-600" />
               Allow updates to existing users
             </label>
           </div>
@@ -185,7 +175,7 @@ Bob Lee,bob@example.com,Recruiter,`}
         </form>
 
         {error && (
-          <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-bold">
+          <div className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold">
             {error}
           </div>
         )}
@@ -193,17 +183,17 @@ Bob Lee,bob@example.com,Recruiter,`}
 
       {result && (
         <Card className="!p-6">
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
               Created: {result.created}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
               Updated: {result.updated}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
               Skipped: {result.skipped}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-600">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
               Errors: {result.errors.length}
             </span>
           </div>
