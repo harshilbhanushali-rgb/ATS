@@ -1,10 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FunctionArea, Priority, Requisition, RequisitionStatus } from '../types';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionArea, Priority, Requisition, RequisitionStatus, UserRole } from '../types';
 import Card from './Card';
 import { useAppData } from '../contexts/AppDataContext';
 import { useModalState } from '../contexts/ModalStateContext';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const RequisitionListItem: React.FC<{ requisition: Requisition; onEdit: (requisition: Requisition) => void; }> = ({ requisition, onEdit }) => {
+  const { loggedInUser } = useAuthContext();
+  const { archiveRequisition } = useAppData();
+  const isArchived = requisition.reqStatus === RequisitionStatus.ARCHIVED;
+  const canArchive = !isArchived && (loggedInUser.role === UserRole.ADMIN || loggedInUser.role === UserRole.LEAD_RECRUITER);
+
+  const handleArchive = async () => {
+    if (!window.confirm(`Archive "${requisition.role}"? No further changes will be allowed.`)) return;
+    await archiveRequisition(requisition.id);
+  };
+
   const getPriorityChipClass = (priority: Priority) => {
     switch (priority) {
       case Priority.P0: return 'bg-rose-50 text-rose-600 border-rose-100';
@@ -20,6 +31,7 @@ const RequisitionListItem: React.FC<{ requisition: Requisition; onEdit: (requisi
       case RequisitionStatus.JOINED: return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case RequisitionStatus.HOLD: return 'bg-slate-100 text-slate-600 border-slate-200';
       case RequisitionStatus.CANCELLED: return 'bg-rose-50 text-rose-600 border-rose-100 opacity-80';
+      case RequisitionStatus.ARCHIVED: return 'bg-amber-50 text-amber-700 border-amber-200';
       default: return 'bg-slate-50 text-slate-600 border-slate-100';
     }
   };
@@ -77,13 +89,27 @@ const RequisitionListItem: React.FC<{ requisition: Requisition; onEdit: (requisi
             </span>
             <button
                 onClick={() => onEdit(requisition)}
-                className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-indigo-600/20"
+                disabled={isArchived}
+                className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-indigo-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-900"
             >
-                Edit Details
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-3.5 h-3.5 ml-2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                </svg>
+                {isArchived ? 'Archived' : 'Edit Details'}
+                {!isArchived && (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-3.5 h-3.5 ml-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                  </svg>
+                )}
             </button>
+            {canArchive && (
+                <button
+                    onClick={handleArchive}
+                    className="inline-flex items-center px-3 py-1.5 border border-amber-300 text-amber-700 text-xs font-semibold rounded-xl hover:bg-amber-50 transition-all duration-200"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-3.5 h-3.5 mr-1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    Archive
+                </button>
+            )}
         </div>
       </div>
     </Card>
@@ -99,6 +125,7 @@ const RequisitionList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [hmFilter, setHmFilter] = useState('');
   const [functionFilter, setFunctionFilter] = useState('');
+  const [isArchivedExpanded, setIsArchivedExpanded] = useState(false);
 
   // Capture hiring managers from the first non-empty load so the dropdown stays stable while filtered
   const [allHiringManagers, setAllHiringManagers] = useState<string[]>([]);
@@ -118,7 +145,7 @@ const RequisitionList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Propagate filter changes to parent for backend query
+  // Propagate filter changes to parent for backend query (never filter by Archived — that section is always separate)
   useEffect(() => {
     onFilterChange?.({
       search: debouncedSearch || undefined,
@@ -136,11 +163,24 @@ const RequisitionList: React.FC = () => {
     setFunctionFilter('');
   };
 
+  // Split into active and archived client-side
+  const activeRequisitions = useMemo(
+    () => requisitions.filter((r) => r.reqStatus !== RequisitionStatus.ARCHIVED),
+    [requisitions]
+  );
+  const archivedRequisitions = useMemo(
+    () => requisitions.filter((r) => r.reqStatus === RequisitionStatus.ARCHIVED),
+    [requisitions]
+  );
+
+  const activeStatuses = Object.values(RequisitionStatus).filter((s) => s !== RequisitionStatus.ARCHIVED);
+
   const inputClass = "mt-1 block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-inner-soft placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-sm font-medium";
   const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Filter bar */}
       <Card className="!p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 items-end">
           <div className="lg:col-span-2">
@@ -165,7 +205,7 @@ const RequisitionList: React.FC = () => {
             <label htmlFor="statusFilter" className={labelClass}>Status</label>
             <select id="statusFilter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={inputClass}>
               <option value="">All Statuses</option>
-              {Object.values(RequisitionStatus).map(status => (
+              {activeStatuses.map(status => (
                 <option key={status} value={status}>{status}</option>
               ))}
             </select>
@@ -202,19 +242,70 @@ const RequisitionList: React.FC = () => {
         </div>
       </Card>
 
-      {requisitions.length === 0 ? (
-        <Card>
-          <p className="text-center text-gray-500 py-12 text-lg">
-            {!debouncedSearch && !statusFilter && !hmFilter && !functionFilter
-              ? 'No requisitions found. Start by creating one!'
-              : 'No requisitions match your current filters.'}
-          </p>
-        </Card>
-      ) : (
-        requisitions.map(req => (
-          <RequisitionListItem key={req.id} requisition={req} onEdit={onEdit} />
-        ))
-      )}
+      {/* Active requisitions — scrollable container */}
+      <div className="flex flex-col">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+            Active Requisitions
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 text-[10px]">{activeRequisitions.length}</span>
+          </h2>
+        </div>
+        {activeRequisitions.length === 0 ? (
+          <Card>
+            <p className="text-center text-slate-400 py-12 text-sm font-medium">
+              {!debouncedSearch && !statusFilter && !hmFilter && !functionFilter
+                ? 'No requisitions found. Start by creating one!'
+                : 'No requisitions match your current filters.'}
+            </p>
+          </Card>
+        ) : (
+          <div className="overflow-y-auto max-h-[calc(100vh-22rem)] pr-1 custom-scrollbar space-y-4">
+            {activeRequisitions.map(req => (
+              <RequisitionListItem key={req.id} requisition={req} onEdit={onEdit} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Archived requisitions — collapsible section */}
+      <div className="border border-amber-200 rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setIsArchivedExpanded(prev => !prev)}
+          className="w-full flex items-center justify-between px-6 py-4 bg-amber-50 hover:bg-amber-100 transition-colors duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4 text-amber-600">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            <span className="text-sm font-bold text-amber-700 uppercase tracking-widest">Archived Requisitions</span>
+            <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-700 text-[10px] font-bold">{archivedRequisitions.length}</span>
+          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            className={`w-4 h-4 text-amber-600 transition-transform duration-200 ${isArchivedExpanded ? 'rotate-180' : ''}`}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+
+        {isArchivedExpanded && (
+          <div className="bg-white px-4 py-4">
+            {archivedRequisitions.length === 0 ? (
+              <p className="text-center text-slate-400 py-8 text-sm font-medium">No archived requisitions.</p>
+            ) : (
+              <div className="overflow-y-auto max-h-[50vh] pr-1 custom-scrollbar space-y-4">
+                {archivedRequisitions.map(req => (
+                  <RequisitionListItem key={req.id} requisition={req} onEdit={onEdit} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

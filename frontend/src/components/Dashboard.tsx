@@ -1,5 +1,6 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
+import Modal from './Modal';
 import { Requisition, Priority, RequisitionStatus, FunctionArea, Candidate, Interview, CandidateStage } from '../types';
 import Card from './Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector, TooltipProps } from 'recharts';
@@ -91,28 +92,27 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 const Dashboard: React.FC = () => {
   const { candidates: allCandidates, requisitions, interviews: allInterviews } = useAppData();
-  const [aiInsights, setAiInsights] = useState<string[]>([]);
-  const [isLoadingInsights, setIsLoadingInsights] = useState(true);
   const [activeIndexStatusPie, setActiveIndexStatusPie] = useState(0);
   const [activeIndexSourcePie, setActiveIndexSourcePie] = useState(0);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportInsights, setReportInsights] = useState<string[]>([]);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const onPieEnterStatus = <T,>(_: T, index: number) => setActiveIndexStatusPie(index);
   const onPieEnterSource = <T,>(_: T, index: number) => setActiveIndexSourcePie(index);
 
-  useEffect(() => {
-    const fetchInsights = async () => {
-      setIsLoadingInsights(true);
-      try {
-        const insights = await getDashboardInsights();
-        setAiInsights(insights);
-      } catch (error) {
-        console.error("Failed to fetch AI insights:", error);
-        setAiInsights(["Failed to load AI insights at this time."]);
-      } finally {
-        setIsLoadingInsights(false);
-      }
-    };
-    fetchInsights();
+  const handleGenerateReport = useCallback(async () => {
+    setIsGeneratingReport(true);
+    setIsReportModalOpen(true);
+    try {
+      const insights = await getDashboardInsights();
+      setReportInsights(insights);
+    } catch (error) {
+      console.error("Failed to fetch AI report:", error);
+      setReportInsights(["Failed to generate report at this time. Please try again."]);
+    } finally {
+      setIsGeneratingReport(false);
+    }
   }, []);
 
   const kpiStats = useMemo(() => {
@@ -306,6 +306,40 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          onClick={handleGenerateReport}
+          disabled={isGeneratingReport}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isGeneratingReport
+            ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            : <SparklesIcon className="w-4 h-4" />}
+          {isGeneratingReport ? 'Generating...' : 'Generate AI Report'}
+        </button>
+      </div>
+
+      <Modal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} title="AI Hiring Report" size="xl">
+        {isGeneratingReport ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600" />
+            <p className="text-slate-500 text-sm">Analysing your hiring data...</p>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {reportInsights.map((insight, i) => {
+              const [label, ...rest] = insight.split(':');
+              return (
+                <li key={i} className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
+                  <span className="font-bold text-indigo-700">{label}:</span>
+                  <span className="text-slate-700"> {rest.join(':')}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Modal>
+
       {/* KPIs Section */}
       <Card title="Key Performance Indicators" bodyClassName="p-3 md:p-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
@@ -414,25 +448,6 @@ const Dashboard: React.FC = () => {
         <KpiItem label="Total Reqs" value={summaryStats.total} className="bg-slate-100 border-slate-300" />
       </div>
 
-      <Card title="AI-Powered Insights" className="bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50" titleRightElement={
-          isLoadingInsights ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div> : <SparklesIcon className="w-6 h-6 text-purple-600" />
-      }>
-        {isLoadingInsights ? (
-            <div className="flex items-center justify-center h-24">
-                <p className="text-slate-600 italic">Loading AI insights...</p>
-            </div>
-        ) : (
-            <ul className="space-y-2 text-sm md:text-base">
-            {aiInsights.map((insight) => (
-                <li key={insight} className="text-slate-700 p-2.5 bg-white/60 rounded-md shadow-sm border border-indigo-100">
-                    <span className="font-medium text-indigo-700">{insight.split(':')[0]}:</span>
-                    {insight.split(':').slice(1).join(':')}
-                </li>
-            ))}
-            </ul>
-        )}
-      </Card>
-      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Requisitions by Priority">
           <ResponsiveContainer width="100%" height={350}>

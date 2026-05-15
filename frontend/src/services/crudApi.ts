@@ -141,6 +141,9 @@ export const updateRequisition = (r: Requisition): Promise<Requisition> =>
 export const deleteRequisition = (id: string): Promise<void> =>
   deleteReq(`/api/v1/requisitions/${id}`, 'Failed to delete requisition.');
 
+export const patchRequisition = (id: string, patch: { reqStatus: string }): Promise<Requisition> =>
+  patchJson<ApiRequisition>(`/api/v1/requisitions/${id}`, { req_status: patch.reqStatus }, 'Failed to archive requisition.').then(fromReq);
+
 // ============================================================
 // Candidate
 // ============================================================

@@ -1,21 +1,26 @@
 import React, { useState, useMemo } from 'react';
-import { Candidate, CandidateStage, RequisitionStatus } from '../types';
+import { Candidate, CandidateStage, Requisition, RequisitionStatus } from '../types';
 import Card from './Card';
-import { Plus as PlusIcon, UserPlus as UserPlusIcon, Trash2 as TrashIcon, Pencil as PencilIcon, Database as DatabaseIcon, Send as PaperAirplaneIcon, MessageCircle as ChatBubbleLeftEllipsisIcon, UserSearch as UserMagnifyingGlassIcon, Eye as EyeIcon } from 'lucide-react';
+import { Plus as PlusIcon, UserPlus as UserPlusIcon, Trash2 as TrashIcon, Pencil as PencilIcon, Database as DatabaseIcon, Send as PaperAirplaneIcon, MessageCircle as ChatBubbleLeftEllipsisIcon, UserSearch as UserMagnifyingGlassIcon, Eye as EyeIcon, BarChart3 as BarChartIcon } from 'lucide-react';
 import AIRecommendationsDisplay from './AIRecommendationsDisplay';
 import PencilSparklesIcon from './icons/PencilSparklesIcon';
 import Modal from './Modal';
+import SourcerDashboardView from './SourcerDashboardView';
 import { useAppData } from '../contexts/AppDataContext';
 import { useModalState } from '../contexts/ModalStateContext';
 
 const SourcerHubView: React.FC = () => {
   const { requisitions, candidates: allCandidates, talentPools, aiMatchedCandidates, isLoadingAiMatches, currentRequisitionForAIMatches, findAiCandidateMatches: onFindAiCandidateMatches, assignCandidateFromAIPool: onAssignCandidateFromAIPool, removeCandidateFromPool: onRemoveCandidateFromPool, moveCandidateToRequisition: onMoveCandidateToRequisition } = useAppData();
   const { openCandidateModal: onOpenCandidateModal, openTalentPoolFormModal: onOpenTalentPoolFormModal, openAddCandidateToPoolModal: onOpenAddCandidateToPoolModal, openLogOutreachModal: onOpenLogOutreachModal, openCandidateAIDashboardModal: onOpenCandidateAIDashboardModal, openOutreachDraftModal: onOpenOutreachDraftModal } = useModalState();
+  const [mainTab, setMainTab] = useState<'hub' | 'kpis'>('hub');
   const [selectedView, setSelectedView] = useState<'requisitions' | 'talentPools'>('requisitions');
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null); 
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [candidateToMove, setCandidateToMove] = useState<{candidateId: string; poolId?: string} | null>(null);
   const [targetRequisitionForMove, setTargetRequisitionForMove] = useState<string>('');
   const [actionContext, setActionContext] = useState<{action: 'draft' | 'insights', candidate: Candidate} | null>(null);
+  const [isPoolSelectorOpen, setIsPoolSelectorOpen] = useState(false);
+  const [pendingMatchRequisition, setPendingMatchRequisition] = useState<Requisition | null>(null);
+  const [selectedPoolIds, setSelectedPoolIds] = useState<string[]>([]);
 
 
   const openRequisitions = useMemo(() => 
@@ -153,10 +158,34 @@ const SourcerHubView: React.FC = () => {
   const inactiveTabClass = "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400";
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 h-full">
+    <div className="flex flex-col gap-4 h-[calc(100vh-10rem)]">
+      {/* Main Tab Bar */}
+      <div className="flex gap-2 border-b border-gray-200 pb-2 shrink-0">
+        <button
+          onClick={() => setMainTab('hub')}
+          className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-t-lg transition-colors ${mainTab === 'hub' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+        >
+          <UserMagnifyingGlassIcon className="w-4 h-4" /> Sourcer Hub
+        </button>
+        <button
+          onClick={() => setMainTab('kpis')}
+          className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-t-lg transition-colors ${mainTab === 'kpis' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+        >
+          <BarChartIcon className="w-4 h-4" /> Sourcer KPIs
+        </button>
+      </div>
+
+      {mainTab === 'kpis' && (
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+          <SourcerDashboardView />
+        </div>
+      )}
+
+      {mainTab === 'hub' && (
+      <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
       {/* Left Panel: Navigation & Item List */}
-      <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-2">
+      <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col gap-3 min-h-0">
+        <div className="grid grid-cols-2 gap-2 shrink-0">
             <button onClick={() => { setSelectedView('requisitions'); setSelectedItemId(null); }} className={`${buttonBaseClass} ${selectedView === 'requisitions' ? activeTabClass : inactiveTabClass}`}>
                 Active Requisitions
             </button>
@@ -164,10 +193,10 @@ const SourcerHubView: React.FC = () => {
                 Talent Pools
             </button>
         </div>
-        <Card 
-            title={selectedView === 'requisitions' ? "Select Requisition" : "Select Talent Pool"} 
-            className="flex-1 flex flex-col" 
-            bodyClassName="flex-grow overflow-y-auto p-2"
+        <Card
+            title={selectedView === 'requisitions' ? "Select Requisition" : "Select Talent Pool"}
+            className="flex-1 min-h-0 flex flex-col overflow-hidden"
+            bodyClassName="flex-grow min-h-0 overflow-y-auto p-2 custom-scrollbar"
             titleRightElement={selectedView === 'talentPools' ? 
                 <button onClick={() => onOpenTalentPoolFormModal()} className="text-teal-500 hover:text-teal-700 p-1" title="New Talent Pool"><PlusIcon className="w-5 h-5"/></button> : null
             }
@@ -201,7 +230,7 @@ const SourcerHubView: React.FC = () => {
       </div>
 
       {/* Main Panel: Candidates & Actions */}
-      <div className="w-full md:w-2/3 lg:w-3/4 flex flex-col gap-3">
+      <div className="w-full md:w-2/3 lg:w-3/4 flex flex-col gap-3 min-h-0 overflow-hidden">
         {selectedView === 'talentPools' && selectedTalentPool && (
             <div className="flex justify-end space-x-2 items-center">
                  <button 
@@ -223,7 +252,7 @@ const SourcerHubView: React.FC = () => {
         {selectedView === 'requisitions' && selectedRequisition && (
             <div className="flex justify-between items-center">
                 <button
-                    onClick={() => onFindAiCandidateMatches(selectedRequisition)}
+                    onClick={() => { setPendingMatchRequisition(selectedRequisition); setSelectedPoolIds([]); setIsPoolSelectorOpen(true); }}
                     disabled={isLoadingAiMatches}
                     className="flex items-center bg-purple-500 hover:bg-purple-600 text-white font-semibold py-1.5 px-3 rounded-md shadow-sm text-xs transition-all disabled:opacity-50"
                     title="Find matching candidates from Talent Pools using AI for this requisition"
@@ -260,7 +289,7 @@ const SourcerHubView: React.FC = () => {
                 selectedView === 'requisitions' ? (selectedRequisition ? `Top of Funnel for: ${selectedRequisition.role}` : "Select Requisition") :
                 (selectedTalentPool ? `Candidates in: ${selectedTalentPool.name}` : "Select Talent Pool")
             } 
-            className="flex-1 flex flex-col" bodyClassName="flex-grow overflow-y-auto p-2"
+            className="flex-1 min-h-0 flex flex-col overflow-hidden" bodyClassName="flex-grow min-h-0 overflow-y-auto p-2 custom-scrollbar"
         >
           {candidatesToDisplay.length > 0 ? (
             candidatesToDisplay.map(cand => renderCandidateItem(cand, selectedTalentPool?.id))
@@ -271,6 +300,59 @@ const SourcerHubView: React.FC = () => {
           )}
         </Card>
       </div>
+
+      {/* Pool Selector for AI Matching */}
+      {isPoolSelectorOpen && pendingMatchRequisition && (
+        <Modal
+          isOpen={isPoolSelectorOpen}
+          onClose={() => setIsPoolSelectorOpen(false)}
+          title={`Select Talent Pools for AI Matching: ${pendingMatchRequisition.role}`}
+          size="lg"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Choose which talent pools to search for AI-matched candidates. Leave all unchecked to search across all pools.
+            </p>
+            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+              {sortedTalentPools.map(pool => (
+                <label key={pool.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 hover:bg-indigo-50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={selectedPoolIds.includes(pool.id)}
+                    onChange={(e) => {
+                      setSelectedPoolIds(prev =>
+                        e.target.checked ? [...prev, pool.id] : prev.filter(id => id !== pool.id)
+                      );
+                    }}
+                    className="w-4 h-4 text-indigo-600 rounded"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">{pool.name}</p>
+                    {pool.description && <p className="text-xs text-gray-500">{pool.description}</p>}
+                  </div>
+                </label>
+              ))}
+              {sortedTalentPools.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No talent pools available.</p>}
+            </div>
+            <p className="text-xs text-indigo-600 font-medium">
+              {selectedPoolIds.length === 0 ? 'All pools will be searched.' : `${selectedPoolIds.length} pool(s) selected.`}
+            </p>
+            <div className="pt-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button type="button" onClick={() => setIsPoolSelectorOpen(false)} className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">Cancel</button>
+              <button
+                type="button"
+                onClick={() => {
+                  onFindAiCandidateMatches(pendingMatchRequisition, selectedPoolIds.length > 0 ? selectedPoolIds : undefined);
+                  setIsPoolSelectorOpen(false);
+                }}
+                className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+              >
+                Run AI Match
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Modal for Selecting Requisition Context */}
       {actionContext && (
@@ -342,6 +424,8 @@ const SourcerHubView: React.FC = () => {
               </div>
           </div>
         </Modal>
+      )}
+      </div>
       )}
     </div>
   );

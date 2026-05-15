@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Requisition } from '../types';
+import { Requisition, RequisitionStatus } from '../types';
 import * as crudApi from '../services/crudApi';
 import { RequisitionFilterParams } from '../services/crudApi';
 import { updateMetadata } from '../utils/metadata';
@@ -89,6 +89,13 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
       .finally(() => setIsLoading(false));
   }, []);
 
+  const archiveRequisition = useCallback(async (id: string) => {
+    await crudApi.patchRequisition(id, { reqStatus: RequisitionStatus.ARCHIVED });
+    setRequisitions((prev) =>
+      prev.map((r) => r.id === id ? { ...r, reqStatus: RequisitionStatus.ARCHIVED } : r)
+    );
+  }, []);
+
   return {
     requisitions,
     setRequisitions,
@@ -100,5 +107,6 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
     saveRequisition,
     deleteRequisition,
     refetchWithFilters,
+    archiveRequisition,
   };
 };

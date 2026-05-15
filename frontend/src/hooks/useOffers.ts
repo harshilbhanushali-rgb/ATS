@@ -1,5 +1,6 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from 'react';
 import { Candidate, OfferDetails, Requisition, CandidateStage } from '../types';
+import * as crudApi from '../services/crudApi';
 
 interface UseOffersOptions {
   updateCandidateStage: (candidateId: string, newStage: CandidateStage) => void;
@@ -29,6 +30,7 @@ export const useOffers = ({ updateCandidateStage, setCandidates }: UseOffersOpti
           candidate.id === candidateId ? { ...candidate, offerDetails } : candidate
         )
       );
+      crudApi.patchCandidate(candidateId, { offerDetails }).catch(console.error);
       closeOfferModal();
     },
     [closeOfferModal, setCandidates, updateCandidateStage]

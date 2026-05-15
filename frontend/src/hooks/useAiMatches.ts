@@ -13,13 +13,17 @@ export const useAiMatches = ({ candidates, onAssignCandidateFromAIPool }: UseAiM
   const [currentRequisitionForAIMatches, setCurrentRequisitionForAIMatches] = useState<Requisition | null>(null);
 
   const findAiCandidateMatches = useCallback(
-    async (requisition: Requisition) => {
+    async (requisition: Requisition, poolIds?: string[]) => {
       setIsLoadingAiMatches(true);
       setCurrentRequisitionForAIMatches(requisition);
       setAiMatchedCandidates(null);
 
       const candidatesInPools = candidates.filter(
-        (candidate) => candidate.talentPoolIds && candidate.talentPoolIds.length > 0 && candidate.requisitionId !== requisition.id
+        (candidate) =>
+          candidate.talentPoolIds &&
+          candidate.talentPoolIds.length > 0 &&
+          candidate.requisitionId !== requisition.id &&
+          (!poolIds || poolIds.length === 0 || candidate.talentPoolIds.some((pid) => poolIds.includes(pid)))
       );
 
       try {

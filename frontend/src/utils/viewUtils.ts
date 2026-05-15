@@ -14,7 +14,6 @@ const VIEW_PATHS: Record<View, string> = {
   requisitions: '/requisitions',
   recruiter: '/recruiter',
   sourcerhub: '/sourcer',
-  sourcerdashboard: '/sourcer/kpis',
   hmhub: '/hm',
   offerhub: '/offers',
   talentpools: '/talent-pools',
@@ -28,7 +27,6 @@ export const getViewForPath = (pathname: string): View => {
   if (normalized === '/') return 'dashboard';
   if (normalized.startsWith('/requisitions')) return 'requisitions';
   if (normalized.startsWith('/recruiter')) return 'recruiter';
-  if (normalized.startsWith('/sourcer/kpis')) return 'sourcerdashboard';
   if (normalized.startsWith('/sourcer')) return 'sourcerhub';
   if (normalized.startsWith('/hm')) return 'hmhub';
   if (normalized.startsWith('/offers')) return 'offerhub';

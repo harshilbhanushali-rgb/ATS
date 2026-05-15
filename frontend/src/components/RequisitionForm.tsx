@@ -210,8 +210,19 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
   const labelClass = "block text-sm font-medium text-gray-700";
   const requiredSpan = <span className="text-red-500">*</span>;
 
+  const isArchived = initialData?.reqStatus === RequisitionStatus.ARCHIVED;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {isArchived && (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5 shrink-0">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+          This requisition is archived and cannot be edited.
+        </div>
+      )}
+      <fieldset disabled={isArchived} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
         <div>
           <label htmlFor="role" className={labelClass}>Role {requiredSpan}</label>
@@ -388,11 +399,13 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
             Cancel
           </button>
           <button type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            disabled={isArchived}
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
             {initialData ? 'Update Requisition' : 'Create Requisition'}
           </button>
         </div>
       </div>
+      </fieldset>
     </form>
   );
 };

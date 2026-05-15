@@ -4,7 +4,6 @@ import Dashboard from '../components/Dashboard';
 import RequisitionList from '../components/RequisitionList';
 import { RecruiterView } from '../components/RecruiterView';
 import SourcerHubView from '../components/SourcerHubView';
-import SourcerDashboardView from '../components/SourcerDashboardView';
 import HiringManagerView from '../components/HiringManagerView';
 import OfferHubView from '../components/OfferHubView';
 import TalentPoolListView from '../components/TalentPoolListView';
@@ -40,7 +39,6 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
                   requisitions: 'Requisitions',
                   recruiter: 'Recruiter Hub',
                   sourcerhub: 'Sourcer Hub',
-                  sourcerdashboard: 'Sourcer Dashboard',
                   hmhub: 'HM Hub',
                   offerhub: 'Offer Hub',
                   talentpools: 'Talent Pools',
@@ -96,7 +94,6 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
           )}
           {currentView === 'recruiter' && <RecruiterView />}
           {currentView === 'sourcerhub' && <SourcerHubView />}
-          {currentView === 'sourcerdashboard' && <SourcerDashboardView />}
           {currentView === 'hmhub' && <HiringManagerView />}
           {currentView === 'offerhub' && <OfferHubView />}
           {currentView === 'talentpools' && <TalentPoolListView />}

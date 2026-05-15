@@ -1,7 +1,7 @@
 
 
 import React, { useState, useMemo } from 'react';
-import { Candidate, CandidateOutreachLog, CandidateSource, CandidateStage, Interview, RequisitionStatus, Requisition } from '../types'; // Added Requisition
+import { Candidate, CandidateOutreachLog, CandidateSource, CandidateStage, Interview, RequisitionStatus, Requisition, UserRole } from '../types';
 import Card from './Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, TooltipProps } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
@@ -46,8 +46,18 @@ const HANDOFF_STAGES: CandidateStage[] = [
 
 const SourcerDashboardView: React.FC = () => {
   const { candidates: allCandidates, candidateOutreachLogs, interviews: allInterviews, requisitions: allRequisitions } = useAppData();
-  const { loggedInUser } = useAuthContext();
-  const sourcerId = loggedInUser.id;
+  const { loggedInUser, users } = useAuthContext();
+  const isAdmin = loggedInUser.role === UserRole.ADMIN;
+  const sourcerUsers = useMemo(
+    () => users.filter(u => u.role === UserRole.SOURCER || u.role === UserRole.LEAD_RECRUITER),
+    [users]
+  );
+  const [selectedSourcerId, setSelectedSourcerId] = useState<string>(loggedInUser.id);
+  const sourcerId = selectedSourcerId;
+  const sourcerName = useMemo(
+    () => users.find(u => u.id === sourcerId)?.name ?? loggedInUser.name,
+    [users, sourcerId, loggedInUser.name]
+  );
   const [dateRange, setDateRange] = useState<DateRangeOption>('all_time');
 
   const sourcerMetrics = useMemo(() => {
@@ -174,24 +184,44 @@ const SourcerDashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center pb-5 border-b border-gray-200">
-        <h1 className="text-2xl font-semibold leading-6 text-gray-900">Sourcer Performance Dashboard</h1>
+      <div className="flex flex-wrap justify-between items-center gap-4 pb-5 border-b border-gray-200">
         <div>
-          <label htmlFor="dateRangeFilter" className="text-sm font-medium text-gray-700 mr-2">Date Range:</label>
-          <select
-            id="dateRangeFilter"
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as DateRangeOption)}
-            className="px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="all_time">All Time</option>
-            <option value="last_7_days">Last 7 Days</option>
-            <option value="last_30_days">Last 30 Days</option>
-          </select>
+          <h1 className="text-2xl font-semibold leading-6 text-gray-900">Sourcer Performance Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Metrics for: <span className="font-semibold text-indigo-700">{sourcerName}</span>
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          {isAdmin && sourcerUsers.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="sourcerSelector" className="text-sm font-medium text-gray-700 whitespace-nowrap">View Sourcer:</label>
+              <select
+                id="sourcerSelector"
+                value={selectedSourcerId}
+                onChange={(e) => setSelectedSourcerId(e.target.value)}
+                className="px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                {sourcerUsers.map(u => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <label htmlFor="dateRangeFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range:</label>
+            <select
+              id="dateRangeFilter"
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as DateRangeOption)}
+              className="px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="all_time">All Time</option>
+              <option value="last_7_days">Last 7 Days</option>
+              <option value="last_30_days">Last 30 Days</option>
+            </select>
+          </div>
         </div>
       </div>
-      
-      <p className="text-sm text-gray-600">Metrics for Sourcer ID: <span className="font-semibold text-indigo-700">{sourcerId}</span></p>
 
       {/* Volume & Reach Metrics */}
       <Card title="Module 1: Volume & Reach Metrics (Sourcing Efforts)" bodyClassName="p-0">

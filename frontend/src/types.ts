@@ -15,6 +15,7 @@ export enum RequisitionStatus {
   JOINED = "Joined", // Indicates a candidate has accepted and joined
   HOLD = "Hold",
   CANCELLED = "Cancelled",
+  ARCHIVED = "Archived",
 }
 
 export enum Location {

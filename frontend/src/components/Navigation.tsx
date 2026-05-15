@@ -1,9 +1,9 @@
 import React from 'react';
-import { BarChart3 as ChartBarIcon, List as ListBulletIcon, Users as UsersIcon, ClipboardCheck as ClipboardDocumentCheckIcon, ClipboardList as ClipboardDocumentListIcon, Gift as GiftIcon, Database as DatabaseIcon, ZoomIn as MagnifyingGlassPlusIcon, Settings as Cog6ToothIcon } from 'lucide-react';
+import { BarChart3 as ChartBarIcon, List as ListBulletIcon, Users as UsersIcon, ClipboardCheck as ClipboardDocumentCheckIcon, Gift as GiftIcon, Database as DatabaseIcon, ZoomIn as MagnifyingGlassPlusIcon, Settings as Cog6ToothIcon } from 'lucide-react';
 import { APP_TITLE } from '../constants';
 import { UserRole } from '../types';
 
-export type View = 'dashboard' | 'requisitions' | 'recruiter' | 'sourcerhub' | 'sourcerdashboard' | 'hmhub' | 'offerhub' | 'talentpools' | 'admin';
+export type View = 'dashboard' | 'requisitions' | 'recruiter' | 'sourcerhub' | 'hmhub' | 'offerhub' | 'talentpools' | 'admin';
 
 interface NavigationProps {
   currentView: View;
@@ -15,7 +15,6 @@ const ALL_NAV_ITEMS: Array<{ id: View; label: string; icon: React.ElementType; r
     { id: 'dashboard', label: 'Main Dashboard', icon: ChartBarIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
     { id: 'requisitions', label: 'Requisitions', icon: ListBulletIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
     { id: 'sourcerhub', label: 'Sourcer Hub', icon: MagnifyingGlassPlusIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
-    { id: 'sourcerdashboard', label: 'Sourcer KPIs', icon: ClipboardDocumentListIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
     { id: 'recruiter', label: 'Recruiter Hub', icon: UsersIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
     { id: 'hmhub', label: 'HM Hub', icon: ClipboardDocumentCheckIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
     { id: 'offerhub', label: 'Offer Hub', icon: GiftIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
