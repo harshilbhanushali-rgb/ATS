@@ -9,6 +9,8 @@ import {
   X as XIcon,
   Users as UsersIcon,
   SlidersHorizontal as FilterIcon,
+  Sparkles as SparklesIcon,
+  ChevronDown as ChevronDownIcon,
 } from 'lucide-react';
 import Modal from './Modal';
 import ResumeAnalysisDisplay from './ResumeAnalysisDisplay';
@@ -36,6 +38,7 @@ export const RecruiterView: React.FC = () => {
 
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [isAiPanelMinimized, setIsAiPanelMinimized] = useState(false);
   const [analysisForModal, setAnalysisForModal] = useState<ResumeMatchAnalysis | null>(null);
   const [contextForAnalysisModal, setContextForAnalysisModal] = useState<{
     candidateName: string;
@@ -298,7 +301,7 @@ export const RecruiterView: React.FC = () => {
 
               {/* AI Matches */}
               <button
-                onClick={() => onFindAiCandidateMatches(selectedRequisition)}
+                onClick={() => { setIsAiPanelMinimized(false); onFindAiCandidateMatches(selectedRequisition); }}
                 disabled={isLoadingAiMatches || !selectedRequisition.jobDescription?.trim()}
                 title={
                   !selectedRequisition.jobDescription?.trim()
@@ -314,17 +317,40 @@ export const RecruiterView: React.FC = () => {
 
             {/* ── AI Recommendations Panel (conditional) ── */}
             {currentRequisitionForAIMatches?.id === selectedRequisition.id && (
-              <div className="shrink-0 min-h-0 max-h-[32vh] overflow-y-auto rounded-2xl border border-indigo-100 bg-gradient-to-b from-indigo-50/60 to-white custom-scrollbar">
-                <AIRecommendationsDisplay
-                  recommendations={aiMatchedCandidates}
-                  allCandidates={allCandidates}
-                  isLoading={isLoadingAiMatches}
-                  requisition={selectedRequisition}
-                  onAssignCandidate={onAssignCandidateFromAIPool}
-                  onOpenCandidateAIDashboardModal={onOpenCandidateAIDashboardModal}
-                  onOpenLogOutreachModal={onOpenLogOutreachModal}
-                  onOpenOutreachDraftModal={onOpenOutreachDraftModal}
-                />
+              <div className="shrink-0 rounded-2xl border border-indigo-100 bg-gradient-to-b from-indigo-50/60 to-white overflow-hidden">
+                {/* Collapse header */}
+                <button
+                  onClick={() => setIsAiPanelMinimized((p) => !p)}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-indigo-50 transition-colors"
+                >
+                  <SparklesIcon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <span className="text-xs font-bold text-indigo-700 uppercase tracking-wide flex-1 text-left">
+                    AI Recommendations
+                  </span>
+                  {!isLoadingAiMatches && aiMatchedCandidates && aiMatchedCandidates.length > 0 && (
+                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
+                      {aiMatchedCandidates.filter(r => r.candidateId !== 'ERROR').length}
+                    </span>
+                  )}
+                  <ChevronDownIcon
+                    className={`w-3.5 h-3.5 text-indigo-400 transition-transform duration-200 ${isAiPanelMinimized ? '-rotate-90' : ''}`}
+                  />
+                </button>
+                {/* Content */}
+                {!isAiPanelMinimized && (
+                  <div className="max-h-[30vh] overflow-y-auto custom-scrollbar border-t border-indigo-100">
+                    <AIRecommendationsDisplay
+                      recommendations={aiMatchedCandidates}
+                      allCandidates={allCandidates}
+                      isLoading={isLoadingAiMatches}
+                      requisition={selectedRequisition}
+                      onAssignCandidate={onAssignCandidateFromAIPool}
+                      onOpenCandidateAIDashboardModal={onOpenCandidateAIDashboardModal}
+                      onOpenLogOutreachModal={onOpenLogOutreachModal}
+                      onOpenOutreachDraftModal={onOpenOutreachDraftModal}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
