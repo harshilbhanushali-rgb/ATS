@@ -49,7 +49,15 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
                 Welcome back, {loggedInUser.name}
               </p>
             </div>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
+              {currentView === 'requisitions' && loggedInUser.role !== UserRole.HIRING_MANAGER && (
+                <button
+                  onClick={() => openRequisitionModal()}
+                  className="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm shadow-indigo-600/25 transition-all"
+                >
+                  <PlusIcon className="w-4 h-4 mr-1.5" /> New Requisition
+                </button>
+              )}
               <div className="flex items-center bg-slate-50 border border-slate-100 px-4 py-2 rounded-2xl shadow-inner-soft">
                 <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs mr-3 shadow-lg shadow-indigo-500/20">
                   {loggedInUser.name.split(' ').map((n) => n[0]).join('')}
@@ -76,22 +84,7 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
 
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {currentView === 'dashboard' && <Dashboard />}
-          {currentView === 'requisitions' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-slate-800">Requisitions</h2>
-                {loggedInUser.role !== UserRole.HIRING_MANAGER && (
-                  <button
-                    onClick={() => openRequisitionModal()}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    <PlusIcon className="w-5 h-5 mr-2" /> New Requisition
-                  </button>
-                )}
-              </div>
-              <RequisitionList />
-            </div>
-          )}
+          {currentView === 'requisitions' && <RequisitionList />}
           {currentView === 'recruiter' && <RecruiterView />}
           {currentView === 'sourcerhub' && <SourcerHubView />}
           {currentView === 'hmhub' && <HiringManagerView />}
