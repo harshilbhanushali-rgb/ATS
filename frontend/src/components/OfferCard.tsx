@@ -23,23 +23,12 @@ const OfferCard: React.FC<OfferCardProps> = ({ candidate, requisition, onOfferAc
 
   const { salary, startDate, offerLetterUrl, offerNotes } = candidate.offerDetails;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const startDatePassed = onConfirmJoined && new Date(startDate) < today;
-
   return (
     <Card className="mb-6 border-blue-200 hover:border-blue-300 transition-all duration-300">
       <div className="p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start mb-3">
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-xl font-semibold text-slate-900 font-display">{candidate.name}</h3>
-              {startDatePassed && (
-                <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                  Start date passed
-                </span>
-              )}
-            </div>
+            <h3 className="text-xl font-semibold text-slate-900 font-display">{candidate.name}</h3>
             <p className="text-sm text-slate-500">
               Applying for: <span className="font-medium text-slate-700">{requisition.role}</span> (ID: {requisition.id})
             </p>

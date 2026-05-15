@@ -18,7 +18,7 @@ const ALL_NAV_ITEMS: Array<{ id: View; label: string; icon: React.ElementType; r
   { id: 'sourcerhub',   label: 'Sourcer Hub',    icon: MagnifyingGlassPlusIcon,       roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
   { id: 'recruiter',    label: 'Recruiter Hub',  icon: UsersIcon,                     roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
   { id: 'hmhub',        label: 'HM Hub',         icon: ClipboardDocumentCheckIcon,    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
-  { id: 'offerhub',     label: 'Offer Hub',      icon: GiftIcon,                      roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
+  { id: 'offerhub',     label: 'Offer Hub',      icon: GiftIcon,                      roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
   { id: 'talentpools',  label: 'Talent Pools',   icon: DatabaseIcon,                  roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER] },
   { id: 'admin',        label: 'Admin',           icon: Cog6ToothIcon,                roles: [UserRole.ADMIN] },
 ];
