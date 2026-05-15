@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.interview import Interview
@@ -19,11 +21,17 @@ async def get_interview(session: AsyncSession, interview_id: str) -> Interview |
 
 async def create_interview(session: AsyncSession, interview_in: InterviewCreate) -> Interview:
     data = interview_in.model_dump()
-    interview = Interview(**data)
-    session.add(interview)
-    await session.commit()
-    await session.refresh(interview)
-    return interview
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        interview = Interview(**data)
+        session.add(interview)
+        await session.commit()
+        await session.refresh(interview)
+        return interview
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Interview with this ID already exists")
 
 
 async def update_interview(

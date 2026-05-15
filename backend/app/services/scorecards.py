@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.scorecard_template import ScorecardTemplate
@@ -23,11 +25,17 @@ async def create_scorecard(
     session: AsyncSession, template_in: ScorecardTemplateCreate
 ) -> ScorecardTemplate:
     data = template_in.model_dump()
-    template = ScorecardTemplate(**data)
-    session.add(template)
-    await session.commit()
-    await session.refresh(template)
-    return template
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        template = ScorecardTemplate(**data)
+        session.add(template)
+        await session.commit()
+        await session.refresh(template)
+        return template
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Scorecard template with this ID already exists")
 
 
 async def update_scorecard(

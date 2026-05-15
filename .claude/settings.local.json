@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(Get-ChildItem -Path \"c:\\\\PF\\\\Joveo\\\\remix_-ai-hiring-management-system\\\\backend\\\\app\\\\schemas\\\\\" -ErrorAction SilentlyContinue | ForEach-Object { $_.Name })",
-      "PowerShell(Get-ChildItem -Path \"c:\\\\PF\\\\Joveo\\\\remix_-ai-hiring-management-system\\\\frontend\\\\src\\\\app\\\\\" -ErrorAction SilentlyContinue | ForEach-Object { $_.Name })"
-    ]
-  }
-}

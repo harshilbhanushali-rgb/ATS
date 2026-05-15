@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.candidate import Candidate
@@ -19,11 +21,17 @@ async def get_candidate(session: AsyncSession, candidate_id: str) -> Candidate |
 
 async def create_candidate(session: AsyncSession, candidate_in: CandidateCreate) -> Candidate:
     data = candidate_in.model_dump()
-    candidate = Candidate(**data)
-    session.add(candidate)
-    await session.commit()
-    await session.refresh(candidate)
-    return candidate
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        candidate = Candidate(**data)
+        session.add(candidate)
+        await session.commit()
+        await session.refresh(candidate)
+        return candidate
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Candidate with this ID already exists")
 
 
 async def update_candidate(

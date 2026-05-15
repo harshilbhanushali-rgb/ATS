@@ -61,5 +61,6 @@ class CandidateOut(CandidateBase):
     id: str
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    metadata_: dict | None = Field(default=None, serialization_alias="metadata")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

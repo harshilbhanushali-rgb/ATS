@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.requisition import Requisition
@@ -36,11 +38,17 @@ async def get_requisition(session: AsyncSession, requisition_id: str) -> Requisi
 
 async def create_requisition(session: AsyncSession, requisition_in: RequisitionCreate) -> Requisition:
     data = requisition_in.model_dump()
-    requisition = Requisition(**data)
-    session.add(requisition)
-    await session.commit()
-    await session.refresh(requisition)
-    return requisition
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        requisition = Requisition(**data)
+        session.add(requisition)
+        await session.commit()
+        await session.refresh(requisition)
+        return requisition
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Requisition with this ID already exists")
 
 
 async def update_requisition(

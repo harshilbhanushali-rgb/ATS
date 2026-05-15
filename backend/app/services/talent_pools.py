@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.talent_pool import TalentPool
@@ -19,11 +21,17 @@ async def get_talent_pool(session: AsyncSession, pool_id: str) -> TalentPool | N
 
 async def create_talent_pool(session: AsyncSession, pool_in: TalentPoolCreate) -> TalentPool:
     data = pool_in.model_dump()
-    pool = TalentPool(**data)
-    session.add(pool)
-    await session.commit()
-    await session.refresh(pool)
-    return pool
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        pool = TalentPool(**data)
+        session.add(pool)
+        await session.commit()
+        await session.refresh(pool)
+        return pool
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Talent pool with this ID already exists")
 
 
 async def update_talent_pool(

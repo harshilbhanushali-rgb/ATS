@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.outreach_log import OutreachLog
@@ -19,11 +21,17 @@ async def get_outreach_log(session: AsyncSession, log_id: str) -> OutreachLog | 
 
 async def create_outreach_log(session: AsyncSession, log_in: OutreachLogCreate) -> OutreachLog:
     data = log_in.model_dump()
-    log = OutreachLog(**data)
-    session.add(log)
-    await session.commit()
-    await session.refresh(log)
-    return log
+    if not data.get("id"):
+        data.pop("id", None)
+    try:
+        log = OutreachLog(**data)
+        session.add(log)
+        await session.commit()
+        await session.refresh(log)
+        return log
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="Outreach log with this ID already exists")
 
 
 async def update_outreach_log(
