@@ -13,7 +13,7 @@ from app.services import users as users_service
 router = APIRouter()
 
 
-@router.get("/", response_model=list[UserOut])
+@router.get("", response_model=list[UserOut])
 async def list_users(
     db: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
@@ -22,7 +22,7 @@ async def list_users(
     return list(users)
 
 
-@router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db),
