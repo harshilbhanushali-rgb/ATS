@@ -38,6 +38,7 @@ export interface AppDataContextValue {
   saveOffer: (candidateId: string, offerDetails: OfferDetails) => void;
   offerAccepted: (candidateId: string) => void;
   offerDeclined: (candidateId: string) => void;
+  confirmJoined: (candidateId: string) => void;
   findAiCandidateMatches: (requisition: Requisition, poolIds?: string[]) => void;
   assignCandidateFromAIPool: (candidateId: string, requisitionId: string) => void;
   saveHiringHubComment: (candidateId: string, commentText: string) => void;

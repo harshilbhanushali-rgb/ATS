@@ -98,6 +98,7 @@ const App: React.FC = () => {
     saveOffer,
     offerAccepted,
     offerDeclined,
+    confirmJoined,
   } = useOffers({ updateCandidateStage, setCandidates });
 
   const { aiMatchedCandidates, isLoadingAiMatches, currentRequisitionForAIMatches, findAiCandidateMatches, assignCandidateFromAIPool } =
@@ -153,6 +154,67 @@ const App: React.FC = () => {
     alert('System data has been cleared.');
   }, [navigateToView, setCandidates, setScorecardTemplates, setUsers]);
 
+  const appDataValue = useMemo(() => ({
+    candidates, setCandidates, requisitions, interviews, talentPools,
+    candidateOutreachLogs, scorecardTemplates, aiMatchedCandidates,
+    isLoadingAiMatches, currentRequisitionForAIMatches,
+    saveCandidate, updateCandidateStage, saveCandidateAnalysis,
+    removeCandidateFromPool, moveCandidateToRequisition,
+    saveRequisition, refetchWithFilters, saveInterview,
+    saveTalentPool, saveScorecardTemplate, saveOutreachLog,
+    saveOffer, offerAccepted, offerDeclined, confirmJoined,
+    findAiCandidateMatches, assignCandidateFromAIPool,
+    saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
+    archiveRequisition,
+    reactivateRequisition,
+    clearData: handleClearData,
+  }), [
+    candidates, setCandidates, requisitions, interviews, talentPools,
+    candidateOutreachLogs, scorecardTemplates, aiMatchedCandidates,
+    isLoadingAiMatches, currentRequisitionForAIMatches,
+    saveCandidate, updateCandidateStage, saveCandidateAnalysis,
+    removeCandidateFromPool, moveCandidateToRequisition,
+    saveRequisition, refetchWithFilters, saveInterview,
+    saveTalentPool, saveScorecardTemplate, saveOutreachLog,
+    saveOffer, offerAccepted, offerDeclined, confirmJoined,
+    findAiCandidateMatches, assignCandidateFromAIPool,
+    saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
+    archiveRequisition, reactivateRequisition, handleClearData,
+  ]);
+
+  const modalStateValue = useMemo(() => ({
+    isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal,
+    isCandidateModalOpen, editingCandidate, defaultRequisitionIdForCandidate,
+    defaultTalentPoolIdForCandidate, openCandidateModal, closeCandidateModal,
+    isInterviewModalOpen, candidateForInterview, requisitionForInterview,
+    openInterviewModal, closeInterviewModal,
+    isOfferModalOpen, candidateForOffer, requisitionForOffer, openOfferModal, closeOfferModal,
+    isTalentPoolFormModalOpen, editingTalentPool, openTalentPoolFormModal, closeTalentPoolFormModal,
+    isAddCandidateToPoolModalOpen, poolToAddTo, openAddCandidateToPoolModal, closeAddCandidateToPoolModal,
+    isLogOutreachModalOpen, candidateForOutreachLog, openLogOutreachModal, closeLogOutreachModal,
+    isOutreachDraftModalOpen, candidateForOutreachDraft, currentOutreachDraft,
+    isGeneratingOutreachDraft, outreachDraftError, openOutreachDraftModal, closeOutreachDraftModal,
+    isHiringHubOpen, contextForHiringHub, openHiringHub, closeHiringHub,
+    isCandidateAIDashboardModalOpen: !!dataForAIDashboard,
+    dataForAIDashboard,
+    openCandidateAIDashboardModal: handleOpenCandidateAIDashboardModal,
+    closeCandidateAIDashboardModal: handleCloseCandidateAIDashboardModal,
+  }), [
+    isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal,
+    isCandidateModalOpen, editingCandidate, defaultRequisitionIdForCandidate,
+    defaultTalentPoolIdForCandidate, openCandidateModal, closeCandidateModal,
+    isInterviewModalOpen, candidateForInterview, requisitionForInterview,
+    openInterviewModal, closeInterviewModal,
+    isOfferModalOpen, candidateForOffer, requisitionForOffer, openOfferModal, closeOfferModal,
+    isTalentPoolFormModalOpen, editingTalentPool, openTalentPoolFormModal, closeTalentPoolFormModal,
+    isAddCandidateToPoolModalOpen, poolToAddTo, openAddCandidateToPoolModal, closeAddCandidateToPoolModal,
+    isLogOutreachModalOpen, candidateForOutreachLog, openLogOutreachModal, closeLogOutreachModal,
+    isOutreachDraftModalOpen, candidateForOutreachDraft, currentOutreachDraft,
+    isGeneratingOutreachDraft, outreachDraftError, openOutreachDraftModal, closeOutreachDraftModal,
+    isHiringHubOpen, contextForHiringHub, openHiringHub, closeHiringHub,
+    dataForAIDashboard, handleOpenCandidateAIDashboardModal, handleCloseCandidateAIDashboardModal,
+  ]);
+
   return (
     <AuthGate
       loggedInUser={loggedInUser}
@@ -162,39 +224,8 @@ const App: React.FC = () => {
     >
       {loggedInUser && (
         <AuthContext.Provider value={{ loggedInUser, users, setUsers, handleLogout, refreshUsers, createBackendUser, deleteBackendUser }}>
-          <AppDataContext.Provider value={{
-            candidates, setCandidates, requisitions, interviews, talentPools,
-            candidateOutreachLogs, scorecardTemplates, aiMatchedCandidates,
-            isLoadingAiMatches, currentRequisitionForAIMatches,
-            saveCandidate, updateCandidateStage, saveCandidateAnalysis,
-            removeCandidateFromPool, moveCandidateToRequisition,
-            saveRequisition, refetchWithFilters, saveInterview,
-            saveTalentPool, saveScorecardTemplate, saveOutreachLog,
-            saveOffer, offerAccepted, offerDeclined,
-            findAiCandidateMatches, assignCandidateFromAIPool,
-            saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
-            archiveRequisition,
-            reactivateRequisition,
-            clearData: handleClearData,
-          }}>
-            <ModalStateContext.Provider value={{
-              isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal,
-              isCandidateModalOpen, editingCandidate, defaultRequisitionIdForCandidate,
-              defaultTalentPoolIdForCandidate, openCandidateModal, closeCandidateModal,
-              isInterviewModalOpen, candidateForInterview, requisitionForInterview,
-              openInterviewModal, closeInterviewModal,
-              isOfferModalOpen, candidateForOffer, requisitionForOffer, openOfferModal, closeOfferModal,
-              isTalentPoolFormModalOpen, editingTalentPool, openTalentPoolFormModal, closeTalentPoolFormModal,
-              isAddCandidateToPoolModalOpen, poolToAddTo, openAddCandidateToPoolModal, closeAddCandidateToPoolModal,
-              isLogOutreachModalOpen, candidateForOutreachLog, openLogOutreachModal, closeLogOutreachModal,
-              isOutreachDraftModalOpen, candidateForOutreachDraft, currentOutreachDraft,
-              isGeneratingOutreachDraft, outreachDraftError, openOutreachDraftModal, closeOutreachDraftModal,
-              isHiringHubOpen, contextForHiringHub, openHiringHub, closeHiringHub,
-              isCandidateAIDashboardModalOpen: !!dataForAIDashboard,
-              dataForAIDashboard,
-              openCandidateAIDashboardModal: handleOpenCandidateAIDashboardModal,
-              closeCandidateAIDashboardModal: handleCloseCandidateAIDashboardModal,
-            }}>
+          <AppDataContext.Provider value={appDataValue}>
+            <ModalStateContext.Provider value={modalStateValue}>
               <AppShell currentView={currentView} onNavigate={navigateToView} />
               <AppModals />
             </ModalStateContext.Provider>
