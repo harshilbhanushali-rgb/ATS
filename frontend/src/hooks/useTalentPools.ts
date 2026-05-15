@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { TalentPool } from '../types';
 import * as crudApi from '../services/crudApi';
 
-export const useTalentPools = () => {
+export const useTalentPools = ({ loggedInUserId }: { loggedInUserId?: string } = {}) => {
   const [talentPools, setTalentPools] = useState<TalentPool[]>([]);
   const [isTalentPoolFormModalOpen, setIsTalentPoolFormModalOpen] = useState(false);
   const [editingTalentPool, setEditingTalentPool] = useState<TalentPool | null>(null);
@@ -10,8 +10,9 @@ export const useTalentPools = () => {
   const [poolToAddTo, setPoolToAddTo] = useState<TalentPool | null>(null);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
     crudApi.listTalentPools().then(setTalentPools).catch(console.error);
-  }, []);
+  }, [loggedInUserId]);
 
   const openTalentPoolFormModal = useCallback((pool?: TalentPool) => {
     setEditingTalentPool(pool || null);
@@ -45,7 +46,7 @@ export const useTalentPools = () => {
           )
           .catch((err) => {
             console.error(err);
-            setTalentPools((curr) => curr.filter((p) => p.id !== pool.id));
+            crudApi.listTalentPools().then(setTalentPools).catch(console.error);
           });
         return [pool, ...prev];
       });

@@ -6,21 +6,23 @@ import { updateMetadata } from '../utils/metadata';
 
 interface UseRequisitionsOptions {
   getCurrentUserId: () => string;
+  loggedInUserId?: string;
 }
 
-export const useRequisitions = ({ getCurrentUserId }: UseRequisitionsOptions) => {
+export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisitionsOptions) => {
   const [requisitions, setRequisitions] = useState<Requisition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRequisitionModalOpen, setIsRequisitionModalOpen] = useState(false);
   const [editingRequisition, setEditingRequisition] = useState<Requisition | null>(null);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
     crudApi
       .listRequisitions()
       .then(setRequisitions)
       .catch(console.error)
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [loggedInUserId]);
 
   const openRequisitionModal = useCallback((requisition?: Requisition) => {
     setEditingRequisition(requisition || null);
@@ -57,7 +59,7 @@ export const useRequisitions = ({ getCurrentUserId }: UseRequisitionsOptions) =>
           )
           .catch((err) => {
             console.error(err);
-            setRequisitions((curr) => curr.filter((r) => r.id !== toSave.id));
+            crudApi.listRequisitions().then(setRequisitions).catch(console.error);
           });
         return [toSave, ...prev].sort(
           (a, b) => new Date(b.reqApprovalDate).getTime() - new Date(a.reqApprovalDate).getTime()

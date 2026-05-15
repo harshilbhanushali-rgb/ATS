@@ -4,16 +4,18 @@ import * as crudApi from '../services/crudApi';
 
 interface UseOutreachLogsOptions {
   getCurrentUserId: () => string;
+  loggedInUserId?: string;
 }
 
-export const useOutreachLogs = ({ getCurrentUserId }: UseOutreachLogsOptions) => {
+export const useOutreachLogs = ({ getCurrentUserId, loggedInUserId }: UseOutreachLogsOptions) => {
   const [candidateOutreachLogs, setCandidateOutreachLogs] = useState<CandidateOutreachLog[]>([]);
   const [isLogOutreachModalOpen, setIsLogOutreachModalOpen] = useState(false);
   const [candidateForOutreachLog, setCandidateForOutreachLog] = useState<Candidate | null>(null);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
     crudApi.listOutreachLogs().then(setCandidateOutreachLogs).catch(console.error);
-  }, []);
+  }, [loggedInUserId]);
 
   const openLogOutreachModal = useCallback((candidate: Candidate) => {
     setCandidateForOutreachLog(candidate);
@@ -54,7 +56,7 @@ export const useOutreachLogs = ({ getCurrentUserId }: UseOutreachLogsOptions) =>
         )
         .catch((err) => {
           console.error(err);
-          setCandidateOutreachLogs((prev) => prev.filter((l) => l.id !== newLog.id));
+          crudApi.listOutreachLogs().then(setCandidateOutreachLogs).catch(console.error);
         });
 
       closeLogOutreachModal();

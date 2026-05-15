@@ -41,12 +41,13 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
   const [defaultTalentPoolIdForCandidate, setDefaultTalentPoolIdForCandidate] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!loggedInUser?.id) return;
     crudApi
       .listCandidates()
       .then(setCandidates)
       .catch(console.error)
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [loggedInUser?.id]);
 
   const openCandidateModal = useCallback(
     (candidate?: Candidate, requisitionId?: string, talentPoolId?: string) => {
@@ -130,7 +131,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
           )
           .catch((err) => {
             console.error(err);
-            setCandidates((curr) => curr.filter((c) => c.id !== toSave.id));
+            crudApi.listCandidates().then(setCandidates).catch(console.error);
           });
 
         return [toSave, ...prev].sort((a, b) => {

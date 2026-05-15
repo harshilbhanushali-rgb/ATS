@@ -1,6 +1,7 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from 'react';
 import { Candidate, HiringHubComment, Interview, Requisition, CandidateStage } from '../types';
 import { getAIDebriefSummary } from '../services/aiApi';
+import { patchCandidate } from '../services/crudApi';
 
 interface HiringHubContext {
   candidate: Candidate;
@@ -45,6 +46,7 @@ export const useHiringHub = ({
         prev.map((candidate) => {
           if (candidate.id === candidateId) {
             const updatedComments = [...(candidate.hiringHubComments || []), newComment];
+            patchCandidate(candidateId, { hiringHubComments: updatedComments }).catch(console.error);
             return { ...candidate, hiringHubComments: updatedComments };
           }
           return candidate;
@@ -69,6 +71,7 @@ export const useHiringHub = ({
       try {
         const summary = await getAIDebriefSummary(requisition, interviews);
         if (summary) {
+          await patchCandidate(candidate.id, { aiDebriefSummary: summary });
           setCandidates((prev) =>
             prev.map((item) => (item.id === candidate.id ? { ...item, aiDebriefSummary: summary } : item))
           );

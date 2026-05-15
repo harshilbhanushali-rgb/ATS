@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { InterviewScorecardTemplate } from '../types';
 import * as crudApi from '../services/crudApi';
 
-export const useScorecards = () => {
+export const useScorecards = ({ loggedInUserId }: { loggedInUserId?: string } = {}) => {
   const [scorecardTemplates, setScorecardTemplates] = useState<InterviewScorecardTemplate[]>([]);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
     crudApi.listScorecards().then(setScorecardTemplates).catch(console.error);
-  }, []);
+  }, [loggedInUserId]);
 
   const saveScorecardTemplate = useCallback((template: InterviewScorecardTemplate) => {
     setScorecardTemplates((prev) => {
@@ -30,7 +31,7 @@ export const useScorecards = () => {
         )
         .catch((err) => {
           console.error(err);
-          setScorecardTemplates((curr) => curr.filter((t) => t.id !== template.id));
+          crudApi.listScorecards().then(setScorecardTemplates).catch(console.error);
         });
       return [template, ...prev];
     });

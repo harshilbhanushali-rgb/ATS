@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const getCurrentUserName = useCallback(() => loggedInUser?.name || 'System', [loggedInUser]);
 
   const { requisitions, isRequisitionModalOpen, editingRequisition, openRequisitionModal, closeRequisitionModal, saveRequisition, refetchWithFilters } =
-    useRequisitions({ getCurrentUserId });
+    useRequisitions({ getCurrentUserId, loggedInUserId: loggedInUser?.id });
 
   const {
     candidates,
@@ -66,7 +66,7 @@ const App: React.FC = () => {
     openInterviewModal,
     closeInterviewModal,
     saveInterview,
-  } = useInterviews();
+  } = useInterviews({ loggedInUserId: loggedInUser?.id });
 
   const {
     talentPools,
@@ -79,12 +79,12 @@ const App: React.FC = () => {
     saveTalentPool,
     openAddCandidateToPoolModal,
     closeAddCandidateToPoolModal,
-  } = useTalentPools();
+  } = useTalentPools({ loggedInUserId: loggedInUser?.id });
 
   const { candidateOutreachLogs, isLogOutreachModalOpen, candidateForOutreachLog, openLogOutreachModal, closeLogOutreachModal, saveOutreachLog } =
-    useOutreachLogs({ getCurrentUserId });
+    useOutreachLogs({ getCurrentUserId, loggedInUserId: loggedInUser?.id });
 
-  const { scorecardTemplates, saveScorecardTemplate, setScorecardTemplates } = useScorecards();
+  const { scorecardTemplates, saveScorecardTemplate, setScorecardTemplates } = useScorecards({ loggedInUserId: loggedInUser?.id });
 
   const {
     isOfferModalOpen,
@@ -250,8 +250,8 @@ const App: React.FC = () => {
             contextForHiringHub={contextForHiringHub}
             onCloseHiringHub={closeHiringHub}
             onSaveHiringHubComment={saveHiringHubComment}
-            onGenerateAIDebriefSummary={generateAIDebriefSummary}
-            onRecordFinalDecision={recordFinalDecision}
+            onGenerateAISummary={generateAIDebriefSummary}
+            onRecordDecision={recordFinalDecision}
           />
         </>
       )}

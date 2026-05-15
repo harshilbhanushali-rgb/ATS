@@ -2,15 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { Candidate, Interview, Requisition } from '../types';
 import * as crudApi from '../services/crudApi';
 
-export const useInterviews = () => {
+export const useInterviews = ({ loggedInUserId }: { loggedInUserId?: string } = {}) => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [candidateForInterview, setCandidateForInterview] = useState<Candidate | null>(null);
   const [requisitionForInterview, setRequisitionForInterview] = useState<Requisition | null>(null);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
     crudApi.listInterviews().then(setInterviews).catch(console.error);
-  }, []);
+  }, [loggedInUserId]);
 
   const openInterviewModal = useCallback((candidate: Candidate, requisition: Requisition) => {
     setCandidateForInterview(candidate);
@@ -32,7 +33,7 @@ export const useInterviews = () => {
         )
         .catch((err) => {
           console.error(err);
-          setInterviews((prev) => prev.filter((i) => i.id !== interview.id));
+          crudApi.listInterviews().then(setInterviews).catch(console.error);
         });
       closeInterviewModal();
     },

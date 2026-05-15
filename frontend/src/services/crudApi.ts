@@ -225,8 +225,32 @@ export const createCandidate = (c: Candidate): Promise<Candidate> =>
 export const updateCandidate = (c: Candidate): Promise<Candidate> =>
   patchJson<ApiCandidate>(`/api/v1/candidates/${c.id}`, toCand(c), 'Failed to update candidate.').then(fromCand);
 
+const toCandPatch = (c: Partial<Candidate>): Record<string, unknown> => {
+  const result: Record<string, unknown> = {};
+  if (c.requisitionId !== undefined) result.requisition_id = c.requisitionId;
+  if (c.name !== undefined) result.name = c.name;
+  if (c.email !== undefined) result.email = c.email;
+  if (c.phone !== undefined) result.phone = c.phone;
+  if (c.applicationDate !== undefined) result.application_date = c.applicationDate;
+  if (c.stage !== undefined) result.stage = c.stage;
+  if (c.source !== undefined) result.source = c.source;
+  if (c.resumeUrl !== undefined) result.resume_url = c.resumeUrl;
+  if (c.resumeText !== undefined) result.resume_text = c.resumeText;
+  if (c.notes !== undefined) result.notes = c.notes;
+  if (c.offerDetails !== undefined) result.offer_details = c.offerDetails;
+  if (c.resumeAnalysis !== undefined) result.resume_analysis = c.resumeAnalysis;
+  if (c.talentPoolIds !== undefined) result.talent_pool_ids = c.talentPoolIds;
+  if (c.sourcedByUserId !== undefined) result.sourced_by_user_id = c.sourcedByUserId;
+  if (c.sourcedDate !== undefined) result.sourced_date = c.sourcedDate;
+  if (c.stageHistory !== undefined) result.stage_history = c.stageHistory;
+  if (c.hiringHubComments !== undefined) result.hiring_hub_comments = c.hiringHubComments;
+  if (c.aiDebriefSummary !== undefined) result.ai_debrief_summary = c.aiDebriefSummary;
+  if (c.metadata !== undefined) result.metadata = c.metadata;
+  return result;
+};
+
 export const patchCandidate = (id: string, fields: Partial<Candidate>): Promise<Candidate> =>
-  patchJson<ApiCandidate>(`/api/v1/candidates/${id}`, toCand(fields), 'Failed to update candidate.').then(fromCand);
+  patchJson<ApiCandidate>(`/api/v1/candidates/${id}`, toCandPatch(fields), 'Failed to update candidate.').then(fromCand);
 
 export const deleteCandidate = (id: string): Promise<void> =>
   deleteReq(`/api/v1/candidates/${id}`, 'Failed to delete candidate.');
