@@ -70,7 +70,7 @@ const OfferHubView: React.FC = () => {
 
       <div className="flex gap-2">
         <button
-          onClick={() => setActiveTab('extended')}
+          onClick={() => { setActiveTab('extended'); setOfferRequisitionFilter(''); setOfferSearchTerm(''); }}
           className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
             activeTab === 'extended'
               ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200'
@@ -79,13 +79,13 @@ const OfferHubView: React.FC = () => {
         >
           Offers Extended
           {extendedCandidates.length > 0 && (
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px]">
               {extendedCandidates.length}
             </span>
           )}
         </button>
         <button
-          onClick={() => setActiveTab('accepted')}
+          onClick={() => { setActiveTab('accepted'); setOfferRequisitionFilter(''); setOfferSearchTerm(''); }}
           className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
             activeTab === 'accepted'
               ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-200'
@@ -94,7 +94,7 @@ const OfferHubView: React.FC = () => {
         >
           Awaiting Joining
           {acceptedCandidates.length > 0 && (
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px]">
               {acceptedCandidates.length}
             </span>
           )}
