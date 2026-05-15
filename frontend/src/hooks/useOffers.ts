@@ -50,6 +50,13 @@ export const useOffers = ({ updateCandidateStage, setCandidates }: UseOffersOpti
     [updateCandidateStage]
   );
 
+  const confirmJoined = useCallback(
+    (candidateId: string) => {
+      updateCandidateStage(candidateId, CandidateStage.HIRED);
+    },
+    [updateCandidateStage]
+  );
+
   return {
     isOfferModalOpen,
     candidateForOffer,
@@ -59,5 +66,6 @@ export const useOffers = ({ updateCandidateStage, setCandidates }: UseOffersOpti
     saveOffer,
     offerAccepted,
     offerDeclined,
+    confirmJoined,
   };
 };
