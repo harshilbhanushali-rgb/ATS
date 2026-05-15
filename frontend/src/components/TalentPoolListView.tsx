@@ -1,23 +1,13 @@
 
 import React from 'react';
-import { TalentPool, Candidate } from '../types';
 import Card from './Card';
-import PencilIcon from './icons/PencilIcon';
-import UsersIcon from './icons/UsersIcon';
+import { Pencil as PencilIcon, Users as UsersIcon } from 'lucide-react';
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
-interface TalentPoolListViewProps {
-  talentPools: TalentPool[];
-  allCandidates: Candidate[];
-  onOpenTalentPoolFormModal: (pool?: TalentPool) => void;
-  onOpenManageCandidatesModal: (pool: TalentPool) => void;
-}
-
-const TalentPoolListView: React.FC<TalentPoolListViewProps> = ({ 
-    talentPools, 
-    allCandidates, 
-    onOpenTalentPoolFormModal,
-    onOpenManageCandidatesModal 
-}) => {
+const TalentPoolListView: React.FC = () => {
+  const { talentPools, candidates: allCandidates } = useAppData();
+  const { openTalentPoolFormModal, openAddCandidateToPoolModal } = useModalState();
 
   const getCandidateCountForPool = (poolId: string): number => {
     return allCandidates.filter(c => c.talentPoolIds?.includes(poolId)).length;
@@ -37,7 +27,7 @@ const TalentPoolListView: React.FC<TalentPoolListViewProps> = ({
                 <div className="mt-6">
                     <button
                         type="button"
-                        onClick={() => onOpenTalentPoolFormModal()}
+                        onClick={() => openTalentPoolFormModal()}
                         className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                     >
                         Create New Talent Pool
@@ -83,14 +73,14 @@ const TalentPoolListView: React.FC<TalentPoolListViewProps> = ({
             </div>
             <div className="border-t border-gray-200 bg-gray-50 px-5 py-3 flex justify-end space-x-2">
               <button
-                onClick={() => onOpenTalentPoolFormModal(pool)}
+                onClick={() => openTalentPoolFormModal(pool)}
                 className="flex items-center text-xs text-yellow-600 hover:text-yellow-800 font-medium py-1 px-2 rounded-md hover:bg-yellow-50 transition-colors"
                 title="Edit Pool Details"
               >
                 <PencilIcon className="w-3.5 h-3.5 mr-1" /> Edit Pool
               </button>
               <button
-                onClick={() => onOpenManageCandidatesModal(pool)}
+                onClick={() => openAddCandidateToPoolModal(pool)}
                 className="flex items-center text-xs text-indigo-600 hover:text-indigo-800 font-medium py-1 px-2 rounded-md hover:bg-indigo-50 transition-colors"
                 title="Manage Candidates in this Pool"
               >

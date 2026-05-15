@@ -1,9 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Modal from './Modal';
-import SparklesIcon from './icons/SparklesIcon';
-import ClipboardDocumentIcon from './icons/ClipboardDocumentIcon';
-import CheckCircleIcon from './icons/CheckCircleIcon'; // For copied state
+import { Sparkles as SparklesIcon, Clipboard as ClipboardDocumentIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
 
 interface OutreachDraftModalProps {
   isOpen: boolean;

@@ -1,13 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FunctionArea, Priority, Requisition, RequisitionStatus } from '../types';
-import { RequisitionFilterParams } from '../services/crudApi';
 import Card from './Card';
-
-interface RequisitionListProps {
-  requisitions: Requisition[];
-  onEdit: (requisition: Requisition) => void;
-  onFilterChange?: (params: RequisitionFilterParams) => void;
-}
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
 const RequisitionListItem: React.FC<{ requisition: Requisition; onEdit: (requisition: Requisition) => void; }> = ({ requisition, onEdit }) => {
   const getPriorityChipClass = (priority: Priority) => {
@@ -96,7 +91,9 @@ const RequisitionListItem: React.FC<{ requisition: Requisition; onEdit: (requisi
 };
 
 
-const RequisitionList: React.FC<RequisitionListProps> = ({ requisitions, onEdit, onFilterChange }) => {
+const RequisitionList: React.FC = () => {
+  const { requisitions, refetchWithFilters: onFilterChange } = useAppData();
+  const { openRequisitionModal: onEdit } = useModalState();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');

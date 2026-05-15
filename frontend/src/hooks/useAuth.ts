@@ -9,9 +9,8 @@ interface UseAuthOptions {
 }
 
 export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(() => {
-    return null;
-  });
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const onViewChangeRef = useRef(onViewChange);
 
@@ -20,15 +19,17 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
   }, [onViewChange]);
 
   useEffect(() => {
-    void fetchCurrentUser().then((user) => {
-      if (user) {
-        setLoggedInUser(user);
-        onViewChangeRef.current?.(getViewForRole(user.role));
-        if (user.role === UserRole.ADMIN) {
-          void fetchUsers().then(setUsers).catch(() => setUsers([]));
+    void fetchCurrentUser()
+      .then((user) => {
+        if (user) {
+          setLoggedInUser(user);
+          onViewChangeRef.current?.(getViewForRole(user.role));
+          if (user.role === UserRole.ADMIN) {
+            void fetchUsers().then(setUsers).catch(() => setUsers([]));
+          }
         }
-      }
-    });
+      })
+      .finally(() => setIsCheckingAuth(false));
   }, []);
 
   const handleLogin = useCallback(async (email: string, password: string): Promise<boolean> => {
@@ -71,6 +72,7 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
 
   return {
     loggedInUser,
+    isCheckingAuth,
     users,
     setUsers,
     setLoggedInUser,

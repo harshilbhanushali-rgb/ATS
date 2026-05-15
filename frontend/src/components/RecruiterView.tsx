@@ -1,43 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Requisition, Candidate, RequisitionStatus, ResumeMatchAnalysis, CandidateStage, CandidateAIDashboardData, AIRecommendedCandidate, OutreachDraftHandlerProps } from '../types';
+import { Requisition, Candidate, RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../types';
 import Card from './Card';
-import { CandidateList } from './CandidateList'; 
-import PlusIcon from './icons/PlusIcon';
+import { CandidateList } from './CandidateList';
+import { Plus as PlusIcon, UserSearch as UserMagnifyingGlassIcon } from 'lucide-react';
 import Modal from './Modal';
 import ResumeAnalysisDisplay from './ResumeAnalysisDisplay';
-import AIRecommendationsDisplay from './AIRecommendationsDisplay'; 
-import UserMagnifyingGlassIcon from './icons/UserMagnifyingGlassIcon'; 
+import AIRecommendationsDisplay from './AIRecommendationsDisplay';
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
-interface RecruiterViewProps extends OutreachDraftHandlerProps {
-  requisitions: Requisition[];
-  allCandidates: Candidate[];
-  onOpenCandidateModal: (candidate?: Candidate, requisitionId?: string) => void;
-  onSaveCandidateAnalysis: (candidateId: string, analysis: ResumeMatchAnalysis | null) => void; 
-  onOpenCandidateAIDashboardModal: (data: CandidateAIDashboardData) => void; 
-  aiMatchedCandidates: AIRecommendedCandidate[] | null;
-  isLoadingAiMatches: boolean;
-  currentRequisitionForAIMatches: Requisition | null;
-  onFindAiCandidateMatches: (requisition: Requisition) => void;
-  onAssignCandidateFromAIPool: (candidateId: string, requisitionId: string) => void;
-  onOpenLogOutreachModal: (candidate: Candidate) => void;
-  onOpenHiringHub: (candidate: Candidate, requisition: Requisition) => void;
-}
-
-export const RecruiterView: React.FC<RecruiterViewProps> = ({ 
-    requisitions, 
-    allCandidates, 
-    onOpenCandidateModal,
-    onSaveCandidateAnalysis: _onSaveCandidateAnalysis,
-    onOpenCandidateAIDashboardModal,
-    aiMatchedCandidates,
-    isLoadingAiMatches,
-    currentRequisitionForAIMatches,
-    onFindAiCandidateMatches,
-    onAssignCandidateFromAIPool,
-    onOpenLogOutreachModal,
-    onOpenOutreachDraftModal,
-    onOpenHiringHub,
-}) => {
+export const RecruiterView: React.FC = () => {
+  const { requisitions, candidates: allCandidates, aiMatchedCandidates, isLoadingAiMatches, currentRequisitionForAIMatches, findAiCandidateMatches: onFindAiCandidateMatches, assignCandidateFromAIPool: onAssignCandidateFromAIPool } = useAppData();
+  const { openCandidateModal: onOpenCandidateModal, openCandidateAIDashboardModal: onOpenCandidateAIDashboardModal, openLogOutreachModal: onOpenLogOutreachModal, openOutreachDraftModal: onOpenOutreachDraftModal, openHiringHub: onOpenHiringHub } = useModalState();
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   const [analysisForModal, setAnalysisForModal] = useState<ResumeMatchAnalysis | null>(null);

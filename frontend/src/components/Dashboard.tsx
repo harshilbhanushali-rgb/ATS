@@ -4,14 +4,9 @@ import { Requisition, Priority, RequisitionStatus, FunctionArea, Candidate, Inte
 import Card from './Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector, TooltipProps } from 'recharts';
 import { getDashboardInsights } from '../services/aiApi';
-import SparklesIcon from './icons/SparklesIcon';
+import { Sparkles as SparklesIcon } from 'lucide-react';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-
-interface DashboardProps {
-  requisitions: Requisition[];
-  allCandidates: Candidate[];
-  allInterviews: Interview[];
-}
+import { useAppData } from '../contexts/AppDataContext';
 
 const COLORS_STATUS = ['#6366f1', '#a855f7', '#10b981', '#94a3b8', '#ef4444', '#f59e0b']; // Indigo, Purple, Green, Slate, Red, Amber
 const COLORS_PRIORITY = ['#f43f5e', '#fbbf24']; // Rose, Amber
@@ -94,7 +89,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 
-const Dashboard: React.FC<DashboardProps> = ({ requisitions, allCandidates, allInterviews }) => {
+const Dashboard: React.FC = () => {
+  const { candidates: allCandidates, requisitions, interviews: allInterviews } = useAppData();
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [isLoadingInsights, setIsLoadingInsights] = useState(true);
   const [activeIndexStatusPie, setActiveIndexStatusPie] = useState(0);
@@ -427,8 +423,8 @@ const Dashboard: React.FC<DashboardProps> = ({ requisitions, allCandidates, allI
             </div>
         ) : (
             <ul className="space-y-2 text-sm md:text-base">
-            {aiInsights.map((insight, index) => (
-                <li key={index} className="text-slate-700 p-2.5 bg-white/60 rounded-md shadow-sm border border-indigo-100">
+            {aiInsights.map((insight) => (
+                <li key={insight} className="text-slate-700 p-2.5 bg-white/60 rounded-md shadow-sm border border-indigo-100">
                     <span className="font-medium text-indigo-700">{insight.split(':')[0]}:</span>
                     {insight.split(':').slice(1).join(':')}
                 </li>

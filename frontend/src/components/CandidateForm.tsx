@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Candidate, CandidateStage, CandidateSource, Requisition } from '../types';
 import { extractTextFromFile } from '../services/aiApi';
-import ArrowUpTrayIcon from './icons/ArrowUpTrayIcon';
-import SparklesIcon from './icons/SparklesIcon';
+import { Upload as ArrowUpTrayIcon, Sparkles as SparklesIcon } from 'lucide-react';
 
 interface CandidateFormProps {
   onSubmit: (candidate: Candidate, defaultTalentPoolId?: string) => void;

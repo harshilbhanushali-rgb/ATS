@@ -5,31 +5,15 @@ import Card from './Card';
 import UserManagementView from './UserManagementView';
 import AdminImportView from './AdminImportView';
 import ScorecardTemplateBuilder from './ScorecardTemplateBuilder';
-import TrashIcon from './icons/TrashIcon';
-
-interface AdminViewProps {
-  users: User[];
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-  refreshUsers: () => Promise<void>;
-  createBackendUser: (payload: { name: string; email: string; role: any; password: string }) => Promise<User>;
-  deleteBackendUser: (userId: string) => Promise<void>;
-  templates: InterviewScorecardTemplate[];
-  onSaveTemplate: (template: InterviewScorecardTemplate) => void;
-  onClearData: () => void;
-}
+import { Trash2 as TrashIcon } from 'lucide-react';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useAppData } from '../contexts/AppDataContext';
 
 type AdminTab = 'users' | 'scorecards' | 'imports' | 'system';
 
-const AdminView: React.FC<AdminViewProps> = ({
-  users,
-  setUsers,
-  refreshUsers,
-  createBackendUser,
-  deleteBackendUser,
-  templates,
-  onSaveTemplate,
-  onClearData,
-}) => {
+const AdminView: React.FC = () => {
+  const { users, setUsers, refreshUsers, createBackendUser, deleteBackendUser } = useAuthContext();
+  const { scorecardTemplates: templates, saveScorecardTemplate: onSaveTemplate, clearData: onClearData } = useAppData();
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
 
   const tabButtonClass = (tabName: AdminTab) =>

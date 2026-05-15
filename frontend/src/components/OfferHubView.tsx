@@ -2,23 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { Candidate, Requisition, CandidateStage } from '../types';
 import OfferCard from './OfferCard';
 import Card from './Card';
-import BackspaceIcon from './icons/BackspaceIcon'; // For Clear Filters button
+import { Delete as BackspaceIcon } from 'lucide-react';
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
-interface OfferHubViewProps {
-  allCandidates: Candidate[];
-  allRequisitions: Requisition[];
-  onOfferAccepted: (candidateId: string) => void;
-  onOfferDeclined: (candidateId: string) => void;
-  onEditOffer: (candidate: Candidate, requisition: Requisition) => void;
-}
-
-const OfferHubView: React.FC<OfferHubViewProps> = ({ 
-    allCandidates, 
-    allRequisitions, 
-    onOfferAccepted, 
-    onOfferDeclined, 
-    onEditOffer 
-}) => {
+const OfferHubView: React.FC = () => {
+  const { candidates: allCandidates, requisitions: allRequisitions, offerAccepted: onOfferAccepted, offerDeclined: onOfferDeclined } = useAppData();
+  const { openOfferModal: onEditOffer } = useModalState();
   const [offerSearchTerm, setOfferSearchTerm] = useState('');
   const [offerRequisitionFilter, setOfferRequisitionFilter] = useState('');
 

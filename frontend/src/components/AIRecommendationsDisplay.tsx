@@ -2,10 +2,7 @@
 import React from 'react';
 import { Candidate, Requisition, AIRecommendedCandidate, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types';
 import Card from './Card';
-import SparklesIcon from './icons/SparklesIcon';
-import EyeIcon from './icons/EyeIcon';
-import ChatBubbleLeftEllipsisIcon from './icons/ChatBubbleLeftEllipsisIcon';
-import UserPlusIcon from './icons/UserPlusIcon';
+import { Sparkles as SparklesIcon, Eye as EyeIcon, MessageCircle as ChatBubbleLeftEllipsisIcon, UserPlus as UserPlusIcon } from 'lucide-react';
 import PencilSparklesIcon from './icons/PencilSparklesIcon';
 
 interface AIRecommendationsDisplayProps extends OutreachDraftHandlerProps {

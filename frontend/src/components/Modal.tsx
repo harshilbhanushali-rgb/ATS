@@ -1,5 +1,5 @@
 import React from 'react';
-import XMarkIcon from './icons/XMarkIcon';
+import { X as XMarkIcon } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;

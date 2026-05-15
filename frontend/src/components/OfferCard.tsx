@@ -1,10 +1,7 @@
 import React from 'react';
 import { Candidate, Requisition } from '../types';
 import Card from './Card';
-import GiftIcon from './icons/GiftIcon';
-import CheckCircleIcon from './icons/CheckCircleIcon';
-import XCircleIcon from './icons/XCircleIcon';
-import PencilIcon from './icons/PencilIcon';
+import { Gift as GiftIcon, CheckCircle as CheckCircleIcon, XCircle as XCircleIcon, Pencil as PencilIcon } from 'lucide-react';
 
 interface OfferCardProps {
   candidate: Candidate;

@@ -5,14 +5,8 @@ import { Candidate, CandidateOutreachLog, CandidateSource, CandidateStage, Inter
 import Card from './Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, TooltipProps } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-
-interface SourcerDashboardViewProps {
-  allCandidates: Candidate[];
-  candidateOutreachLogs: CandidateOutreachLog[];
-  allInterviews: Interview[]; 
-  sourcerId: string; 
-  allRequisitions: Requisition[]; 
-}
+import { useAppData } from '../contexts/AppDataContext';
+import { useAuthContext } from '../contexts/AuthContext';
 
 type DateRangeOption = 'all_time' | 'last_7_days' | 'last_30_days';
 
@@ -50,13 +44,10 @@ const HANDOFF_STAGES: CandidateStage[] = [
     CandidateStage.SHORTLISTED, 
 ];
 
-const SourcerDashboardView: React.FC<SourcerDashboardViewProps> = ({
-  allCandidates,
-  candidateOutreachLogs,
-  allInterviews, 
-  sourcerId,
-  allRequisitions,
-}) => {
+const SourcerDashboardView: React.FC = () => {
+  const { candidates: allCandidates, candidateOutreachLogs, interviews: allInterviews, requisitions: allRequisitions } = useAppData();
+  const { loggedInUser } = useAuthContext();
+  const sourcerId = loggedInUser.id;
   const [dateRange, setDateRange] = useState<DateRangeOption>('all_time');
 
   const sourcerMetrics = useMemo(() => {

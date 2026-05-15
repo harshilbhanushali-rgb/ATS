@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { InterviewScorecardTemplate } from '../types';
 import Card from './Card';
-import PlusIcon from './icons/PlusIcon';
-import TrashIcon from './icons/TrashIcon';
-import PencilIcon from './icons/PencilIcon';
+import { Plus as PlusIcon, Trash2 as TrashIcon, Pencil as PencilIcon } from 'lucide-react';
 
 interface ScorecardTemplateBuilderProps {
   templates: InterviewScorecardTemplate[];

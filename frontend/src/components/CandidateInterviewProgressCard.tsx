@@ -1,11 +1,8 @@
 import React from 'react';
 import { Candidate, Interview, CandidateStage, InterviewDecision, Requisition, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types'; 
 import Card from './Card';
-import ChatBubbleBottomCenterTextIcon from './icons/ChatBubbleBottomCenterTextIcon';
-import GiftIcon from './icons/GiftIcon';
-import EyeIcon from './icons/EyeIcon'; 
-import PencilSparklesIcon from './icons/PencilSparklesIcon'; // Added
-import ClipboardDocumentCheckIcon from './icons/ClipboardDocumentCheckIcon';
+import { MessageSquare as ChatBubbleBottomCenterTextIcon, Gift as GiftIcon, Eye as EyeIcon, ClipboardCheck as ClipboardDocumentCheckIcon } from 'lucide-react';
+import PencilSparklesIcon from './icons/PencilSparklesIcon';
 
 interface CandidateInterviewProgressCardProps extends OutreachDraftHandlerProps { // Added OutreachDraftHandlerProps
   candidate: Candidate;

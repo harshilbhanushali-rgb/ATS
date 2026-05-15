@@ -1,10 +1,8 @@
 import React from 'react';
 import { Candidate, CandidateStage, Requisition, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types';
 import Card from './Card';
-import ChatBubbleLeftEllipsisIcon from './icons/ChatBubbleLeftEllipsisIcon';
-import EyeIcon from './icons/EyeIcon';
+import { MessageCircle as ChatBubbleLeftEllipsisIcon, Eye as EyeIcon, ClipboardCheck as ClipboardDocumentCheckIcon } from 'lucide-react';
 import PencilSparklesIcon from './icons/PencilSparklesIcon';
-import ClipboardDocumentCheckIcon from './icons/ClipboardDocumentCheckIcon';
 
 
 const getStageChipClass = (stage: CandidateStage) => {

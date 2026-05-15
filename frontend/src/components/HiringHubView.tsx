@@ -2,8 +2,7 @@ import React, { useState, useMemo, FC } from 'react';
 import { Candidate, Requisition, Interview } from '../types';
 import Modal from './Modal';
 import Card from './Card';
-import SparklesIcon from './icons/SparklesIcon';
-import PaperAirplaneIcon from './icons/PaperAirplaneIcon';
+import { Sparkles as SparklesIcon, Send as PaperAirplaneIcon } from 'lucide-react';
 
 interface HiringHubViewProps {
   isOpen: boolean;

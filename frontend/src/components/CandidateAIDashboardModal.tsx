@@ -3,9 +3,7 @@ import React, { useState } from 'react';
 import { ResumeMatchAnalysis, CandidateAIDashboardData, ResumeMatchAssessment } from '../types';
 import Card from './Card';
 import ResumeAnalysisDisplay from './ResumeAnalysisDisplay';
-import SparklesIcon from './icons/SparklesIcon';
-import DocumentMagnifyingGlassIcon from './icons/DocumentMagnifyingGlassIcon';
-import EyeIcon from './icons/EyeIcon';
+import { Sparkles as SparklesIcon, FileSearch as DocumentMagnifyingGlassIcon, Eye as EyeIcon } from 'lucide-react';
 import { getResumeMatchAnalysis } from '../services/aiApi';
 
 

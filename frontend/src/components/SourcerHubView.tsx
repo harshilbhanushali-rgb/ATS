@@ -1,57 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { Requisition, Candidate, TalentPool, CandidateStage, RequisitionStatus, UserRole, AIRecommendedCandidate, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types'; 
+import { Candidate, CandidateStage, RequisitionStatus } from '../types';
 import Card from './Card';
-import PlusIcon from './icons/PlusIcon';
-import UserPlusIcon from './icons/UserPlusIcon';
-import TrashIcon from './icons/TrashIcon';
-import PencilIcon from './icons/PencilIcon';
-import DatabaseIcon from './icons/DatabaseIcon';
-import PaperAirplaneIcon from './icons/PaperAirplaneIcon';
-import ChatBubbleLeftEllipsisIcon from './icons/ChatBubbleLeftEllipsisIcon'; 
-import AIRecommendationsDisplay from './AIRecommendationsDisplay'; 
-import UserMagnifyingGlassIcon from './icons/UserMagnifyingGlassIcon'; 
+import { Plus as PlusIcon, UserPlus as UserPlusIcon, Trash2 as TrashIcon, Pencil as PencilIcon, Database as DatabaseIcon, Send as PaperAirplaneIcon, MessageCircle as ChatBubbleLeftEllipsisIcon, UserSearch as UserMagnifyingGlassIcon, Eye as EyeIcon } from 'lucide-react';
+import AIRecommendationsDisplay from './AIRecommendationsDisplay';
 import PencilSparklesIcon from './icons/PencilSparklesIcon';
-import EyeIcon from './icons/EyeIcon';
 import Modal from './Modal';
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
-
-interface SourcerHubViewProps extends OutreachDraftHandlerProps {
-  currentUserRole: UserRole; 
-  requisitions: Requisition[];
-  allCandidates: Candidate[];
-  talentPools: TalentPool[];
-  onOpenCandidateModal: (candidate?: Candidate, requisitionId?: string, defaultTalentPoolId?: string) => void;
-  onOpenTalentPoolFormModal: (pool?: TalentPool) => void;
-  onOpenAddCandidateToPoolModal: (pool: TalentPool) => void;
-  onRemoveCandidateFromPool: (candidateId: string, poolId: string) => void;
-  onMoveCandidateToRequisition: (candidateId: string, newRequisitionId: string, talentPoolIdToRemoveFrom?: string) => void;
-  onOpenLogOutreachModal: (candidate: Candidate) => void; 
-  aiMatchedCandidates: AIRecommendedCandidate[] | null;
-  isLoadingAiMatches: boolean;
-  currentRequisitionForAIMatches: Requisition | null;
-  onFindAiCandidateMatches: (requisition: Requisition) => void;
-  onAssignCandidateFromAIPool: (candidateId: string, requisitionId: string) => void;
-  onOpenCandidateAIDashboardModal: (data: CandidateAIDashboardData) => void;
-}
-
-const SourcerHubView: React.FC<SourcerHubViewProps> = ({
-  requisitions,
-  allCandidates,
-  talentPools,
-  onOpenCandidateModal,
-  onOpenTalentPoolFormModal,
-  onOpenAddCandidateToPoolModal,
-  onRemoveCandidateFromPool,
-  onMoveCandidateToRequisition,
-  onOpenLogOutreachModal,
-  aiMatchedCandidates,
-  isLoadingAiMatches,
-  currentRequisitionForAIMatches,
-  onFindAiCandidateMatches,
-  onAssignCandidateFromAIPool,
-  onOpenCandidateAIDashboardModal,
-  onOpenOutreachDraftModal,
-}) => {
+const SourcerHubView: React.FC = () => {
+  const { requisitions, candidates: allCandidates, talentPools, aiMatchedCandidates, isLoadingAiMatches, currentRequisitionForAIMatches, findAiCandidateMatches: onFindAiCandidateMatches, assignCandidateFromAIPool: onAssignCandidateFromAIPool, removeCandidateFromPool: onRemoveCandidateFromPool, moveCandidateToRequisition: onMoveCandidateToRequisition } = useAppData();
+  const { openCandidateModal: onOpenCandidateModal, openTalentPoolFormModal: onOpenTalentPoolFormModal, openAddCandidateToPoolModal: onOpenAddCandidateToPoolModal, openLogOutreachModal: onOpenLogOutreachModal, openCandidateAIDashboardModal: onOpenCandidateAIDashboardModal, openOutreachDraftModal: onOpenOutreachDraftModal } = useModalState();
   const [selectedView, setSelectedView] = useState<'requisitions' | 'talentPools'>('requisitions');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null); 
   const [candidateToMove, setCandidateToMove] = useState<{candidateId: string; poolId?: string} | null>(null);

@@ -1,13 +1,5 @@
 import React from 'react';
-import ChartBarIcon from './icons/ChartBarIcon';
-import ListBulletIcon from './icons/ListBulletIcon';
-import UsersIcon from './icons/UsersIcon';
-import ClipboardDocumentCheckIcon from './icons/ClipboardDocumentCheckIcon';
-import ClipboardDocumentListIcon from './icons/ClipboardDocumentListIcon'; 
-import GiftIcon from './icons/GiftIcon';
-import DatabaseIcon from './icons/DatabaseIcon';
-import MagnifyingGlassPlusIcon from './icons/MagnifyingGlassPlusIcon'; 
-import Cog6ToothIcon from './icons/Cog6ToothIcon';
+import { BarChart3 as ChartBarIcon, List as ListBulletIcon, Users as UsersIcon, ClipboardCheck as ClipboardDocumentCheckIcon, ClipboardList as ClipboardDocumentListIcon, Gift as GiftIcon, Database as DatabaseIcon, ZoomIn as MagnifyingGlassPlusIcon, Settings as Cog6ToothIcon } from 'lucide-react';
 import { APP_TITLE } from '../constants';
 import { UserRole } from '../types';
 
@@ -19,16 +11,16 @@ interface NavigationProps {
   userRole: UserRole;
 }
 
-const ALL_NAV_ITEMS = [
-    { id: 'dashboard' as View, label: 'Main Dashboard', icon: <ChartBarIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
-    { id: 'requisitions' as View, label: 'Requisitions', icon: <ListBulletIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
-    { id: 'sourcerhub' as View, label: 'Sourcer Hub', icon: <MagnifyingGlassPlusIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
-    { id: 'sourcerdashboard' as View, label: 'Sourcer KPIs', icon: <ClipboardDocumentListIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] }, 
-    { id: 'recruiter' as View, label: 'Recruiter Hub', icon: <UsersIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
-    { id: 'hmhub' as View, label: 'HM Hub', icon: <ClipboardDocumentCheckIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
-    { id: 'offerhub' as View, label: 'Offer Hub', icon: <GiftIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
-    { id: 'talentpools' as View, label: 'Talent Pools', icon: <DatabaseIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER] },
-    { id: 'admin' as View, label: 'Admin', icon: <Cog6ToothIcon className="w-5 h-5 mr-3" />, roles: [UserRole.ADMIN] },
+const ALL_NAV_ITEMS: Array<{ id: View; label: string; icon: React.ElementType; roles: UserRole[] }> = [
+    { id: 'dashboard', label: 'Main Dashboard', icon: ChartBarIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
+    { id: 'requisitions', label: 'Requisitions', icon: ListBulletIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
+    { id: 'sourcerhub', label: 'Sourcer Hub', icon: MagnifyingGlassPlusIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
+    { id: 'sourcerdashboard', label: 'Sourcer KPIs', icon: ClipboardDocumentListIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER] },
+    { id: 'recruiter', label: 'Recruiter Hub', icon: UsersIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
+    { id: 'hmhub', label: 'HM Hub', icon: ClipboardDocumentCheckIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
+    { id: 'offerhub', label: 'Offer Hub', icon: GiftIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER] },
+    { id: 'talentpools', label: 'Talent Pools', icon: DatabaseIcon, roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER] },
+    { id: 'admin', label: 'Admin', icon: Cog6ToothIcon, roles: [UserRole.ADMIN] },
 ];
 
 
@@ -57,9 +49,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, userRo
                   : 'hover:bg-slate-800 hover:text-slate-100'
                 }`}
             >
-              <span className={`transition-colors duration-200 ${currentView === item.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`}>
-                {React.cloneElement(item.icon as React.ReactElement, { className: "w-5 h-5 mr-3" })}
-              </span>
+              <item.icon className={`w-5 h-5 mr-3 flex-shrink-0 transition-colors duration-200 ${currentView === item.id ? 'text-white' : 'text-slate-400 group-hover:text-indigo-400'}`} />
               <span>{item.label}</span>
               {currentView === item.id && (
                 <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50 shadow-sm"></div>
@@ -69,7 +59,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, userRo
       </div>
        <div className="p-8 border-t border-slate-800/50">
             <div className="bg-slate-800/50 rounded-2xl p-4 text-center">
-                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">Powered by AI</div>
+                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1">Powered by AI</div>
                 <div className="text-xs font-medium text-slate-400">© {new Date().getFullYear()} {APP_TITLE}</div>
             </div>
         </div>

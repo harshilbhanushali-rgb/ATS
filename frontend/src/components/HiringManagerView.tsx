@@ -1,17 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Requisition, Candidate, Interview, CandidateStage, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types'; // Added OutreachDraftHandlerProps
+import { Requisition, Candidate, Interview, CandidateStage } from '../types';
 import Card from './Card';
 import CandidateInterviewProgressCard from './CandidateInterviewProgressCard';
-
-interface HiringManagerViewProps extends OutreachDraftHandlerProps { // Added OutreachDraftHandlerProps
-  allRequisitions: Requisition[];
-  allCandidates: Candidate[];
-  allInterviews: Interview[];
-  onOpenInterviewModal: (candidate: Candidate, requisition: Requisition) => void;
-  onOpenOfferModal: (candidate: Candidate, requisition: Requisition) => void;
-  onOpenCandidateAIDashboardModal: (data: CandidateAIDashboardData) => void; 
-  onOpenHiringHub: (candidate: Candidate, requisition: Requisition) => void;
-}
+import { useAppData } from '../contexts/AppDataContext';
+import { useModalState } from '../contexts/ModalStateContext';
 
 const RELEVANT_HM_STAGES = [
   CandidateStage.SHORTLISTED,
@@ -22,16 +14,9 @@ const RELEVANT_HM_STAGES = [
   CandidateStage.HM_DECISION_PENDING,
 ];
 
-const HiringManagerView: React.FC<HiringManagerViewProps> = ({ 
-    allRequisitions, 
-    allCandidates, 
-    allInterviews,     
-    onOpenInterviewModal,
-    onOpenOfferModal,
-    onOpenCandidateAIDashboardModal,
-    onOpenOutreachDraftModal, // Destructure new prop
-    onOpenHiringHub,
-}) => {
+const HiringManagerView: React.FC = () => {
+  const { requisitions: allRequisitions, candidates: allCandidates, interviews: allInterviews } = useAppData();
+  const { openInterviewModal: onOpenInterviewModal, openOfferModal: onOpenOfferModal, openCandidateAIDashboardModal: onOpenCandidateAIDashboardModal, openOutreachDraftModal: onOpenOutreachDraftModal, openHiringHub: onOpenHiringHub } = useModalState();
   const uniqueHiringManagers = useMemo(() => {
     const hmSet = new Set(allRequisitions.map(r => r.hiringManagerName));
     return Array.from(hmSet).sort();
