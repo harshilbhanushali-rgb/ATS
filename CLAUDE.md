@@ -62,13 +62,47 @@ No test runner is configured. There are no unit/integration tests in this repo.
 
 ---
 
+## Docker (Backend)
+
+Dockerfile is **Hugging Face Spaces compliant** — runs as uid 1000, binds to port 7860.
+
+```bash
+# Build
+docker build -t ai-hms-backend ./backend
+
+# Run locally (pass env vars at runtime — never bake secrets into the image)
+docker run -p 7860:7860 \
+  --env-file backend/.env \
+  ai-hms-backend
+
+# Run locally remapped to 8000
+docker run -p 8000:7860 \
+  --env-file backend/.env \
+  ai-hms-backend
+```
+
+**Files:**
+
+- `backend/Dockerfile` — `python:3.11-slim`, uid 1000 non-root user, port 7860, no `--reload`
+- `backend/.dockerignore` — excludes `__pycache__`, `.pyc`, `.env` (secrets stay off the image)
+
+**Notes:**
+
+- Port is **7860** (HF Spaces requirement) — remap with `-p 8000:7860` for local use
+- Container runs as uid 1000 (`user`) — required by HF Spaces
+- `DATABASE_URL` must use `postgresql+asyncpg://` prefix (not `postgresql://`)
+- Mount or inject `backend/.env` at runtime; do not `COPY .env` into the image
+- No `--reload` in the Docker CMD — that is for local dev only
+
+---
+
 ## Project Structure
 
 ```
 /
 ├── CLAUDE.md
 ├── .claude/plans/
-├── vite.config.ts          # Frontend build config (no proxy, no env injection)
+├── vite.config.ts          # Frontend build config (SWC plugin, no proxy, no env injection)
 ├── .env                    # VITE_API_URL=http://localhost:8000
 ├── frontend/src/
 │   ├── App.tsx             # Root: wires all hooks, passes props to AppShell + AppModals
@@ -127,6 +161,8 @@ All state lives in `hooks/` (11 hooks). Components are display-only and receive 
 
 Data hooks guard their `useEffect` with `if (!loggedInUserId) return` — intentional, prevents unauthenticated fetches. `useAuth` sets `isCheckingAuth=true` on mount until `fetchCurrentUser()` resolves; `AuthGate` shows a spinner until then (prevents login flash on reload).
 
+**Context memoization:** Both `AppDataContext.Provider` and `ModalStateContext.Provider` values are wrapped in `useMemo` in `App.tsx`. This prevents all context consumers from re-rendering on every state change, significantly reducing re-renders during data updates.
+
 ### API call pattern
 
 `services/crudApi.ts` owns all CRUD calls and field mapping:
@@ -164,6 +200,8 @@ SQLAlchemy `Base` has a class-level `metadata = MetaData()`. Our ORM models use 
 
 **On-demand AI report:** Dashboard uses `handleGenerateReport` callback instead of auto-fetch `useEffect`. Modal opens immediately; insights populate once the API resolves. Insight strings are split on `:` for bold label rendering.
 
+**Offer Hub hired transition:** `OfferHubView` has two tabs (`activeTab: 'extended' | 'accepted'`). The "Offers Extended" tab shows `OFFER_EXTENDED` candidates with Mark Accepted / Mark Declined / Edit Offer buttons; the "Awaiting Joining" tab shows `OFFER_ACCEPTED` candidates with a "Confirm Joined" button that transitions them to `CandidateStage.HIRED`. `confirmJoined` in `useOffers` calls `updateCandidateStage(candidateId, CandidateStage.HIRED)`. Switching tabs resets both filter states (`offerSearchTerm`, `offerRequisitionFilter`). No auto-transition — `HIRED` status only set by explicit recruiter or HM action.
+
 ---
 
 ## Key Gotchas
@@ -177,6 +215,7 @@ SQLAlchemy `Base` has a class-level `metadata = MetaData()`. Our ORM models use 
 - **Pool selector state** (`selectedPoolIds`) is component-local; resets on modal close. Pass `poolIds` to `findAiCandidateMatches` on confirm, not on state change.
 - **Sourcer switcher** is admin-only — regular sourcers always see their own KPIs via `loggedInUser.id`. Don't remove the role gate.
 - **Archive enum value** must be exactly `"Archived"` to match `RequisitionStatus.ARCHIVED` on the backend.
+- **Offer Hub access** — `HIRING_MANAGER` has access to Offer Hub to confirm joining. Do not remove `UserRole.HIRING_MANAGER` from the `offerhub` nav roles in `Navigation.tsx`.
 
 ---
 
@@ -210,7 +249,7 @@ FRONTEND_URL=http://localhost:3000
 | `LEAD_RECRUITER` | Requisition List | Create reqs, pipeline management, offers, archive reqs |
 | `RECRUITER` | Recruiter View | Manage candidates, log interviews |
 | `SOURCER` | Sourcer Hub | Talent pools, outreach campaigns, AI pool selector |
-| `HIRING_MANAGER` | HM Hub | Interview feedback, scorecard review, hiring decisions |
+| `HIRING_MANAGER` | HM Hub | Interview feedback, scorecard review, hiring decisions, Offer Hub (Confirm Joined) |
 
 Admin account is bootstrapped via `ADMIN_EMAIL` env var on first run (`backend/app/db/init_db.py`).
 

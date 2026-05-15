@@ -160,11 +160,12 @@ const Dashboard: React.FC = () => {
     });
     const avgTimeToFill = timeToFillDurations.length > 0 ? (timeToFillDurations.reduce((a, b) => a + b, 0) / timeToFillDurations.length).toFixed(1) : 'N/A';
 
-    const offeredCandidates = allCandidates.filter(c => 
+    const offeredCandidates = allCandidates.filter(c =>
         [CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.OFFER_DECLINED, CandidateStage.HIRED].includes(c.stage) && c.offerDetails
     );
     const totalOffersMade = offeredCandidates.length;
     const acceptedOffersCount = hiredOrAcceptedCandidates.length;
+    const declinedOffersCount = allCandidates.filter(c => c.stage === CandidateStage.OFFER_DECLINED).length;
     const offerAcceptanceRatio = totalOffersMade > 0 ? ((acceptedOffersCount / totalOffersMade) * 100).toFixed(1) + '%' : 'N/A';
     
     const avgCostPerHire: Record<string, string> = {};
@@ -204,6 +205,7 @@ const Dashboard: React.FC = () => {
         avgTimeToHire,
         avgTimeToFill,
         offerAcceptanceRatio,
+        declinedOffersCount,
         avgCostPerHire,
         avgInterviewScore,
     };
@@ -212,14 +214,14 @@ const Dashboard: React.FC = () => {
   const pipelineFunnelData = useMemo(() => {
     const majorFunnelStages = {
         APPLIED: allCandidates.length,
-        SCREENED_SHORTLISTED: allCandidates.filter(c => 
-            [CandidateStage.SCREENING, CandidateStage.SHORTLISTED, CandidateStage.INTERVIEW_ROUND_1, CandidateStage.INTERVIEW_ROUND_2, CandidateStage.INTERVIEW_ROUND_3, CandidateStage.INTERVIEW_ROUND_4, CandidateStage.HM_DECISION_PENDING, CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.HIRED].includes(c.stage)
+        SCREENED_SHORTLISTED: allCandidates.filter(c =>
+            [CandidateStage.SCREENING, CandidateStage.SHORTLISTED, CandidateStage.INTERVIEW_ROUND_1, CandidateStage.INTERVIEW_ROUND_2, CandidateStage.INTERVIEW_ROUND_3, CandidateStage.INTERVIEW_ROUND_4, CandidateStage.HM_DECISION_PENDING, CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.OFFER_DECLINED, CandidateStage.HIRED].includes(c.stage)
         ).length,
-        INTERVIEWING: allCandidates.filter(c => 
-            [CandidateStage.INTERVIEW_ROUND_1, CandidateStage.INTERVIEW_ROUND_2, CandidateStage.INTERVIEW_ROUND_3, CandidateStage.INTERVIEW_ROUND_4, CandidateStage.HM_DECISION_PENDING, CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.HIRED].includes(c.stage) || allInterviews.some(i => i.candidateId === c.id)
+        INTERVIEWING: allCandidates.filter(c =>
+            [CandidateStage.INTERVIEW_ROUND_1, CandidateStage.INTERVIEW_ROUND_2, CandidateStage.INTERVIEW_ROUND_3, CandidateStage.INTERVIEW_ROUND_4, CandidateStage.HM_DECISION_PENDING, CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.OFFER_DECLINED, CandidateStage.HIRED].includes(c.stage) || allInterviews.some(i => i.candidateId === c.id)
         ).length,
-        OFFERED: allCandidates.filter(c => 
-            [CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.HIRED].includes(c.stage) && c.offerDetails
+        OFFERED: allCandidates.filter(c =>
+            [CandidateStage.OFFER_EXTENDED, CandidateStage.OFFER_ACCEPTED, CandidateStage.OFFER_DECLINED, CandidateStage.HIRED].includes(c.stage) && c.offerDetails
         ).length,
         HIRED: allCandidates.filter(c => 
             (c.stage === CandidateStage.HIRED || c.stage === CandidateStage.OFFER_ACCEPTED) && c.offerDetails
@@ -358,6 +360,7 @@ const Dashboard: React.FC = () => {
             <KpiItem label="Avg. Time to Hire" value={kpiStats.avgTimeToHire} subValue="Days (App to Accept)" />
             <KpiItem label="Avg. Time to Fill" value={kpiStats.avgTimeToFill} subValue="Days (Req to Accept)" />
             <KpiItem label="Offer Acceptance Rate" value={kpiStats.offerAcceptanceRatio} />
+            <KpiItem label="Offers Declined" value={kpiStats.declinedOffersCount} subValue="Candidates who said no" />
             <KpiItem label="Avg. Interview Score" value={kpiStats.avgInterviewScore} subValue="/ 5.00" />
             {Object.entries(kpiStats.avgCostPerHire).length > 0 ? Object.entries(kpiStats.avgCostPerHire).map(([currency, cost]) => (
                 <KpiItem key={currency} label={`Avg. Salary (${currency})`} value={cost} />
