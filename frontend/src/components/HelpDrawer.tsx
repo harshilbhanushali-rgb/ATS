@@ -60,6 +60,9 @@ const HelpDrawer: React.FC<HelpDrawerProps> = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: 480 }}
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="User Guide"
           >
             {/* Header */}
             <div className="flex items-start justify-between px-6 py-5 border-b border-slate-100 shrink-0">
@@ -119,7 +122,7 @@ const HelpDrawer: React.FC<HelpDrawerProps> = ({ isOpen, onClose }) => {
                               key={role}
                               className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100"
                             >
-                              {role.replace('_', ' ')}
+                              {role}
                             </span>
                           ))}
                         </div>
