@@ -80,7 +80,7 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
                 whileTap={{ scale: 0.95 }}
                 aria-label="Open user guide"
               >
-                <HelpCircle style={{ width: 16, height: 16 }} />
+                <HelpCircle className="w-4 h-4" />
               </motion.button>
 
               {/* User chip */}
