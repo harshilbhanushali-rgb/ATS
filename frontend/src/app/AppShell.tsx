@@ -10,11 +10,12 @@ import OfferHubView from '../components/OfferHubView';
 import TalentPoolListView from '../components/TalentPoolListView';
 import AdminView from '../components/AdminView';
 import { PageTransition } from '../components/ui/PageTransition';
-import { Plus as PlusIcon } from 'lucide-react';
+import { Plus as PlusIcon, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UserRole } from '../types';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useModalState } from '../contexts/ModalStateContext';
+import HelpDrawer from '../components/HelpDrawer';
 
 interface AppShellProps {
   currentView: View;
@@ -35,6 +36,7 @@ const VIEW_TITLES: Record<string, string> = {
 const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
   const { loggedInUser, handleLogout } = useAuthContext();
   const { openRequisitionModal } = useModalState();
+  const [isHelpOpen, setIsHelpOpen] = React.useState(false);
 
   return (
     <div className="flex h-screen bg-[#F0F4FF] font-sans overflow-hidden">
@@ -70,6 +72,16 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
                   <PlusIcon className="w-4 h-4 mr-1.5" /> New Requisition
                 </motion.button>
               )}
+
+              {/* Help button */}
+              <motion.button
+                onClick={() => setIsHelpOpen(true)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-blue-600 border border-slate-200 bg-white transition-colors"
+                whileTap={{ scale: 0.95 }}
+                aria-label="Open user guide"
+              >
+                <HelpCircle style={{ width: 16, height: 16 }} />
+              </motion.button>
 
               {/* User chip */}
               <div className="flex items-center bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl gap-2.5">
@@ -112,6 +124,8 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
           </AnimatePresence>
         </div>
       </main>
+
+      <HelpDrawer isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 };
