@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,5 +35,14 @@ class Settings(BaseSettings):
     ADMIN_BOOTSTRAP_NAME: str = "Admin"
 
     GEMINI_API_KEY: str | None = None
+
+    @model_validator(mode="after")
+    def _cookie_samesite_requires_secure(self) -> "Settings":
+        if self.ACCESS_TOKEN_COOKIE_SAMESITE.lower() == "none" and not self.ACCESS_TOKEN_COOKIE_SECURE:
+            raise ValueError(
+                "ACCESS_TOKEN_COOKIE_SECURE must be True when ACCESS_TOKEN_COOKIE_SAMESITE is 'none'"
+            )
+        return self
+
 
 settings = Settings()
