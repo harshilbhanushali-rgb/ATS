@@ -34,6 +34,11 @@ router = APIRouter()
 
 
 def _handle_ai_error(error: Exception) -> HTTPException:
+    if isinstance(error, NotImplementedError):
+        return HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=str(error),
+        )
     logger.error("AI service error: %s", error, exc_info=True)
     return HTTPException(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
