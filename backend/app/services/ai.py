@@ -231,11 +231,11 @@ async def debrief_summary(requisition: RequisitionContext, interviews: list[dict
 
 
 async def transcribe_audio(_audio_base64: str, _mime_type: str) -> str:
-    raise AIServiceError("Audio transcription is not implemented in the backend yet")
+    raise NotImplementedError("Audio transcription is not yet implemented")
 
 
 async def text_to_speech(_text: str) -> str | None:
-    raise AIServiceError("Text-to-speech is not implemented in the backend yet")
+    raise NotImplementedError("Text-to-speech is not yet implemented")
 
 
 async def extract_text_from_file(_file_base64: str, _mime_type: str) -> str:

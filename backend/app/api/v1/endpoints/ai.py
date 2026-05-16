@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import get_current_user
@@ -26,13 +28,16 @@ from app.schemas.ai import (
 )
 from app.services import ai as ai_service
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
 def _handle_ai_error(error: Exception) -> HTTPException:
+    logger.error("AI service error: %s", error, exc_info=True)
     return HTTPException(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        detail=str(error),
+        detail="AI service temporarily unavailable. Please try again.",
     )
 
 
@@ -114,11 +119,10 @@ async def text_to_speech(
     payload: TextToSpeechRequest,
     _user=Depends(get_current_user),
 ):
-    try:
-        audio = await ai_service.text_to_speech(payload.text)
-        return TextToSpeechResponse(audio_base64=audio)
-    except Exception as error:
-        raise _handle_ai_error(error)
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Text-to-speech is not yet implemented.",
+    )
 
 
 @router.post("/transcribe", response_model=TranscribeResponse)
@@ -126,11 +130,10 @@ async def transcribe_audio(
     payload: TranscribeRequest,
     _user=Depends(get_current_user),
 ):
-    try:
-        transcript = await ai_service.transcribe_audio(payload.audio_base64, payload.mime_type)
-        return TranscribeResponse(transcript=transcript)
-    except Exception as error:
-        raise _handle_ai_error(error)
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Audio transcription is not yet implemented.",
+    )
 
 
 @router.post("/extract-text", response_model=ExtractTextResponse)
