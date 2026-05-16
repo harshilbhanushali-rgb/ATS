@@ -3,6 +3,7 @@ import {
   BarChart3, List, Users, ZoomIn, ClipboardCheck,
   Gift, Database, Settings, GitBranch, LucideIcon,
 } from 'lucide-react';
+import { UserRole } from '../types';
 
 export interface HelpFeature {
   title: string;
@@ -15,7 +16,7 @@ export interface HelpSection {
   icon: LucideIcon;
   intro: string;
   features: HelpFeature[];
-  roles?: string[];
+  roles?: UserRole[];
   tip?: string;
 }
 
@@ -53,7 +54,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'dashboard',
     label: 'Main Dashboard',
     icon: BarChart3,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER],
     intro: 'A real-time view of your entire hiring operation — open roles, active candidates, pipeline health, and AI-generated strategic insights.',
     features: [
       {
@@ -79,7 +80,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'requisitions',
     label: 'Requisitions',
     icon: List,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER],
     intro: 'Create and manage open job requisitions. Every candidate pipeline starts with a requisition — it defines the role, department, and hiring criteria.',
     features: [
       {
@@ -105,7 +106,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'recruiter',
     label: 'Recruiter Hub',
     icon: Users,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER],
     intro: 'Your day-to-day workspace for managing candidates across all open roles. A Kanban board shows every candidate and their current pipeline stage.',
     features: [
       {
@@ -131,7 +132,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'sourcerhub',
     label: 'Sourcer Hub',
     icon: ZoomIn,
-    roles: ['Admin', 'Lead Recruiter', 'Sourcer'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.SOURCER],
     intro: "Where Sourcers build talent pipelines and run AI-powered candidate discovery. Connect your pools to open requisitions and let Gemini surface the best matches.",
     features: [
       {
@@ -157,7 +158,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'hmhub',
     label: 'HM Hub',
     icon: ClipboardCheck,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter', 'Hiring Manager'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER],
     intro: "The Hiring Manager's workspace for reviewing interview feedback, submitting scorecards, and making hiring decisions with AI-assisted debrief summaries.",
     features: [
       {
@@ -183,7 +184,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'offerhub',
     label: 'Offer Hub',
     icon: Gift,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter', 'Hiring Manager'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER],
     intro: 'Manage the offer process from extension to confirmed joining. Two tabs track candidates through the final stages of the hiring funnel.',
     features: [
       {
@@ -209,7 +210,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'talentpools',
     label: 'Talent Pools',
     icon: Database,
-    roles: ['Admin', 'Lead Recruiter', 'Recruiter', 'Sourcer'],
+    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER],
     intro: 'Curated collections of candidates organised by skill set, location, or hiring initiative. Pools are the foundation of AI-powered sourcing.',
     features: [
       {
@@ -235,7 +236,7 @@ export const HELP_SECTIONS: HelpSection[] = [
     id: 'admin',
     label: 'Admin',
     icon: Settings,
-    roles: ['Admin'],
+    roles: [UserRole.ADMIN],
     intro: 'System administration for user management. Only Admin-role accounts can access this section.',
     features: [
       {
