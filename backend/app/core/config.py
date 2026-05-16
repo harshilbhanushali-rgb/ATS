@@ -36,6 +36,10 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str | None = None
 
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_RECYCLE: int = 300
+
     @model_validator(mode="after")
     def _cookie_samesite_requires_secure(self) -> "Settings":
         if self.ACCESS_TOKEN_COOKIE_SAMESITE.lower() == "none" and not self.ACCESS_TOKEN_COOKIE_SECURE:
