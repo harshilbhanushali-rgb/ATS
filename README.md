@@ -1,116 +1,252 @@
-# AI Hiring Management System (AI HMS) - Deep Documentation & Context Guide
+# AI Hiring Management System (AI HMS)
 
-A state-of-the-art recruitment platform built on **React 19** and **Google Gemini AI**. This system automates and enhances every stage of the recruitment funnel—from requisition creation to final offer—using multi-modal AI interactions (Text-to-Speech, Speech-to-Text, and advanced reasoning).
+A full-stack recruitment SaaS built for Joveo, managing the complete hiring funnel — requisition creation through confirmed hire — with Google Gemini AI powering resume analysis, candidate matching, outreach drafting, and interview debrief synthesis.
 
----
-
-## 🏗️ System Architecture
-
-### Frontend Stack
-- **Framework**: React 19 (Functional Components, Hooks).
-- **Build Tool**: Vite.
-- **Language**: TypeScript (Strong emphasis on interfaces in `src/types.ts`).
-- **Styling**: Tailwind CSS with custom fonts ('Outfit' for UI headers, 'Inter' for body, 'JetBrains Mono' for data).
-- **Icons**: Lucide React.
-- **Animations**: CSS Keyframes + Framer Motion (Ready).
-
-### AI Infrastructure (Gemini SDK)
-The system leverages the `@google/genai` SDK with three specialized models:
-1. **Orchestrator (`gemini-3.1-pro-preview`)**: Used for complex reasoning, summarization, resume analysis, and interview dialogue flow.
-2. **STT Engine (`gemini-3-flash-preview`)**: Performs high-speed transcription of candidate audio responses.
-3. **TTS Engine (`gemini-2.5-flash-preview-tts`)**: Generates professional audio responses for the AI Hiring Partner.
+Access is restricted to `@joveo.com` accounts.
 
 ---
 
-## 🔐 Security & Access Control (RBAC)
+## Tech Stack
 
-### Authentication Flow (`src/App.tsx`)
-- **Admin Access**: Whitelisted emails (`sanjay123chandel@gmail.com`, `sanjay.chandel@joveo.com`) bypass role selection and gain full system control.
-- **Domain Restriction**: Only `@joveo.com` email addresses are permitted.
-- **Role Selection**: New users must select a role which persists in the mock `users` database.
-
-### User Roles (`UserRole` enum)
-1. **Admin**: Global visibility, user management, and system configuration.
-2. **Lead Recruiter**: Manages requisitions, recruiter assignments, and offer approvals.
-3. **Recruiter**: Focuses on candidate screening, scheduling, and interview management.
-4. **Sourcer**: Manages talent pools, outreach campaigns, and candidate prospecting.
-5. **Hiring Manager**: Reviews dashboards, provides structured interview feedback, and makes final hiring decisions.
-
----
-
-## 🤖 Deep-Dive: AI Service Logic (`src/services/geminiService.ts`)
-
-### 1. Requisition Intelligence
-- `getAISuggestionsForRequisition`: Analyzes partial requisition data + JD to suggest improvements (priority, cost validation, JD enhancements).
-- `getAIPrioritySuggestion`: Predicts role criticality based on title and function.
-
-### 2. Candidate Matching & Sourcing
-- `getResumeMatchAnalysis`: Performs a multi-point comparison between resume text and JD. Outputs `ResumeMatchAssessment` (Strong, Good, Partial, Low).
-- `getAICandidateMatchesFromPools`: Scans thousands of rows (mocked) to find the best current pool candidates for a specific open req.
-
-### 3. Mutli-modal AI Interviewer
-- `createChatbotSession`: Initializes a stateful chat session with deep system instructions mimicking an empathetic recruiter.
-- `transcribeAudio`: Converts candidate `webm` audio blobs (Base64) into text.
-- `getAITextToSpeech`: Converts AI text into `Base64` PCM audio data.
-- `getChatbotInterviewAssessment`: Synthesizes a full transcript into structured scores, strengths, and concerns.
-
-### 4. Structured Decision Making
-- `getAIDebriefSummary`: Aggregates qualitative/quantitative feedback from multiple human interviewers to find consensus and divergence.
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript 5.8, Vite 6, react-router-dom 7 |
+| Styling | Tailwind CSS, Lucide React, Recharts, Framer Motion |
+| Backend | FastAPI (async), Python 3.11+, Uvicorn |
+| ORM | SQLAlchemy 2.0 async + asyncpg |
+| Database | PostgreSQL via Supabase |
+| Auth | JWT in HttpOnly cookie (`hms_access_token`, 8 h expiry) |
+| AI | Google Gemini `gemini-2.0-flash-lite` via `google-genai` SDK |
+| Validation | Pydantic v2 |
 
 ---
 
-## 🎙️ Audio Processing Pipeline (`src/audioUtils.ts`)
+## Project Structure
 
-The system handles audio manually to ensure low latency and compatibility with Gemini's raw PCM requirements.
-- **Sampling Rate**: 24,000Hz (Gemini TTS default).
-- **Encoding**: Candidate audio is captured via `MediaRecorder` as `audio/webm;codecs=opus`, converted to Base64, and sent to Gemini Flash for transcription.
-- **Decoding**: AI audio is received as raw PCM Base64, decoded using `Uint8Array`, and played via the browser's `AudioContext`.
-
----
-
-## 📂 Key Components Repository
-
-### Core Views
-- `Dashboard.tsx`: Global health metrics and AI-generated strategic insights.
-- `HiringHubView.tsx`: Collaborative "war room" for specific candidates where HMs and Recruiters review the **AI Debrief**.
-- `RecruiterView.tsx`: Pipeline management (Applied -> Screening -> Interview).
-- `SourcerHubView.tsx`: AI-assisted outreach and talent pool management.
-- `AdminView.tsx`: User role auditing and system-wide data visibility.
-
-### Interactive Components
-- `CandidateInteractionPortal.tsx`: The primary interface for candidates to take the AI interview.
-- `ChatbotInterviewModal.tsx`: Internal view for recruiters to test/re-run AI interviews.
-- `ScorecardTemplateBuilder.tsx`: Allows creation of custom competency templates for structured interviewing.
-
----
-
-## 💾 Data Persistence Model
-
-- **Persistence Layer**: `localStorage` mimics an asynchronous database. Key keys: `app_requisitions`, `app_candidates`, `app_interviews`.
-- **Session Layer**: `sessionStorage` handles `app_logged_in_user` for quick recovery on refresh.
-- **Mock Fallbacks**: `src/constants.ts` provides initial `SAMPLE_*` data if LocalStorage is empty.
-
----
-
-## 🛠️ Developer Guidance for AI Agents
-
-1. **Adding a Feature**:
-    - Update `types.ts` first if data structural changes are needed.
-    - Check `geminiService.ts` for prompt patterns; always use structured JSON output instructions for the LLM.
-    - Ensure new fields are mapped in `App.tsx`'s set-state functions to maintain persistence.
-
-2. **UI Consistency**:
-    - Use `Card.tsx` for containers.
-    - Use `Badge` and `Button` patterns from existing components (like `RecruiterView`).
-    - Stick to the defined color palette: `slate` for background/borders, `indigo` (or `emerald/amber` for status) for accents.
-
-3. **Environment Constraints**:
-    - `GEMINI_API_KEY` is mandatory.
-    - Port must remain `3000`.
-    - No HMR—it is disabled; manually trigger UI refreshes via state.
+```
+/
+├── README.md
+├── CLAUDE.md                   # AI agent instructions
+├── vite.config.ts              # Frontend build (SWC, no proxy)
+├── .env                        # VITE_API_URL=http://localhost:8000
+├── frontend/src/
+│   ├── App.tsx                 # Root: wires all hooks, passes props down
+│   ├── types.ts                # All TypeScript interfaces and enums
+│   ├── app/
+│   │   ├── AppShell.tsx        # Layout + navigation shell
+│   │   ├── AppModals.tsx       # Global modal renderer
+│   │   └── AuthGate.tsx        # Login gate (shows spinner until auth resolves)
+│   ├── components/             # Feature views and UI components
+│   ├── components/ui/          # Shared animated primitives
+│   ├── hooks/                  # All state lives here (11 custom hooks)
+│   ├── services/
+│   │   ├── apiClient.ts        # Base fetch (credentials: include, VITE_API_URL)
+│   │   ├── crudApi.ts          # CRUD + camelCase↔snake_case mappers
+│   │   ├── aiApi.ts            # AI endpoints
+│   │   └── authApi.ts          # Login / logout / session
+│   └── utils/
+│       ├── viewUtils.ts        # Route↔View mapping, role default views
+│       └── metadata.ts         # Metadata update helper
+└── backend/
+    ├── README.md               # Backend-specific setup and API reference
+    ├── Dockerfile              # HF Spaces compliant (uid 1000, port 7860)
+    ├── .env                    # Runtime secrets (never committed)
+    └── app/
+        ├── main.py             # FastAPI app, CORS, lifespan
+        ├── core/config.py      # Pydantic Settings
+        ├── core/security.py    # JWT + password hashing
+        ├── db/                 # SQLAlchemy session + init/seed
+        ├── models/             # ORM models (7 tables)
+        ├── schemas/            # Pydantic v2 request/response schemas
+        ├── services/           # Business logic (10 modules)
+        ├── api/v1/endpoints/   # FastAPI routers (11 files)
+        └── utils/prompts.py    # All Gemini prompt strings
+```
 
 ---
 
-## 📝 Configuration
-- **Vite Config**: Defined in `vite.config.ts`, handles environment injection for the Gemini API key.
-- **Meta Data**: `metadata.json` manages frame permissions (microphone is critical for the interview portal).
+## Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- Python 3.11+
+- A Supabase project (PostgreSQL)
+- A Google AI Studio API key
+
+### 1. Frontend
+
+```bash
+# Install dependencies
+npm install
+
+# Copy and configure root env
+cp .env.example .env
+# Set VITE_API_URL=http://localhost:8000
+
+# Start dev server (port 3000)
+npm run dev
+```
+
+### 2. Backend
+
+```bash
+cd backend
+
+# Install Python dependencies
+pip install -r req.txt
+
+# Copy and configure backend env
+cp .env.example .env
+# Fill in DATABASE_URL, SECRET_KEY, GEMINI_API_KEY, ADMIN_BOOTSTRAP_* (see below)
+
+# Start server (port 8000)
+uvicorn app.main:app --reload --port 8000
+```
+
+On first startup the backend automatically creates all tables and seeds the bootstrap admin account from `ADMIN_BOOTSTRAP_EMAIL` / `ADMIN_BOOTSTRAP_PASSWORD`.
+
+---
+
+## Environment Variables
+
+### Root `.env` (Vite reads this)
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+### `backend/.env`
+
+```env
+# Database
+DATABASE_URL=postgresql+asyncpg://<user>:<password>@<host>/<db>
+
+# Auth
+SECRET_KEY=<256-bit random hex>
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+ACCESS_TOKEN_COOKIE_NAME=hms_access_token
+
+# Cookie security
+# Local dev:  SAMESITE=lax   SECURE=false
+# Cross-domain prod:  SAMESITE=none  SECURE=true
+ACCESS_TOKEN_COOKIE_SAMESITE=lax
+ACCESS_TOKEN_COOKIE_SECURE=false
+
+# CORS — must exactly match the browser Origin header (no trailing slash)
+FRONTEND_URL=http://localhost:3000
+
+# Admin bootstrap (used once on first run)
+ADMIN_BOOTSTRAP_EMAIL=admin@joveo.com
+ADMIN_BOOTSTRAP_PASSWORD=<strong-password>
+ADMIN_BOOTSTRAP_NAME=Admin User
+
+# AI
+GEMINI_API_KEY=<google-ai-studio-key>
+GEMINI_MODEL=gemini-2.0-flash-lite
+
+# Connection pool
+DB_POOL_SIZE=5
+DB_MAX_OVERFLOW=10
+DB_POOL_RECYCLE=300
+```
+
+> **Cookie security note:** `SameSite=None` is only needed when the frontend and backend are on different registered domains (e.g. Vercel + Hugging Face Spaces). For localhost development both services share the `localhost` domain, so `SameSite=Lax` provides full CSRF protection without any extra configuration. Always pair `SameSite=None` with `Secure=true` and an `https://` `FRONTEND_URL`.
+
+---
+
+## User Roles
+
+| Role | Default View | Key Capabilities |
+|---|---|---|
+| `ADMIN` | Admin Panel | User management, full visibility, archive reqs, switch sourcer KPIs |
+| `LEAD_RECRUITER` | Requisition List | Create reqs, pipeline management, offers, archive reqs |
+| `RECRUITER` | Recruiter Hub | Manage candidates, log interviews |
+| `SOURCER` | Sourcer Hub | Talent pools, outreach campaigns, AI pool selector |
+| `HIRING_MANAGER` | HM Hub | Interview feedback, scorecards, hiring decisions, Offer Hub (Confirm Joined) |
+
+---
+
+## Hiring Pipeline
+
+```
+Source → AI Match → Interview → Offer → Hired
+```
+
+| Stage | Owner | Key Action |
+|---|---|---|
+| Source | Sourcer | Add to talent pools, draft AI outreach |
+| AI Match | Sourcer | Gemini scores pool candidates vs open req |
+| Interview | Recruiter / HM | Scorecards, AI debrief synthesis |
+| Offer | Lead Recruiter | Extend → Accept → Awaiting Joining |
+| Hired | Hiring Manager | Confirm Joined |
+
+---
+
+## AI Features
+
+All Gemini prompts are in `backend/app/utils/prompts.py`.
+
+| Feature | Endpoint | Hook |
+|---|---|---|
+| Resume match analysis | `POST /api/v1/ai/resume-analysis` | `useCandidates → saveCandidateAnalysis` |
+| Candidate matching from pools | `POST /api/v1/ai/matches` | `useAiMatches` |
+| Outreach draft | `POST /api/v1/ai/outreach-draft` | `useOutreachDraft` |
+| Interview debrief summary | `POST /api/v1/ai/debrief-summary` | `useHiringHub → generateAIDebriefSummary` |
+| Requisition suggestions | `POST /api/v1/ai/requisition-suggestions` | Inline in `RequisitionForm` |
+
+---
+
+## Docker (Backend)
+
+The Dockerfile is [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces) compliant — runs as uid 1000, binds to port 7860.
+
+```bash
+# Build
+docker build -t ai-hms-backend ./backend
+
+# Run (secrets injected at runtime, never baked in)
+docker run -p 7860:7860 --env-file backend/.env ai-hms-backend
+
+# Remap to local port 8000
+docker run -p 8000:7860 --env-file backend/.env ai-hms-backend
+```
+
+- Port is **7860** inside the container (HF Spaces requirement)
+- `DATABASE_URL` must use `postgresql+asyncpg://` prefix
+- No `--reload` in the Docker CMD (dev-only flag)
+
+---
+
+## Frontend Architecture
+
+All state lives in `hooks/` (11 hooks). Components are display-only and receive data + callbacks as props. `App.tsx` is the single wiring point.
+
+- Data hooks guard fetches with `if (!loggedInUserId) return` — prevents unauthenticated calls on mount
+- `AuthGate` holds a spinner until `fetchCurrentUser()` resolves — prevents login flash on reload
+- Context values in `App.tsx` are wrapped in `useMemo` to prevent unnecessary re-renders
+- URL-based navigation via react-router-dom; `viewUtils.ts` maps `View` enum ↔ URL paths
+
+---
+
+## Design System
+
+White + blue aesthetic (Linear/Stripe-inspired).
+
+- **Background:** `bg-[#F0F4FF]` with `.page-mesh` overlay
+- **Cards:** `bg-white border border-slate-200 rounded-2xl shadow-sm`
+- **Primary button:** `bg-blue-600 hover:bg-blue-700 text-white rounded-xl`
+- **Inputs:** `bg-white border border-slate-200 focus:ring-2 focus:ring-blue-500/30`
+- **Text:** `text-slate-900` primary, `text-slate-500` muted, `text-blue-600` accent
+- **Never use** dark glass tokens (`backdrop-blur-xl`, `white/10`, `slate-8xx`, `from-violet`)
+
+---
+
+## Linting
+
+```bash
+# Zero warnings enforced
+npm run lint
+```
+
+No test runner is configured — there are no unit or integration tests in this repo.

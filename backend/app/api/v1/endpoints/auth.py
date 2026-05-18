@@ -86,14 +86,17 @@ async def reset_password(
     if not email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token")
 
-    if len(payload.new_password.strip()) < 6:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 6 characters")
+    new_pw = payload.new_password
+    if len(new_pw) < 8:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters")
+    if not new_pw.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must not consist only of whitespace")
 
     user = await users_service.get_user_by_email(db, email)
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    await users_service.reset_user_password(db, user, payload.new_password)
+    await users_service.reset_user_password(db, user, new_pw)
     return GenericMessageResponse(message="Password has been reset successfully.")
 
 

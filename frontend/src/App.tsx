@@ -35,9 +35,14 @@ const App: React.FC = () => {
     [navigate]
   );
 
-  const { loggedInUser, isCheckingAuth, users, setUsers, handleLogin, handleLogout, refreshUsers, createBackendUser, deleteBackendUser } = useAuth({
+  const { loggedInUser, isCheckingAuth, users, setUsers, handleLogin, handleLogout: authHandleLogout, refreshUsers, createBackendUser, deleteBackendUser } = useAuth({
     onViewChange: navigateToView,
   });
+
+  const handleLogout = useCallback(() => {
+    authHandleLogout();
+    navigate('/');
+  }, [authHandleLogout, navigate]);
 
   const getCurrentUserId = useCallback(() => loggedInUser?.id || 'system', [loggedInUser]);
   const getCurrentUserName = useCallback(() => loggedInUser?.name || 'System', [loggedInUser]);

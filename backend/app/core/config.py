@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_RECYCLE: int = 300
 
+    GEMINI_MODEL: str = "gemini-2.0-flash-lite"
+
     @model_validator(mode="after")
     def _cookie_samesite_requires_secure(self) -> "Settings":
         if self.ACCESS_TOKEN_COOKIE_SAMESITE.lower() == "none" and not self.ACCESS_TOKEN_COOKIE_SECURE:

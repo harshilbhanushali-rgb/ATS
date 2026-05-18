@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import LoginScreen from '../components/LoginScreen';
 import { User } from '../types';
 
@@ -19,8 +20,15 @@ const AuthGate: React.FC<AuthGateProps> = ({
 }) => {
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900">
-        <div className="text-slate-400 text-base">Loading...</div>
+      <div className="flex items-center justify-center h-screen bg-[#F5F8FF]">
+        <div className="flex flex-col items-center gap-3">
+          <motion.span
+            className="block w-5 h-5 border-2 border-slate-200 border-t-blue-600 rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.75, repeat: Infinity, ease: 'linear' }}
+          />
+          <p className="text-slate-400 text-sm font-medium">Loading…</p>
+        </div>
       </div>
     );
   }

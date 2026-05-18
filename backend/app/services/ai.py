@@ -37,7 +37,9 @@ except ImportError:  # pragma: no cover
     genai = None
     types = None
 
-DEFAULT_TEXT_MODEL = "gemini-3.1-flash-lite"
+DEFAULT_TEXT_MODEL = settings.GEMINI_MODEL
+
+_client: "genai.Client" | None = None
 
 
 class AIServiceError(RuntimeError):
@@ -52,8 +54,11 @@ def _ensure_client() -> None:
 
 
 def _get_client() -> "genai.Client":
+    global _client
     _ensure_client()
-    return genai.Client(api_key=settings.GEMINI_API_KEY)
+    if _client is None:
+        _client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    return _client
 
 
 def _generate_sync(prompt: str, response_mime_type: str | None = None) -> str:
