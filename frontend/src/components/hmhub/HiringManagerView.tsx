@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { CandidateStage } from '../types';
-import Card from './Card';
-import CandidateInterviewProgressCard from './CandidateInterviewProgressCard';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
+import { CandidateStage } from '../../types';
+import Card from '../Card';
+import CandidateInterviewProgressCard from '../CandidateInterviewProgressCard';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
 import {
   Search as SearchIcon,
   X as XIcon,

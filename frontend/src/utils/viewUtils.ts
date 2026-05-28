@@ -17,6 +17,7 @@ const VIEW_PATHS: Record<View, string> = {
   hmhub: '/hm',
   offerhub: '/offers',
   talentpools: '/talent-pools',
+  reporting: '/reporting',
   admin: '/admin',
 };
 
@@ -31,6 +32,7 @@ export const getViewForPath = (pathname: string): View => {
   if (normalized.startsWith('/hm')) return 'hmhub';
   if (normalized.startsWith('/offers')) return 'offerhub';
   if (normalized.startsWith('/talent-pools')) return 'talentpools';
+  if (normalized.startsWith('/reporting')) return 'reporting';
   if (normalized.startsWith('/admin')) return 'admin';
   return 'dashboard';
 };

@@ -18,7 +18,7 @@ const emptyCandidateState = (requisitionId?: string | null) => ({
   phone: '',
   applicationDate: new Date().toISOString().split('T')[0], // Default to today
   stage: CandidateStage.APPLIED,
-  source: CandidateSource.OTHER,
+  source: '' as CandidateSource,
   requisitionId: requisitionId || '',
   resumeUrl: '',
   resumeText: '', // Added resumeText
@@ -166,6 +166,7 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
         <div>
           <label htmlFor="source" className={labelClass}>Source {requiredSpan}</label>
           <select name="source" id="source" value={formData.source} onChange={handleChange} className={inputClass} required>
+            <option value="" disabled>Select source channel...</option>
             {Object.values(CandidateSource).map(source => <option key={source} value={source}>{source}</option>)}
           </select>
         </div>

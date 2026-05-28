@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { User, UserRole } from '../types';
-import Card from './Card';
+import { User, UserRole } from '../../types';
+import Card from '../Card';
 import { Plus as PlusIcon, Trash2 as TrashIcon } from 'lucide-react';
 
 interface UserManagementViewProps {

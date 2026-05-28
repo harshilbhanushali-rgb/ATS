@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Card from './Card';
-import { apiFetch } from '../services/apiClient';
+import Card from '../Card';
+import { apiFetch } from '../../services/apiClient';
 
 interface ImportError {
   row?: number | null;

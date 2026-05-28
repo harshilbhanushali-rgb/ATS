@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FunctionArea, Priority, Requisition, RequisitionStatus, UserRole } from '../types';
-import Card from './Card';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
-import { useAuthContext } from '../contexts/AuthContext';
+import { FunctionArea, Priority, Requisition, RequisitionStatus, UserRole } from '../../types';
+import Card from '../Card';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const listItem = {
   hidden: { opacity: 0, y: 12, scale: 0.98 },

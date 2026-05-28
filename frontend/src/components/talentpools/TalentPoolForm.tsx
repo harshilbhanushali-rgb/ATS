@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { TalentPool } from '../types';
+import { TalentPool } from '../../types';
 
 interface TalentPoolFormProps {
   onSubmit: (pool: TalentPool) => void;

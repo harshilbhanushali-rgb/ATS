@@ -1,14 +1,14 @@
 import React from 'react';
 import CandidateAIDashboardModal from '../components/CandidateAIDashboardModal';
 import CandidateForm from '../components/CandidateForm';
-import HiringHubView from '../components/HiringHubView';
+import HiringHubView from '../components/hmhub/HiringHubView';
 import InterviewForm from '../components/InterviewForm';
 import LogOutreachForm from '../components/LogOutreachForm';
 import Modal from '../components/Modal';
 import OfferForm from '../components/OfferForm';
 import OutreachDraftModal from '../components/OutreachDraftModal';
-import RequisitionForm from '../components/RequisitionForm';
-import TalentPoolForm from '../components/TalentPoolForm';
+import RequisitionForm from '../components/requisitions/RequisitionForm';
+import TalentPoolForm from '../components/talentpools/TalentPoolForm';
 import { useAppData } from '../contexts/AppDataContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useModalState } from '../contexts/ModalStateContext';

@@ -278,3 +278,58 @@ All Gemini prompts are in `backend/app/utils/prompts.py` — edit there to tune 
 - **`engineering-skills:code-reviewer`** — before committing a batch of changes
 - **`engineering-skills:senior-prompt-engineer`** — tuning Gemini prompts
 - **`engineering-skills:epic-design`** — cinematic UI, scroll animations, premium frontend effects
+
+---
+
+## Scalability Analysis — 40–50 Concurrent Users
+
+**Verdict: Yes, the stack handles 40–50 concurrent users comfortably with one caveat (Gemini thread pool).**
+
+### Backend — FastAPI + asyncpg
+
+FastAPI on a single Uvicorn worker is fully async. Each HTTP request holds a DB connection only for the duration of the query, not the entire request lifecycle. I/O-bound workloads (DB reads/writes, auth checks) scale well without adding workers.
+
+**DB connection pool** (`session.py`):
+- `pool_size=5`, `max_overflow=10` → up to **15 live connections** at any moment.
+- At 40–50 users doing typical CRUD (not all simultaneously hitting DB), this is adequate. PostgreSQL on Supabase supports hundreds of connections; the bottleneck is the pool, not the server.
+- If all 50 users trigger a DB call at the exact same instant, requests beyond 15 will queue inside SQLAlchemy (timeout=30 s). In normal interactive use this never happens.
+- **Action if needed:** raise `DB_POOL_SIZE=10`, `DB_MAX_OVERFLOW=20` via env var — zero code change.
+
+### AI Endpoints — Gemini (blocking thread offload)
+
+All Gemini calls use `anyio.to_thread.run_sync()` to offload the synchronous `google-genai` SDK to a thread pool. AnyIO's default thread pool is **40 threads**, which matches the target user count. However:
+
+- Each AI call can take **2–8 seconds** and blocks one thread for that duration.
+- If 40 users each trigger an AI call simultaneously, the thread pool saturates.
+- In practice, AI calls are user-initiated (resume upload, "Find Matches" button) — not background polling — so simultaneous saturation is unlikely at this scale.
+- **Action if needed:** add a per-user rate limit or a `Semaphore(10)` guard around `_generate_text` to cap concurrent Gemini calls and return a friendly "busy" error rather than silently queuing.
+
+### Database — Supabase (hosted PostgreSQL)
+
+- All ORM operations use `async`/`await` — no blocking calls in the request path.
+- `pool_pre_ping=True` recovers from idle connection drops (Supabase has a 5-min idle timeout on the free tier).
+- `pool_recycle=300` (5 min) proactively refreshes connections before Supabase drops them.
+- No N+1 query patterns observed in the service layer; each endpoint issues a bounded number of queries.
+- Supabase free tier: 60 direct connections max. At `pool_size=5` + `max_overflow=10`, the app consumes at most 15 — well within limits.
+
+### Frontend — React SPA (Vite)
+
+Static assets served by Vite dev server (dev) or any CDN (prod). Zero server state — no SSR, no sessions on the frontend server. Scales independently of backend concurrency.
+
+### JWT Auth
+
+Stateless HttpOnly cookie JWT. No session store, no Redis. Each request validates the token in-process (CPU-only). 50 concurrent auth checks: negligible.
+
+### What is NOT production-ready (beyond 50 users)
+
+| Gap | Impact | Fix |
+|---|---|---|
+| Single Uvicorn worker | CPU-bound tasks would block the event loop | `gunicorn -w 4 -k uvicorn.workers.UvicornWorker` |
+| No response caching | Dashboard insights & AI reports re-query Gemini on every click | Cache with `functools.lru_cache` + TTL or Redis |
+| No Gemini concurrency cap | Thread pool exhaustion under sustained AI load | `asyncio.Semaphore(10)` guard in `_generate_text` |
+| No request rate limiting | A single user can spam AI endpoints | FastAPI middleware or `slowapi` |
+| `statement_cache_size=0` | Required for pgBouncer but disables PG's prepared-statement cache | Remove if not using pgBouncer |
+
+### Summary
+
+For **40–50 internal Joveo users** doing normal recruiter workflows, the current architecture is sound. The only realistic risk is **simultaneous AI calls** — if a batch action (e.g., bulk resume analysis) triggers many Gemini requests at once, the anyio thread pool can fill. Add a `Semaphore` guard and bump the pool env vars if that pattern emerges.

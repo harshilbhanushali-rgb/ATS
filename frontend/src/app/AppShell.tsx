@@ -1,19 +1,21 @@
 import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation, { View } from '../components/Navigation';
-import Dashboard from '../components/Dashboard';
-import RequisitionList from '../components/RequisitionList';
-import { RecruiterView } from '../components/RecruiterView';
-import SourcerHubView from '../components/SourcerHubView';
-import HiringManagerView from '../components/HiringManagerView';
-import OfferHubView from '../components/OfferHubView';
-import TalentPoolListView from '../components/TalentPoolListView';
-import AdminView from '../components/AdminView';
+import Dashboard from '../components/dashboard/Dashboard';
+import RequisitionList from '../components/requisitions/RequisitionList';
+import { RecruiterView } from '../components/recruiter/RecruiterView';
+import SourcerHubView from '../components/sourcer/SourcerHubView';
+import HiringManagerView from '../components/hmhub/HiringManagerView';
+import OfferHubView from '../components/offerhub/OfferHubView';
+import TalentPoolListView from '../components/talentpools/TalentPoolListView';
+import AdminView from '../components/admin/AdminView';
+import { ReportingView } from '../components/ReportingView';
 import { PageTransition } from '../components/ui/PageTransition';
 import { Plus as PlusIcon, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UserRole } from '../types';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useAppData } from '../contexts/AppDataContext';
 import { useModalState } from '../contexts/ModalStateContext';
 import HelpDrawer from '../components/HelpDrawer';
 
@@ -30,11 +32,13 @@ const VIEW_TITLES: Record<string, string> = {
   hmhub: 'HM Hub',
   offerhub: 'Offer Hub',
   talentpools: 'Talent Pools',
+  reporting: 'Reports',
   admin: 'Administration',
 };
 
 const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
-  const { loggedInUser, handleLogout } = useAuthContext();
+  const { loggedInUser, handleLogout, users } = useAuthContext();
+  const { candidates, requisitions, interviews, candidateOutreachLogs } = useAppData();
   const { openRequisitionModal } = useModalState();
   const [isHelpOpen, setIsHelpOpen] = React.useState(false);
 
@@ -120,6 +124,7 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
             {currentView === 'hmhub'        && <PageTransition motionKey="hmhub"><HiringManagerView /></PageTransition>}
             {currentView === 'offerhub'     && <PageTransition motionKey="offerhub"><OfferHubView /></PageTransition>}
             {currentView === 'talentpools'  && <PageTransition motionKey="talentpools"><TalentPoolListView /></PageTransition>}
+            {currentView === 'reporting'    && <PageTransition motionKey="reporting"><ReportingView requisitions={requisitions} allCandidates={candidates} allInterviews={interviews} users={users} candidateOutreachLogs={candidateOutreachLogs} /></PageTransition>}
             {currentView === 'admin'        && <PageTransition motionKey="admin"><AdminView /></PageTransition>}
           </AnimatePresence>
         </div>

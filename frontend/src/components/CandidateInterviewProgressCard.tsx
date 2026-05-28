@@ -132,7 +132,7 @@ const CandidateInterviewProgressCard: React.FC<CandidateInterviewProgressCardPro
                     <span className="text-[10px] text-slate-500">By {interview.interviewerName}</span>
                     <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border ${
                       interview.decision === InterviewDecision.RECOMMEND_HIRE ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                      interview.decision === InterviewDecision.DO_NOT_HIRE ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                      interview.decision === InterviewDecision.REJECT ? 'bg-rose-50 text-rose-700 border-rose-200' :
                       'bg-amber-50 text-amber-700 border-amber-200'
                     }`}>
                       {interview.decision}

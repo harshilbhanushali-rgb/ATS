@@ -1,9 +1,9 @@
 
 import React from 'react';
-import Card from './Card';
+import Card from '../Card';
 import { Pencil as PencilIcon, Users as UsersIcon } from 'lucide-react';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
 
 const TalentPoolListView: React.FC = () => {
   const { talentPools, candidates: allCandidates } = useAppData();

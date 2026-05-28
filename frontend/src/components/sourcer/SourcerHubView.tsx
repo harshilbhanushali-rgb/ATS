@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Candidate, CandidateStage, RequisitionStatus, Requisition } from '../types';
-import Card from './Card';
+import { Candidate, CandidateStage, RequisitionStatus, Requisition } from '../../types';
+import Card from '../Card';
 import {
   Plus as PlusIcon,
   UserPlus as UserPlusIcon,
@@ -18,12 +18,12 @@ import {
   Sparkles as SparklesIcon,
   ChevronDown as ChevronDownIcon,
 } from 'lucide-react';
-import AIRecommendationsDisplay from './AIRecommendationsDisplay';
-import PencilSparklesIcon from './icons/PencilSparklesIcon';
-import Modal from './Modal';
+import AIRecommendationsDisplay from '../AIRecommendationsDisplay';
+import PencilSparklesIcon from '../icons/PencilSparklesIcon';
+import Modal from '../Modal';
 import SourcerDashboardView from './SourcerDashboardView';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
 
 const STAGE_PILL: Record<string, string> = {
   [CandidateStage.APPLIED]: 'bg-slate-100 text-slate-600',

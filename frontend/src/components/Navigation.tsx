@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3 as ChartBarIcon, List as ListBulletIcon, Users as UsersIcon, ClipboardCheck as ClipboardDocumentCheckIcon, Gift as GiftIcon, Database as DatabaseIcon, ZoomIn as MagnifyingGlassPlusIcon, Settings as Cog6ToothIcon } from 'lucide-react';
+import { BarChart3 as ChartBarIcon, List as ListBulletIcon, Users as UsersIcon, ClipboardCheck as ClipboardDocumentCheckIcon, Gift as GiftIcon, Database as DatabaseIcon, ZoomIn as MagnifyingGlassPlusIcon, Settings as Cog6ToothIcon, BarChart2 as BarChart2Icon } from 'lucide-react';
 import { APP_TITLE } from '../constants';
 import { UserRole } from '../types';
 
-export type View = 'dashboard' | 'requisitions' | 'recruiter' | 'sourcerhub' | 'hmhub' | 'offerhub' | 'talentpools' | 'admin';
+export type View = 'dashboard' | 'requisitions' | 'recruiter' | 'sourcerhub' | 'hmhub' | 'offerhub' | 'talentpools' | 'admin' | 'reporting';
 
 interface NavigationProps {
   currentView: View;
@@ -20,6 +20,7 @@ const ALL_NAV_ITEMS: Array<{ id: View; label: string; icon: React.ElementType; r
   { id: 'hmhub',        label: 'HM Hub',         icon: ClipboardDocumentCheckIcon,    roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
   { id: 'offerhub',     label: 'Offer Hub',      icon: GiftIcon,                      roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.HIRING_MANAGER] },
   { id: 'talentpools',  label: 'Talent Pools',   icon: DatabaseIcon,                  roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER] },
+  { id: 'reporting',    label: 'Reports',         icon: BarChart2Icon,                 roles: [UserRole.ADMIN, UserRole.LEAD_RECRUITER, UserRole.RECRUITER, UserRole.SOURCER, UserRole.HIRING_MANAGER] },
   { id: 'admin',        label: 'Admin',           icon: Cog6ToothIcon,                roles: [UserRole.ADMIN] },
 ];
 

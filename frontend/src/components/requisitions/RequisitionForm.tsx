@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Requisition, Priority, HireType, RequisitionStatus, Location, FunctionArea, NewOrBackfill, AISuggestion, Cost, UserRole } from '../types';
-import { getAIPrioritySuggestion, getAISuggestionsForRequisition, extractTextFromFile } from '../services/aiApi';
+import { Requisition, Priority, HireType, RequisitionStatus, Location, FunctionArea, NewOrBackfill, AISuggestion, Cost, UserRole } from '../../types';
+import { getAIPrioritySuggestion, getAISuggestionsForRequisition, extractTextFromFile } from '../../services/aiApi';
 import { Sparkles as SparklesIcon, Upload as ArrowUpTrayIcon } from 'lucide-react';
 
 interface RequisitionFormProps {

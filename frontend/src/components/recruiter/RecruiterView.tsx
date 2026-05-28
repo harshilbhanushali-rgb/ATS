@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Requisition, Candidate, RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../types';
-import Card from './Card';
-import { CandidateList } from './CandidateList';
+import { Requisition, Candidate, RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../../types';
+import Card from '../Card';
+import { CandidateList } from '../CandidateList';
 import {
   Plus as PlusIcon,
   UserSearch as UserMagnifyingGlassIcon,
@@ -12,11 +12,11 @@ import {
   Sparkles as SparklesIcon,
   ChevronDown as ChevronDownIcon,
 } from 'lucide-react';
-import Modal from './Modal';
-import ResumeAnalysisDisplay from './ResumeAnalysisDisplay';
-import AIRecommendationsDisplay from './AIRecommendationsDisplay';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
+import Modal from '../Modal';
+import ResumeAnalysisDisplay from '../ResumeAnalysisDisplay';
+import AIRecommendationsDisplay from '../AIRecommendationsDisplay';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
 
 export const RecruiterView: React.FC = () => {
   const {

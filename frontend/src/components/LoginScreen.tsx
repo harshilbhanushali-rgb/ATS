@@ -86,12 +86,12 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
 const stepVariants = {
   enter: { opacity: 0, x: 16 },
-  center: { opacity: 1, x: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] } },
+  center: { opacity: 1, x: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } },
   exit: { opacity: 0, x: -16, transition: { duration: 0.2 } },
 };
 

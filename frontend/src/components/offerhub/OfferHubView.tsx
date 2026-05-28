@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { CandidateStage } from '../types';
+import { CandidateStage } from '../../types';
 import OfferCard from './OfferCard';
-import Card from './Card';
+import Card from '../Card';
 import { Delete as BackspaceIcon } from 'lucide-react';
-import { useAppData } from '../contexts/AppDataContext';
-import { useModalState } from '../contexts/ModalStateContext';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useModalState } from '../../contexts/ModalStateContext';
 
 const OfferHubView: React.FC = () => {
   const {

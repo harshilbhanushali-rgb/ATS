@@ -1,12 +1,12 @@
 
 
 import React, { useState, useMemo } from 'react';
-import { Candidate, CandidateOutreachLog, CandidateSource, CandidateStage, Interview, RequisitionStatus, Requisition, UserRole } from '../types';
-import Card from './Card';
+import { Candidate, CandidateOutreachLog, CandidateSource, CandidateStage, Interview, RequisitionStatus, Requisition, UserRole } from '../../types';
+import Card from '../Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, TooltipProps } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { useAppData } from '../contexts/AppDataContext';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAppData } from '../../contexts/AppDataContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 type DateRangeOption = 'all_time' | 'last_7_days' | 'last_30_days';
 

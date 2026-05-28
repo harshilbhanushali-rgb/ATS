@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { User, InterviewScorecardTemplate } from '../types';
-import Card from './Card';
+import { User, InterviewScorecardTemplate } from '../../types';
+import Card from '../Card';
 import UserManagementView from './UserManagementView';
 import AdminImportView from './AdminImportView';
 import ScorecardTemplateBuilder from './ScorecardTemplateBuilder';
 import { Trash2 as TrashIcon } from 'lucide-react';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useAppData } from '../contexts/AppDataContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useAppData } from '../../contexts/AppDataContext';
 
 type AdminTab = 'users' | 'scorecards' | 'imports' | 'system';
 

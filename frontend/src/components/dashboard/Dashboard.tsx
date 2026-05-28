@@ -1,15 +1,15 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import Modal from './Modal';
-import { Requisition, Priority, RequisitionStatus, FunctionArea, Candidate, Interview, CandidateStage } from '../types';
-import Card from './Card';
-import AnimatedCounter from './ui/AnimatedCounter';
+import Modal from '../Modal';
+import { Requisition, Priority, RequisitionStatus, FunctionArea, Candidate, Interview, CandidateStage } from '../../types';
+import Card from '../Card';
+import AnimatedCounter from '../ui/AnimatedCounter';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector, TooltipProps } from 'recharts';
-import { getDashboardInsights } from '../services/aiApi';
+import { getDashboardInsights } from '../../services/aiApi';
 import { Sparkles as SparklesIcon } from 'lucide-react';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { useAppData } from '../contexts/AppDataContext';
+import { useAppData } from '../../contexts/AppDataContext';
 
 const staggerContainer = { hidden: {}, visible: { transition: { staggerChildren: 0.09 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } } };
