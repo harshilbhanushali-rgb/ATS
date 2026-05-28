@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Candidate, CandidateOutreachLog, CandidateStage, Interview, User, UserRole } from '../../types';
+import { Candidate, CandidateOutreachLog, CandidateStage, Interview, User } from '../../types';
 import Card from '../Card';
 import { COLORS, downloadCSV } from './reportingUtils';
 
@@ -13,12 +13,7 @@ interface ProductivityTabProps {
 
 const ProductivityTab: React.FC<ProductivityTabProps> = ({ allCandidates, allInterviews, users, candidateOutreachLogs }) => {
   const teamProductivityData = useMemo(() => {
-    const reportUsers = users.length > 0 ? users : [
-      { id: 'admin-user-01', name: 'Sanjay Chandel', email: 'sanjay123chandel@gmail.com', role: UserRole.ADMIN },
-      { id: 'usr-02', name: 'Sarah Jenkins', email: 'sarah.recruiter@joveo.com', role: UserRole.RECRUITER },
-      { id: 'usr-03', name: 'Michael Tan', email: 'mike.manager@joveo.com', role: UserRole.HIRING_MANAGER },
-      { id: 'usr-04', name: 'Akansha Rana', email: 'akansha.rana@joveo.com', role: UserRole.LEAD_RECRUITER }
-    ];
+    const reportUsers = users;
 
     const teamRows = reportUsers.map(usr => {
       const sourcedCount = allCandidates.filter(c => c.sourcedByUserId === usr.id).length;
@@ -30,24 +25,15 @@ const ProductivityTab: React.FC<ProductivityTabProps> = ({ allCandidates, allInt
       const rejectedCount = allCandidates.filter(c => c.stage === CandidateStage.REJECTED && c.stageHistory?.some(h => h.stage === CandidateStage.REJECTED && h.changedByUserId === usr.id)).length;
       const hiredCount = allCandidates.filter(c => [CandidateStage.HIRED, CandidateStage.OFFER_ACCEPTED].includes(c.stage) && c.stageHistory?.some(h => [CandidateStage.HIRED, CandidateStage.OFFER_ACCEPTED].includes(h.stage) && h.changedByUserId === usr.id)).length;
 
-      const sim = {
-        sourced: usr.role === UserRole.SOURCER ? 14 : usr.role === UserRole.ADMIN ? 5 : 2,
-        comments: [UserRole.RECRUITER, UserRole.HIRING_MANAGER].includes(usr.role) ? 9 : 4,
-        interviews: usr.role === UserRole.HIRING_MANAGER ? 6 : usr.role === UserRole.RECRUITER ? 8 : 1,
-        emails: usr.role === UserRole.SOURCER ? 38 : usr.role === UserRole.RECRUITER ? 15 : 2,
-        rejected: usr.role === UserRole.RECRUITER ? 8 : 2,
-        hired: [UserRole.RECRUITER, UserRole.ADMIN].includes(usr.role) ? 3 : 1,
-      };
-
       return {
         userId: usr.id, name: usr.name, email: usr.email, role: usr.role,
-        sourced: sourcedCount || sim.sourced,
-        comments: commentsCount || sim.comments,
-        interviews: interviewsCount || sim.interviews,
-        reviews: scorecardsSubmitted || Math.max(0, sim.interviews - 1),
-        emails: emailsSent || sim.emails,
-        rejected: rejectedCount || sim.rejected,
-        hired: hiredCount || sim.hired,
+        sourced: sourcedCount,
+        comments: commentsCount,
+        interviews: interviewsCount,
+        reviews: scorecardsSubmitted,
+        emails: emailsSent,
+        rejected: rejectedCount,
+        hired: hiredCount,
       };
     });
 

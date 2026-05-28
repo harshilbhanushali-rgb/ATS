@@ -111,8 +111,18 @@ docker run -p 8000:7860 \
 │   │   ├── AppShell.tsx    # Layout + navigation shell
 │   │   ├── AppModals.tsx   # Global modal renderer
 │   │   └── AuthGate.tsx    # Shows login screen or children based on auth state
-│   ├── components/         # UI views and feature components
-│   ├── components/ui/      # Shared animated primitives (AnimatedCounter, MagneticButton, PageTransition)
+│   ├── components/
+│   │   ├── dashboard/      # Dashboard.tsx
+│   │   ├── requisitions/   # RequisitionList.tsx, RequisitionForm.tsx
+│   │   ├── recruiter/      # RecruiterView.tsx
+│   │   ├── sourcer/        # SourcerHubView.tsx, SourcerDashboardView.tsx
+│   │   ├── hmhub/          # HiringManagerView.tsx, HiringHubView.tsx
+│   │   ├── offerhub/       # OfferHubView.tsx, OfferCard.tsx
+│   │   ├── talentpools/    # TalentPoolListView.tsx, TalentPoolForm.tsx
+│   │   ├── admin/          # AdminView.tsx, AdminImportView.tsx, UserManagementView.tsx, ScorecardTemplateBuilder.tsx
+│   │   ├── reporting/      # SourcePerformanceTab.tsx, PipelineStatusTab.tsx, VelocityTab.tsx, ApplicationsTab.tsx, ProductivityTab.tsx, reportingUtils.ts
+│   │   ├── ui/             # Shared animated primitives (AnimatedCounter, MagneticButton, PageTransition)
+│   │   └── (root)          # Shared: Card, Modal, Navigation, HelpDrawer, CandidateForm, CandidateList, CandidateInterviewProgressCard, InterviewForm, OfferForm, OutreachDraftModal, LogOutreachForm, ResumeAnalysisDisplay, AIRecommendationsDisplay, CandidateAIDashboardModal, LoginScreen, ReportingView
 │   ├── hooks/              # 11 custom hooks — all state lives here
 │   ├── services/
 │   │   ├── apiClient.ts    # Base fetch client (credentials: include, VITE_API_URL)
@@ -216,6 +226,7 @@ SQLAlchemy `Base` has a class-level `metadata = MetaData()`. Our ORM models use 
 - **Sourcer switcher** is admin-only — regular sourcers always see their own KPIs via `loggedInUser.id`. Don't remove the role gate.
 - **Archive enum value** must be exactly `"Archived"` to match `RequisitionStatus.ARCHIVED` on the backend.
 - **Offer Hub access** — `HIRING_MANAGER` has access to Offer Hub to confirm joining. Do not remove `UserRole.HIRING_MANAGER` from the `offerhub` nav roles in `Navigation.tsx`.
+- **`CandidateSource` has no default** — `CandidateForm` intentionally starts with `source: '' as CandidateSource` and a disabled placeholder option. Do not restore `CandidateSource.OTHER` as a default — it causes all candidates to land in "Others" in the Reporting channel ledger, masking real sourcing data.
 
 ---
 
