@@ -42,6 +42,9 @@ type ApiDebriefSummary = {
 };
 
 const parseError = async (response: Response, fallback: string) => {
+  if (response.status === 429) {
+    return new Error('AI is a bit busy right now — please wait a moment and try again.');
+  }
   const payload = await response.json().catch(() => null);
   return new Error(payload?.detail || fallback);
 };

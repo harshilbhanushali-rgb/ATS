@@ -48,7 +48,7 @@ def _handle_ai_error(error: Exception) -> HTTPException:
 
 
 @router.post("/requisition/suggestions", response_model=AISuggestionsResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def requisition_suggestions(
     request: Request,
     payload: AISuggestionsRequest,
@@ -62,7 +62,7 @@ async def requisition_suggestions(
 
 
 @router.post("/requisition/priority", response_model=PrioritySuggestionResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def requisition_priority(
     request: Request,
     payload: PrioritySuggestionRequest,
@@ -76,7 +76,7 @@ async def requisition_priority(
 
 
 @router.get("/dashboard/insights", response_model=DashboardInsightsResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def dashboard_insights(request: Request, _user=Depends(get_current_user)):
     try:
         insights = await ai_service.dashboard_insights()
@@ -86,7 +86,7 @@ async def dashboard_insights(request: Request, _user=Depends(get_current_user)):
 
 
 @router.post("/resume/analysis", response_model=ResumeMatchAnalysis)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def resume_analysis(
     request: Request,
     payload: ResumeAnalysisRequest,
@@ -99,7 +99,7 @@ async def resume_analysis(
 
 
 @router.post("/candidate-matches", response_model=CandidateMatchResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def candidate_matches(
     request: Request,
     payload: CandidateMatchRequest,
@@ -114,7 +114,7 @@ async def candidate_matches(
 
 
 @router.post("/outreach/draft", response_model=OutreachDraftResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def outreach_draft(
     request: Request,
     payload: OutreachDraftRequest,
@@ -154,7 +154,7 @@ async def transcribe_audio(
 
 
 @router.post("/extract-text", response_model=ExtractTextResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def extract_text(
     request: Request,
     payload: ExtractTextRequest,
@@ -168,7 +168,7 @@ async def extract_text(
 
 
 @router.post("/debrief-summary", response_model=DebriefSummaryResponse)
-@limiter.limit("10/minute")
+@limiter.limit("30/minute")
 async def debrief_summary(
     request: Request,
     payload: DebriefSummaryRequest,

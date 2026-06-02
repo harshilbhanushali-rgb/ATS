@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -73,7 +76,10 @@ async def forgot_password(
         return ForgotPasswordResponse(message=message)
 
     token, _ = create_password_reset_token(payload.email)
-    await asyncio.to_thread(send_password_reset_email, payload.email, token)
+    try:
+        await asyncio.to_thread(send_password_reset_email, payload.email, token)
+    except Exception as exc:
+        logger.error("Failed to send password reset email to %s: %s", payload.email, exc)
     return ForgotPasswordResponse(message=message)
 
 
