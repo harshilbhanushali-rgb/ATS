@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Candidate,
   CandidateStage,
@@ -33,21 +34,29 @@ const addStageHistoryEntry = (
 };
 
 export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesOptions) => {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const candidatesQueryKey = ['candidates', loggedInUser?.id] as const;
+
+  const { data: candidates = [], isLoading } = useQuery({
+    queryKey: candidatesQueryKey,
+    queryFn: () => crudApi.listCandidates(),
+    enabled: !!loggedInUser?.id,
+  });
+
+  const setCandidates = useCallback(
+    (updater: Candidate[] | ((prev: Candidate[]) => Candidate[])) => {
+      queryClient.setQueryData<Candidate[]>(candidatesQueryKey, (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient, loggedInUser?.id]
+  );
+
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
   const [defaultRequisitionIdForCandidate, setDefaultRequisitionIdForCandidate] = useState<string | null>(null);
   const [defaultTalentPoolIdForCandidate, setDefaultTalentPoolIdForCandidate] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!loggedInUser?.id) return;
-    crudApi
-      .listCandidates()
-      .then(setCandidates)
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, [loggedInUser?.id]);
 
   const openCandidateModal = useCallback(
     (candidate?: Candidate, requisitionId?: string, talentPoolId?: string) => {
@@ -143,7 +152,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
 
       closeCandidateModal();
     },
-    [closeCandidateModal, getCurrentUserId, loggedInUser]
+    [closeCandidateModal, getCurrentUserId, loggedInUser, setCandidates]
   );
 
   const updateCandidateStage = useCallback(
@@ -171,7 +180,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
         })
       );
     },
-    [getCurrentUserId]
+    [getCurrentUserId, setCandidates]
   );
 
   const saveCandidateAnalysis = useCallback(
@@ -188,7 +197,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
         })
       );
     },
-    []
+    [setCandidates]
   );
 
   const removeCandidateFromPool = useCallback((candidateId: string, poolId: string) => {
@@ -202,7 +211,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
         return candidate;
       })
     );
-  }, []);
+  }, [setCandidates]);
 
   const moveCandidateToRequisition = useCallback(
     (candidateId: string, newRequisitionId: string, talentPoolIdToRemoveFrom?: string) => {
@@ -241,7 +250,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
         })
       );
     },
-    [getCurrentUserId]
+    [getCurrentUserId, setCandidates]
   );
 
   const deleteCandidate = useCallback((id: string) => {
@@ -250,7 +259,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
       console.error(err);
       crudApi.listCandidates().then(setCandidates).catch(console.error);
     });
-  }, []);
+  }, [setCandidates]);
 
   return {
     candidates,

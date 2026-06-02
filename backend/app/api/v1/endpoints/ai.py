@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.api.deps import get_current_user
+from app.core.limiter import limiter
 from app.schemas.ai import (
     AISuggestionsRequest,
     AISuggestionsResponse,
@@ -47,7 +48,9 @@ def _handle_ai_error(error: Exception) -> HTTPException:
 
 
 @router.post("/requisition/suggestions", response_model=AISuggestionsResponse)
+@limiter.limit("10/minute")
 async def requisition_suggestions(
+    request: Request,
     payload: AISuggestionsRequest,
     _user=Depends(get_current_user),
 ):
@@ -59,7 +62,9 @@ async def requisition_suggestions(
 
 
 @router.post("/requisition/priority", response_model=PrioritySuggestionResponse)
+@limiter.limit("10/minute")
 async def requisition_priority(
+    request: Request,
     payload: PrioritySuggestionRequest,
     _user=Depends(get_current_user),
 ):
@@ -71,7 +76,8 @@ async def requisition_priority(
 
 
 @router.get("/dashboard/insights", response_model=DashboardInsightsResponse)
-async def dashboard_insights(_user=Depends(get_current_user)):
+@limiter.limit("10/minute")
+async def dashboard_insights(request: Request, _user=Depends(get_current_user)):
     try:
         insights = await ai_service.dashboard_insights()
         return DashboardInsightsResponse(insights=insights)
@@ -80,7 +86,9 @@ async def dashboard_insights(_user=Depends(get_current_user)):
 
 
 @router.post("/resume/analysis", response_model=ResumeMatchAnalysis)
+@limiter.limit("10/minute")
 async def resume_analysis(
+    request: Request,
     payload: ResumeAnalysisRequest,
     _user=Depends(get_current_user),
 ):
@@ -91,7 +99,9 @@ async def resume_analysis(
 
 
 @router.post("/candidate-matches", response_model=CandidateMatchResponse)
+@limiter.limit("10/minute")
 async def candidate_matches(
+    request: Request,
     payload: CandidateMatchRequest,
     _user=Depends(get_current_user),
 ):
@@ -104,7 +114,9 @@ async def candidate_matches(
 
 
 @router.post("/outreach/draft", response_model=OutreachDraftResponse)
+@limiter.limit("10/minute")
 async def outreach_draft(
+    request: Request,
     payload: OutreachDraftRequest,
     _user=Depends(get_current_user),
 ):
@@ -142,7 +154,9 @@ async def transcribe_audio(
 
 
 @router.post("/extract-text", response_model=ExtractTextResponse)
+@limiter.limit("10/minute")
 async def extract_text(
+    request: Request,
     payload: ExtractTextRequest,
     _user=Depends(get_current_user),
 ):
@@ -154,7 +168,9 @@ async def extract_text(
 
 
 @router.post("/debrief-summary", response_model=DebriefSummaryResponse)
+@limiter.limit("10/minute")
 async def debrief_summary(
+    request: Request,
     payload: DebriefSummaryRequest,
     _user=Depends(get_current_user),
 ):

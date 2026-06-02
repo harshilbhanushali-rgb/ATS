@@ -17,6 +17,8 @@ async def list_requisitions(
     status: str | None = None,
     hiring_manager: str | None = None,
     function_area: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ):
@@ -26,6 +28,8 @@ async def list_requisitions(
         status=status,
         hiring_manager=hiring_manager,
         function_area=function_area,
+        skip=skip,
+        limit=limit,
     )
 
 

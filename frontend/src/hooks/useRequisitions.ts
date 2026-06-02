@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Requisition, RequisitionStatus } from '../types';
 import * as crudApi from '../services/crudApi';
 import { RequisitionFilterParams } from '../services/crudApi';
@@ -10,19 +11,27 @@ interface UseRequisitionsOptions {
 }
 
 export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisitionsOptions) => {
-  const [requisitions, setRequisitions] = useState<Requisition[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const reqQueryKey = ['requisitions', loggedInUserId] as const;
+
+  const { data: requisitions = [], isLoading } = useQuery({
+    queryKey: reqQueryKey,
+    queryFn: () => crudApi.listRequisitions(),
+    enabled: !!loggedInUserId,
+  });
+
+  const setRequisitions = useCallback(
+    (updater: Requisition[] | ((prev: Requisition[]) => Requisition[])) => {
+      queryClient.setQueryData<Requisition[]>(reqQueryKey, (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient, loggedInUserId]
+  );
+
   const [isRequisitionModalOpen, setIsRequisitionModalOpen] = useState(false);
   const [editingRequisition, setEditingRequisition] = useState<Requisition | null>(null);
-
-  useEffect(() => {
-    if (!loggedInUserId) return;
-    crudApi
-      .listRequisitions()
-      .then(setRequisitions)
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, [loggedInUserId]);
 
   const openRequisitionModal = useCallback((requisition?: Requisition) => {
     setEditingRequisition(requisition || null);
@@ -68,7 +77,7 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
 
       closeRequisitionModal();
     },
-    [closeRequisitionModal, getCurrentUserId]
+    [closeRequisitionModal, getCurrentUserId, setRequisitions]
   );
 
   const deleteRequisition = useCallback((id: string) => {
@@ -78,30 +87,28 @@ export const useRequisitions = ({ getCurrentUserId, loggedInUserId }: UseRequisi
       // Revert on failure — refetch from server
       crudApi.listRequisitions().then(setRequisitions).catch(console.error);
     });
-  }, []);
+  }, [setRequisitions]);
 
   const refetchWithFilters = useCallback((params: RequisitionFilterParams) => {
-    setIsLoading(true);
     crudApi
       .listRequisitions(params)
       .then(setRequisitions)
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, []);
+      .catch(console.error);
+  }, [setRequisitions]);
 
   const archiveRequisition = useCallback(async (id: string) => {
     await crudApi.patchRequisition(id, { reqStatus: RequisitionStatus.ARCHIVED });
     setRequisitions((prev) =>
       prev.map((r) => r.id === id ? { ...r, reqStatus: RequisitionStatus.ARCHIVED } : r)
     );
-  }, []);
+  }, [setRequisitions]);
 
   const reactivateRequisition = useCallback(async (id: string) => {
     await crudApi.patchRequisition(id, { reqStatus: RequisitionStatus.OPEN });
     setRequisitions((prev) =>
       prev.map((r) => r.id === id ? { ...r, reqStatus: RequisitionStatus.OPEN } : r)
     );
-  }, []);
+  }, [setRequisitions]);
 
   return {
     requisitions,

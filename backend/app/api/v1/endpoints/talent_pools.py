@@ -13,10 +13,12 @@ router = APIRouter()
 
 @router.get("/", response_model=list[TalentPoolOut])
 async def list_talent_pools(
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ):
-    return await talent_pools_service.list_talent_pools(db)
+    return await talent_pools_service.list_talent_pools(db, skip=skip, limit=limit)
 
 
 @router.post("/", response_model=TalentPoolOut, status_code=status.HTTP_201_CREATED)

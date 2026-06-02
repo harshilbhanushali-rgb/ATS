@@ -1,17 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Candidate, Interview, Requisition } from '../types';
 import * as crudApi from '../services/crudApi';
 
 export const useInterviews = ({ loggedInUserId }: { loggedInUserId?: string } = {}) => {
-  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const queryClient = useQueryClient();
+  const interviewsQueryKey = ['interviews', loggedInUserId] as const;
+
+  const { data: interviews = [] } = useQuery({
+    queryKey: interviewsQueryKey,
+    queryFn: () => crudApi.listInterviews(),
+    enabled: !!loggedInUserId,
+  });
+
+  const setInterviews = useCallback(
+    (updater: Interview[] | ((prev: Interview[]) => Interview[])) => {
+      queryClient.setQueryData<Interview[]>(interviewsQueryKey, (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient, loggedInUserId]
+  );
+
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [candidateForInterview, setCandidateForInterview] = useState<Candidate | null>(null);
   const [requisitionForInterview, setRequisitionForInterview] = useState<Requisition | null>(null);
-
-  useEffect(() => {
-    if (!loggedInUserId) return;
-    crudApi.listInterviews().then(setInterviews).catch(console.error);
-  }, [loggedInUserId]);
 
   const openInterviewModal = useCallback((candidate: Candidate, requisition: Requisition) => {
     setCandidateForInterview(candidate);
@@ -37,7 +51,7 @@ export const useInterviews = ({ loggedInUserId }: { loggedInUserId?: string } = 
         });
       closeInterviewModal();
     },
-    [closeInterviewModal]
+    [closeInterviewModal, setInterviews]
   );
 
   const deleteInterview = useCallback((id: string) => {
@@ -46,7 +60,7 @@ export const useInterviews = ({ loggedInUserId }: { loggedInUserId?: string } = 
       console.error(err);
       crudApi.listInterviews().then(setInterviews).catch(console.error);
     });
-  }, []);
+  }, [setInterviews]);
 
   return {
     interviews,

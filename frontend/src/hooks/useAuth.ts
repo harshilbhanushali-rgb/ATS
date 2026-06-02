@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User, UserRole } from '../types';
 import { getViewForRole } from '../utils/viewUtils';
 import { View } from '../components/Navigation';
@@ -9,9 +10,9 @@ interface UseAuthOptions {
 }
 
 export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
+  const queryClient = useQueryClient();
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [users, setUsers] = useState<User[]>([]);
   const onViewChangeRef = useRef(onViewChange);
 
   useEffect(() => {
@@ -24,13 +25,25 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
         if (user) {
           setLoggedInUser(user);
           onViewChangeRef.current?.(getViewForRole(user.role));
-          if (user.role === UserRole.ADMIN) {
-            void fetchUsers().then(setUsers).catch(() => setUsers([]));
-          }
         }
       })
       .finally(() => setIsCheckingAuth(false));
   }, []);
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    enabled: loggedInUser?.role === UserRole.ADMIN,
+  });
+
+  const setUsers = useCallback(
+    (updater: User[] | ((prev: User[]) => User[])) => {
+      queryClient.setQueryData<User[]>(['users'], (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    [queryClient]
+  );
 
   const handleLogin = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
@@ -38,37 +51,37 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
       setLoggedInUser(user);
       onViewChangeRef.current?.(getViewForRole(user.role));
       if (user.role === UserRole.ADMIN) {
-        const adminUsers = await fetchUsers();
-        setUsers(adminUsers);
+        queryClient.invalidateQueries({ queryKey: ['users'] });
       }
       return true;
     } catch (error) {
       console.error(error);
       return false;
     }
-  }, []);
+  }, [queryClient]);
 
   const handleLogout = useCallback(() => {
     void logout();
     setLoggedInUser(null);
-    setUsers([]);
-  }, []);
+    queryClient.removeQueries({ queryKey: ['users'] });
+  }, [queryClient]);
 
   const refreshUsers = useCallback(async () => {
-    const nextUsers = await fetchUsers();
-    setUsers(nextUsers);
-  }, []);
+    await queryClient.invalidateQueries({ queryKey: ['users'] });
+  }, [queryClient]);
 
   const createBackendUser = useCallback(async (payload: Parameters<typeof createUser>[0]) => {
     const user = await createUser(payload);
-    setUsers((prev) => [...prev, user]);
+    queryClient.setQueryData<User[]>(['users'], (prev = []) => [...prev, user]);
     return user;
-  }, []);
+  }, [queryClient]);
 
   const deleteBackendUser = useCallback(async (userId: string) => {
     await apiDeleteUser(userId);
-    setUsers((prev) => prev.filter((user) => user.id !== userId));
-  }, []);
+    queryClient.setQueryData<User[]>(['users'], (prev = []) =>
+      prev.filter((user) => user.id !== userId)
+    );
+  }, [queryClient]);
 
   return {
     loggedInUser,

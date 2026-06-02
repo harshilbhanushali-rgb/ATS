@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import base64
 from typing import Any
@@ -39,7 +40,8 @@ except ImportError:  # pragma: no cover
 
 DEFAULT_TEXT_MODEL = settings.GEMINI_MODEL
 
-_client: "genai.Client" | None = None
+_client: Any = None
+_gemini_semaphore = asyncio.Semaphore(8)
 
 
 class AIServiceError(RuntimeError):
@@ -75,7 +77,8 @@ def _generate_sync(prompt: str, response_mime_type: str | None = None) -> str:
 
 
 async def _generate_text(prompt: str, response_mime_type: str | None = None) -> str:
-    return await anyio.to_thread.run_sync(_generate_sync, prompt, response_mime_type)
+    async with _gemini_semaphore:
+        return await anyio.to_thread.run_sync(_generate_sync, prompt, response_mime_type)
 
 
 def _parse_json(text: str) -> Any:
@@ -269,6 +272,7 @@ async def extract_text_from_file(_file_base64: str, _mime_type: str) -> str:
         return (response.text or "").strip() or "(AI could not extract text from the file or the file is empty)"
 
     try:
-        return await anyio.to_thread.run_sync(_extract_sync)
+        async with _gemini_semaphore:
+            return await anyio.to_thread.run_sync(_extract_sync)
     except Exception as error:
         raise AIServiceError(f"Error extracting text from file: {error}") from error

@@ -15,6 +15,8 @@ async def list_requisitions(
     status: str | None = None,
     hiring_manager: str | None = None,
     function_area: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
 ) -> list[Requisition]:
     stmt = select(Requisition).order_by(Requisition.created_at.desc())
     if search:
@@ -27,7 +29,7 @@ async def list_requisitions(
         stmt = stmt.where(Requisition.hiring_manager_name == hiring_manager)
     if function_area:
         stmt = stmt.where(Requisition.function == function_area)
-    result = await session.execute(stmt)
+    result = await session.execute(stmt.offset(skip).limit(limit))
     return list(result.scalars().all())
 
 

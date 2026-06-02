@@ -45,9 +45,20 @@ const ActiveShape = <T extends { cx?: number, cy?: number, midAngle?: number, in
 
   return (
     <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill || '#1e293b'} className="font-semibold text-base sm:text-lg">
-        {payload.name}
-      </text>
+      {(() => {
+        const words = (payload.name as string).split(' ');
+        const mid = Math.ceil(words.length / 2);
+        const line1 = words.slice(0, mid).join(' ');
+        const line2 = words.slice(mid).join(' ');
+        return line2 ? (
+          <>
+            <text x={cx} y={cy} dy={-6} textAnchor="middle" fill={fill || '#1e293b'} fontSize={13} fontWeight={600}>{line1}</text>
+            <text x={cx} y={cy} dy={12} textAnchor="middle" fill={fill || '#1e293b'} fontSize={13} fontWeight={600}>{line2}</text>
+          </>
+        ) : (
+          <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill || '#1e293b'} fontSize={13} fontWeight={600}>{line1}</text>
+        );
+      })()}
       <Sector
         cx={cx}
         cy={cy}
@@ -82,7 +93,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 shadow-lg rounded-xl border border-slate-200 text-sm">
-        <p className="font-semibold text-slate-800 mb-1">{`${label}`}</p>
+        {(label ?? payload[0]?.name) && (
+          <p className="font-semibold text-slate-800 mb-1">{label ?? payload[0]?.name}</p>
+        )}
         {payload.map((pld, index) => (
           <p key={index} style={{ color: pld.color }}>
             {`${pld.name}: ${pld.value?.toLocaleString()}`}
@@ -95,16 +108,43 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 
+type PieEntry = { name: string; value: number; unit?: string };
+
+const SourcePieChart: React.FC<{ data: PieEntry[]; colors: string[] }> = ({ data, colors }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  return (
+    <ResponsiveContainer width="100%" height={350}>
+      <PieChart>
+        <Pie activeIndex={activeIndex} activeShape={ActiveShape} data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius="45%" outerRadius="75%" onMouseEnter={(_: unknown, index: number) => setActiveIndex(index)}>
+          {data.map((_, index) => <Cell key={`cell-source-${index}`} fill={colors[index % colors.length]} />)}
+        </Pie>
+        <Tooltip content={<CustomTooltip />} />
+        <Legend iconSize={10} wrapperStyle={{ fontSize: '11px' }} layout="horizontal" verticalAlign="bottom" align="center" />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
+const StatusPieChart: React.FC<{ data: PieEntry[]; colors: string[] }> = ({ data, colors }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  return (
+    <ResponsiveContainer width="100%" height={350}>
+      <PieChart>
+        <Pie activeIndex={activeIndex} activeShape={ActiveShape} data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius="45%" outerRadius="75%" onMouseEnter={(_: unknown, index: number) => setActiveIndex(index)}>
+          {data.map((_, index) => <Cell key={`cell-status-${index}`} fill={colors[index % colors.length]} />)}
+        </Pie>
+        <Tooltip content={<CustomTooltip />} />
+        <Legend iconSize={10} wrapperStyle={{ fontSize: '12px' }} />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
 const Dashboard: React.FC = () => {
   const { candidates: allCandidates, requisitions, interviews: allInterviews } = useAppData();
-  const [activeIndexStatusPie, setActiveIndexStatusPie] = useState(0);
-  const [activeIndexSourcePie, setActiveIndexSourcePie] = useState(0);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportInsights, setReportInsights] = useState<string[]>([]);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-
-  const onPieEnterStatus = <T,>(_: T, index: number) => setActiveIndexStatusPie(index);
-  const onPieEnterSource = <T,>(_: T, index: number) => setActiveIndexSourcePie(index);
 
   const handleGenerateReport = useCallback(async () => {
     setIsGeneratingReport(true);
@@ -402,57 +442,14 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card title="Hires by Source" className="lg:col-span-1">
-             {hiringSourceData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                        <Pie
-                            activeIndex={activeIndexSourcePie}
-                            activeShape={ActiveShape}
-                            data={hiringSourceData}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="45%"
-                            outerRadius="75%"
-                            onMouseEnter={onPieEnterSource}
-                        >
-                            {hiringSourceData.map((entry, index) => (
-                            <Cell key={`cell-source-${index}`} fill={COLORS_SOURCE[index % COLORS_SOURCE.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend iconSize={10} wrapperStyle={{fontSize: "11px"}} layout="horizontal" verticalAlign="bottom" align="center"/>
-                    </PieChart>
-                </ResponsiveContainer>
-             ) : (
-                <p className="text-center text-slate-500 py-10 text-sm">No hired candidate data available for source analysis.</p>
-             )}
+          {hiringSourceData.length > 0
+            ? <SourcePieChart data={hiringSourceData} colors={COLORS_SOURCE} />
+            : <p className="text-center text-slate-500 py-10 text-sm">No hired candidate data available for source analysis.</p>
+          }
         </Card>
 
         <Card title="Requisitions by Status" className="lg:col-span-2">
-          <ResponsiveContainer width="100%" height={350}>
-            <PieChart>
-              <Pie 
-                activeIndex={activeIndexStatusPie}
-                activeShape={ActiveShape}
-                data={requisitionsByStatus} 
-                dataKey="value" 
-                nameKey="name" 
-                cx="50%" 
-                cy="50%" 
-                innerRadius="45%"
-                outerRadius="75%"
-                onMouseEnter={onPieEnterStatus}
-              >
-                {requisitionsByStatus.map((entry, index) => (
-                  <Cell key={`cell-status-${index}`} fill={COLORS_STATUS[index % COLORS_STATUS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconSize={10} wrapperStyle={{fontSize: "12px"}}/>
-            </PieChart>
-          </ResponsiveContainer>
+          <StatusPieChart data={requisitionsByStatus} colors={COLORS_STATUS} />
         </Card>
       </div>
       

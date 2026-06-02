@@ -13,10 +13,12 @@ router = APIRouter()
 
 @router.get("/", response_model=list[CandidateOut])
 async def list_candidates(
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ):
-    return await candidates_service.list_candidates(db)
+    return await candidates_service.list_candidates(db, skip=skip, limit=limit)
 
 
 @router.post("/", response_model=CandidateOut, status_code=status.HTTP_201_CREATED)

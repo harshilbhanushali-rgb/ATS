@@ -1,14 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { InterviewScorecardTemplate } from '../types';
 import * as crudApi from '../services/crudApi';
 
 export const useScorecards = ({ loggedInUserId }: { loggedInUserId?: string } = {}) => {
-  const [scorecardTemplates, setScorecardTemplates] = useState<InterviewScorecardTemplate[]>([]);
+  const queryClient = useQueryClient();
+  const scorecardsQueryKey = ['scorecards', loggedInUserId] as const;
 
-  useEffect(() => {
-    if (!loggedInUserId) return;
-    crudApi.listScorecards().then(setScorecardTemplates).catch(console.error);
-  }, [loggedInUserId]);
+  const { data: scorecardTemplates = [] } = useQuery({
+    queryKey: scorecardsQueryKey,
+    queryFn: () => crudApi.listScorecards(),
+    enabled: !!loggedInUserId,
+  });
+
+  const setScorecardTemplates = useCallback(
+    (updater: InterviewScorecardTemplate[] | ((prev: InterviewScorecardTemplate[]) => InterviewScorecardTemplate[])) => {
+      queryClient.setQueryData<InterviewScorecardTemplate[]>(scorecardsQueryKey, (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient, loggedInUserId]
+  );
 
   const saveScorecardTemplate = useCallback((template: InterviewScorecardTemplate) => {
     setScorecardTemplates((prev) => {
@@ -35,7 +48,7 @@ export const useScorecards = ({ loggedInUserId }: { loggedInUserId?: string } = 
         });
       return [template, ...prev];
     });
-  }, []);
+  }, [setScorecardTemplates]);
 
   const deleteScorecardTemplate = useCallback((id: string) => {
     setScorecardTemplates((prev) => prev.filter((t) => t.id !== id));
@@ -43,7 +56,7 @@ export const useScorecards = ({ loggedInUserId }: { loggedInUserId?: string } = 
       console.error(err);
       crudApi.listScorecards().then(setScorecardTemplates).catch(console.error);
     });
-  }, []);
+  }, [setScorecardTemplates]);
 
   return {
     scorecardTemplates,

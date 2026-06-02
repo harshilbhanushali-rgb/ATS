@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Candidate, CandidateOutreachLog } from '../types';
 import * as crudApi from '../services/crudApi';
 
@@ -8,14 +9,27 @@ interface UseOutreachLogsOptions {
 }
 
 export const useOutreachLogs = ({ getCurrentUserId, loggedInUserId }: UseOutreachLogsOptions) => {
-  const [candidateOutreachLogs, setCandidateOutreachLogs] = useState<CandidateOutreachLog[]>([]);
+  const queryClient = useQueryClient();
+  const outreachLogsQueryKey = ['outreachLogs', loggedInUserId] as const;
+
+  const { data: candidateOutreachLogs = [] } = useQuery({
+    queryKey: outreachLogsQueryKey,
+    queryFn: () => crudApi.listOutreachLogs(),
+    enabled: !!loggedInUserId,
+  });
+
+  const setCandidateOutreachLogs = useCallback(
+    (updater: CandidateOutreachLog[] | ((prev: CandidateOutreachLog[]) => CandidateOutreachLog[])) => {
+      queryClient.setQueryData<CandidateOutreachLog[]>(outreachLogsQueryKey, (prev = []) =>
+        typeof updater === 'function' ? updater(prev) : updater
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient, loggedInUserId]
+  );
+
   const [isLogOutreachModalOpen, setIsLogOutreachModalOpen] = useState(false);
   const [candidateForOutreachLog, setCandidateForOutreachLog] = useState<Candidate | null>(null);
-
-  useEffect(() => {
-    if (!loggedInUserId) return;
-    crudApi.listOutreachLogs().then(setCandidateOutreachLogs).catch(console.error);
-  }, [loggedInUserId]);
 
   const openLogOutreachModal = useCallback((candidate: Candidate) => {
     setCandidateForOutreachLog(candidate);
@@ -61,7 +75,7 @@ export const useOutreachLogs = ({ getCurrentUserId, loggedInUserId }: UseOutreac
 
       closeLogOutreachModal();
     },
-    [closeLogOutreachModal, getCurrentUserId]
+    [closeLogOutreachModal, getCurrentUserId, setCandidateOutreachLogs]
   );
 
   return {

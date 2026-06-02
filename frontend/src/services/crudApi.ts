@@ -119,15 +119,16 @@ const toReq = (r: Requisition): Record<string, unknown> => ({
   metadata: r.metadata ?? null,
 });
 
-export const listRequisitions = (params?: RequisitionFilterParams): Promise<Requisition[]> => {
+export const listRequisitions = (params?: RequisitionFilterParams, skip = 0, limit = 100): Promise<Requisition[]> => {
   const qs = new URLSearchParams();
   if (params?.search) qs.set('search', params.search);
   if (params?.status) qs.set('status', params.status);
   if (params?.hiringManager) qs.set('hiring_manager', params.hiringManager);
   if (params?.functionArea) qs.set('function_area', params.functionArea);
-  const query = qs.toString();
+  qs.set('skip', String(skip));
+  qs.set('limit', String(limit));
   return getJson<ApiRequisition[]>(
-    `/api/v1/requisitions/${query ? `?${query}` : ''}`,
+    `/api/v1/requisitions/?${qs.toString()}`,
     'Failed to load requisitions.'
   ).then((data) => data.map(fromReq));
 };
@@ -217,8 +218,8 @@ const toCand = (c: Partial<Candidate>): Record<string, unknown> => ({
   metadata: c.metadata ?? null,
 });
 
-export const listCandidates = (): Promise<Candidate[]> =>
-  getJson<ApiCandidate[]>('/api/v1/candidates/', 'Failed to load candidates.').then((data) =>
+export const listCandidates = (skip = 0, limit = 100): Promise<Candidate[]> =>
+  getJson<ApiCandidate[]>(`/api/v1/candidates/?skip=${skip}&limit=${limit}`, 'Failed to load candidates.').then((data) =>
     data.map(fromCand)
   );
 
@@ -298,8 +299,8 @@ const toInterview = (i: Interview): Record<string, unknown> => ({
   results: i.results,
 });
 
-export const listInterviews = (): Promise<Interview[]> =>
-  getJson<ApiInterview[]>('/api/v1/interviews/', 'Failed to load interviews.').then((data) =>
+export const listInterviews = (skip = 0, limit = 100): Promise<Interview[]> =>
+  getJson<ApiInterview[]>(`/api/v1/interviews/?skip=${skip}&limit=${limit}`, 'Failed to load interviews.').then((data) =>
     data.map(fromInterview)
   );
 
@@ -337,8 +338,8 @@ const toPool = (p: TalentPool): Record<string, unknown> => ({
   tags: p.tags ?? null,
 });
 
-export const listTalentPools = (): Promise<TalentPool[]> =>
-  getJson<ApiTalentPool[]>('/api/v1/talent-pools/', 'Failed to load talent pools.').then((data) =>
+export const listTalentPools = (skip = 0, limit = 100): Promise<TalentPool[]> =>
+  getJson<ApiTalentPool[]>(`/api/v1/talent-pools/?skip=${skip}&limit=${limit}`, 'Failed to load talent pools.').then((data) =>
     data.map(fromPool)
   );
 
@@ -376,8 +377,8 @@ const toScorecard = (s: InterviewScorecardTemplate): Record<string, unknown> => 
   created_date: s.createdDate,
 });
 
-export const listScorecards = (): Promise<InterviewScorecardTemplate[]> =>
-  getJson<ApiScorecard[]>('/api/v1/scorecards/', 'Failed to load scorecard templates.').then((data) =>
+export const listScorecards = (skip = 0, limit = 100): Promise<InterviewScorecardTemplate[]> =>
+  getJson<ApiScorecard[]>(`/api/v1/scorecards/?skip=${skip}&limit=${limit}`, 'Failed to load scorecard templates.').then((data) =>
     data.map(fromScorecard)
   );
 
@@ -434,8 +435,8 @@ const toLog = (l: CandidateOutreachLog): Record<string, unknown> => ({
   clicked_link: l.clickedLink ?? false,
 });
 
-export const listOutreachLogs = (): Promise<CandidateOutreachLog[]> =>
-  getJson<ApiOutreachLog[]>('/api/v1/outreach-logs/', 'Failed to load outreach logs.').then((data) =>
+export const listOutreachLogs = (skip = 0, limit = 100): Promise<CandidateOutreachLog[]> =>
+  getJson<ApiOutreachLog[]>(`/api/v1/outreach-logs/?skip=${skip}&limit=${limit}`, 'Failed to load outreach logs.').then((data) =>
     data.map(fromLog)
   );
 

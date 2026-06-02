@@ -1,15 +1,19 @@
 import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation, { View } from '../components/Navigation';
-import Dashboard from '../components/dashboard/Dashboard';
-import RequisitionList from '../components/requisitions/RequisitionList';
-import { RecruiterView } from '../components/recruiter/RecruiterView';
-import SourcerHubView from '../components/sourcer/SourcerHubView';
-import HiringManagerView from '../components/hmhub/HiringManagerView';
-import OfferHubView from '../components/offerhub/OfferHubView';
-import TalentPoolListView from '../components/talentpools/TalentPoolListView';
-import AdminView from '../components/admin/AdminView';
-import { ReportingView } from '../components/ReportingView';
+const Dashboard = React.lazy(() => import('../components/dashboard/Dashboard'));
+const RequisitionList = React.lazy(() => import('../components/requisitions/RequisitionList'));
+const RecruiterView = React.lazy(() =>
+  import('../components/recruiter/RecruiterView').then(m => ({ default: m.RecruiterView }))
+);
+const SourcerHubView = React.lazy(() => import('../components/sourcer/SourcerHubView'));
+const HiringManagerView = React.lazy(() => import('../components/hmhub/HiringManagerView'));
+const OfferHubView = React.lazy(() => import('../components/offerhub/OfferHubView'));
+const TalentPoolListView = React.lazy(() => import('../components/talentpools/TalentPoolListView'));
+const AdminView = React.lazy(() => import('../components/admin/AdminView'));
+const ReportingView = React.lazy(() =>
+  import('../components/ReportingView').then(m => ({ default: m.ReportingView }))
+);
 import { PageTransition } from '../components/ui/PageTransition';
 import { Plus as PlusIcon, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -116,17 +120,23 @@ const AppShell: React.FC<AppShellProps> = ({ currentView, onNavigate }) => {
         </header>
 
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-8">
-          <AnimatePresence mode="wait">
-            {currentView === 'dashboard'    && <PageTransition motionKey="dashboard"><Dashboard /></PageTransition>}
-            {currentView === 'requisitions' && <PageTransition motionKey="requisitions"><RequisitionList /></PageTransition>}
-            {currentView === 'recruiter'    && <PageTransition motionKey="recruiter"><RecruiterView /></PageTransition>}
-            {currentView === 'sourcerhub'   && <PageTransition motionKey="sourcerhub"><SourcerHubView /></PageTransition>}
-            {currentView === 'hmhub'        && <PageTransition motionKey="hmhub"><HiringManagerView /></PageTransition>}
-            {currentView === 'offerhub'     && <PageTransition motionKey="offerhub"><OfferHubView /></PageTransition>}
-            {currentView === 'talentpools'  && <PageTransition motionKey="talentpools"><TalentPoolListView /></PageTransition>}
-            {currentView === 'reporting'    && <PageTransition motionKey="reporting"><ReportingView requisitions={requisitions} allCandidates={candidates} allInterviews={interviews} users={users} candidateOutreachLogs={candidateOutreachLogs} /></PageTransition>}
-            {currentView === 'admin'        && <PageTransition motionKey="admin"><AdminView /></PageTransition>}
-          </AnimatePresence>
+          <React.Suspense fallback={
+            <div className="flex-1 flex items-center justify-center min-h-64">
+              <div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+            </div>
+          }>
+            <AnimatePresence mode="wait">
+              {currentView === 'dashboard'    && <PageTransition motionKey="dashboard"><Dashboard /></PageTransition>}
+              {currentView === 'requisitions' && <PageTransition motionKey="requisitions"><RequisitionList /></PageTransition>}
+              {currentView === 'recruiter'    && <PageTransition motionKey="recruiter"><RecruiterView /></PageTransition>}
+              {currentView === 'sourcerhub'   && <PageTransition motionKey="sourcerhub"><SourcerHubView /></PageTransition>}
+              {currentView === 'hmhub'        && <PageTransition motionKey="hmhub"><HiringManagerView /></PageTransition>}
+              {currentView === 'offerhub'     && <PageTransition motionKey="offerhub"><OfferHubView /></PageTransition>}
+              {currentView === 'talentpools'  && <PageTransition motionKey="talentpools"><TalentPoolListView /></PageTransition>}
+              {currentView === 'reporting'    && <PageTransition motionKey="reporting"><ReportingView requisitions={requisitions} allCandidates={candidates} allInterviews={interviews} users={users} candidateOutreachLogs={candidateOutreachLogs} /></PageTransition>}
+              {currentView === 'admin'        && <PageTransition motionKey="admin"><AdminView /></PageTransition>}
+            </AnimatePresence>
+          </React.Suspense>
         </div>
       </main>
 

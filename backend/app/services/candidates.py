@@ -9,8 +9,10 @@ from app.models.candidate import Candidate
 from app.schemas.candidate import CandidateCreate, CandidateUpdate
 
 
-async def list_candidates(session: AsyncSession) -> list[Candidate]:
-    result = await session.execute(select(Candidate).order_by(Candidate.created_at.desc()))
+async def list_candidates(session: AsyncSession, skip: int = 0, limit: int = 100) -> list[Candidate]:
+    result = await session.execute(
+        select(Candidate).order_by(Candidate.created_at.desc()).offset(skip).limit(limit)
+    )
     return list(result.scalars().all())
 
 

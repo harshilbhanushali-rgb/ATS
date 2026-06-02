@@ -9,8 +9,10 @@ from app.models.talent_pool import TalentPool
 from app.schemas.talent_pool import TalentPoolCreate, TalentPoolUpdate
 
 
-async def list_talent_pools(session: AsyncSession) -> list[TalentPool]:
-    result = await session.execute(select(TalentPool).order_by(TalentPool.created_at.desc()))
+async def list_talent_pools(session: AsyncSession, skip: int = 0, limit: int = 100) -> list[TalentPool]:
+    result = await session.execute(
+        select(TalentPool).order_by(TalentPool.created_at.desc()).offset(skip).limit(limit)
+    )
     return list(result.scalars().all())
 
 

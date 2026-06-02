@@ -13,10 +13,12 @@ router = APIRouter()
 
 @router.get("/", response_model=list[InterviewOut])
 async def list_interviews(
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ):
-    return await interviews_service.list_interviews(db)
+    return await interviews_service.list_interviews(db, skip=skip, limit=limit)
 
 
 @router.post("/", response_model=InterviewOut, status_code=status.HTTP_201_CREATED)

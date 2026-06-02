@@ -9,8 +9,10 @@ from app.models.interview import Interview
 from app.schemas.interview import InterviewCreate, InterviewUpdate
 
 
-async def list_interviews(session: AsyncSession) -> list[Interview]:
-    result = await session.execute(select(Interview).order_by(Interview.created_at.desc()))
+async def list_interviews(session: AsyncSession, skip: int = 0, limit: int = 100) -> list[Interview]:
+    result = await session.execute(
+        select(Interview).order_by(Interview.created_at.desc()).offset(skip).limit(limit)
+    )
     return list(result.scalars().all())
 
 
