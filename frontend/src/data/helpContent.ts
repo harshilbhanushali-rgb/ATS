@@ -1,7 +1,7 @@
 // frontend/src/data/helpContent.ts
 import {
   BarChart3, List, Users, ZoomIn, ClipboardCheck,
-  Gift, Database, Settings, GitBranch, LucideIcon,
+  Gift, Database, Settings, GitBranch, TrendingUp, LucideIcon,
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -233,6 +233,35 @@ export const HELP_SECTIONS: HelpSection[] = [
     tip: 'Name pools by skill + seniority + time horizon — this makes the pool selector in Sourcer Hub much easier to navigate at scale.',
   },
   {
+    id: 'reporting',
+    label: 'Reporting',
+    icon: TrendingUp,
+    intro: 'Five analytics tabs giving you end-to-end visibility into sourcing effectiveness, pipeline health, hiring speed, candidate history, and team productivity.',
+    features: [
+      {
+        title: 'Source Performance',
+        description: 'Shows how many candidates entered via each source (LinkedIn, Naukri, Referral, etc.) and how many converted through the pipeline. Use this to double down on channels that deliver quality hires.',
+      },
+      {
+        title: 'Pipeline Status',
+        description: 'A funnel breakdown of candidates at every stage right now. Spots bottlenecks — e.g., a large Screening pool with few moving to Interview signals a review capacity problem.',
+      },
+      {
+        title: 'Velocity Metrics',
+        description: 'Time-to-hire analytics — average days between key stage transitions (Applied → Screened, Interview → Offer, etc.). Tracks whether hiring is speeding up or slowing down over time.',
+      },
+      {
+        title: 'Applications Audit',
+        description: 'A searchable, filterable log of every candidate and their full stage history. Export to CSV for external reporting or compliance purposes.',
+      },
+      {
+        title: 'Team Productivity',
+        description: 'Per-user counts of outreach sent, candidates sourced, and interviews logged. Admins and Lead Recruiters use this to balance workload and recognise high output.',
+      },
+    ],
+    tip: 'All five tabs use live data — no need to refresh. Export the Applications Audit to CSV before leadership reviews for a clean offline snapshot.',
+  },
+  {
     id: 'admin',
     label: 'Admin',
     icon: Settings,
@@ -254,6 +283,14 @@ export const HELP_SECTIONS: HelpSection[] = [
       {
         title: 'Bootstrap Admin',
         description: 'The first Admin account is created automatically from the ADMIN_EMAIL and ADMIN_PASSWORD environment variables on first server startup. This account cannot be deleted.',
+      },
+      {
+        title: 'Scorecard Template Builder',
+        description: 'Create reusable interview competency templates that interviewers can select when submitting scorecards. Add competencies, write descriptions, and save — the template is immediately available across all hiring rounds.',
+      },
+      {
+        title: 'Data Import',
+        description: 'Bulk-import candidates from a CSV file via the Import tab. Use this to seed the system from a legacy ATS or spreadsheet export.',
       },
     ],
     tip: 'Assign the most restrictive role that covers what the user needs — you can always promote later.',
