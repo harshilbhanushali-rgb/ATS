@@ -36,8 +36,8 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str | None = None
 
-    DB_POOL_SIZE: int = 10
-    DB_MAX_OVERFLOW: int = 20
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 7
     DB_POOL_RECYCLE: int = 300
 
     GEMINI_MODEL: str = "gemini-3.1-flash-lite"

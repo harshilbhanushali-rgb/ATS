@@ -60,10 +60,13 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
     }
   }, [queryClient]);
 
-  const handleLogout = useCallback(() => {
-    void logout();
-    setLoggedInUser(null);
-    queryClient.removeQueries({ queryKey: ['users'] });
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+    } finally {
+      setLoggedInUser(null);
+      queryClient.removeQueries({ queryKey: ['users'] });
+    }
   }, [queryClient]);
 
   const refreshUsers = useCallback(async () => {

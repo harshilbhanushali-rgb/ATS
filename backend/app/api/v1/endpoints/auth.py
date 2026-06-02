@@ -59,6 +59,9 @@ async def login(
 async def logout(response: Response) -> dict:
     response.delete_cookie(
         key=settings.ACCESS_TOKEN_COOKIE_NAME,
+        httponly=True,
+        samesite=settings.ACCESS_TOKEN_COOKIE_SAMESITE,
+        secure=settings.ACCESS_TOKEN_COOKIE_SECURE,
         domain=settings.ACCESS_TOKEN_COOKIE_DOMAIN,
         path="/",
     )
