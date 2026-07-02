@@ -69,7 +69,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
                 <XMarkIcon className="w-5 h-5" />
               </motion.button>
             </div>
-            <div className="px-6 py-6 overflow-y-auto flex-grow custom-scrollbar">
+            <div className="px-6 py-6 overflow-y-auto flex-grow min-h-0 custom-scrollbar transform-gpu">
               {children}
             </div>
           </motion.div>

@@ -23,9 +23,9 @@ const AdminView: React.FC = () => {
         : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
     }`;
 
-    const handleClearData = () => {
+    const handleClearData = async () => {
         if (window.confirm("Are you sure you want to CLEAR ALL DATA? This action is permanent and cannot be undone.")) {
-            onClearData();
+            await onClearData();
         }
     };
 

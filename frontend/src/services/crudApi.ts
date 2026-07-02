@@ -445,3 +445,10 @@ export const createOutreachLog = (l: CandidateOutreachLog): Promise<CandidateOut
 
 export const deleteOutreachLog = (id: string): Promise<void> =>
   deleteReq(`/api/v1/outreach-logs/${id}`, 'Failed to delete outreach log.');
+
+// ============================================================
+// Admin
+// ============================================================
+
+export const clearAllData = (): Promise<void> =>
+  deleteReq('/api/v1/admin/clear-data', 'Failed to clear data.');

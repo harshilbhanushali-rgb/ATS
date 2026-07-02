@@ -46,7 +46,7 @@ export interface AppDataContextValue {
   recordFinalDecision: (candidateId: string, decision: 'HIRE' | 'REJECT') => void;
   archiveRequisition: (id: string) => Promise<void>;
   reactivateRequisition: (id: string) => Promise<void>;
-  clearData: () => void;
+  clearData: () => Promise<void>;
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);

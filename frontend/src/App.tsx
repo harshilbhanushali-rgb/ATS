@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppModals from './app/AppModals';
 import AppShell from './app/AppShell';
@@ -20,9 +21,11 @@ import { useTalentPools } from './hooks/useTalentPools';
 import { View } from './components/Navigation';
 import { CandidateAIDashboardData } from './types';
 import { getPathForView, getViewForPath } from './utils/viewUtils';
+import * as crudApi from './services/crudApi';
 
 const App: React.FC = () => {
   const [contextForAIDashboard, setContextForAIDashboard] = useState<CandidateAIDashboardData | null>(null);
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,21 +146,13 @@ const App: React.FC = () => {
     setContextForAIDashboard(null);
   }, []);
 
-  const handleClearData = useCallback(() => {
-    setCandidates([]);
-    setScorecardTemplates([]);
-    setUsers([]);
-    navigateToView('dashboard');
+  const handleClearData = useCallback(async () => {
+    await crudApi.clearAllData();
+    queryClient.clear();
     setContextForAIDashboard(null);
-    localStorage.removeItem('app_requisitions');
-    localStorage.removeItem('app_candidates');
-    localStorage.removeItem('app_interviews');
-    localStorage.removeItem('app_talent_pools');
-    localStorage.removeItem('app_candidate_outreach_logs');
-    localStorage.removeItem('app_scorecard_templates');
-    localStorage.removeItem('app_users');
+    navigateToView('dashboard');
     alert('System data has been cleared.');
-  }, [navigateToView, setCandidates, setScorecardTemplates, setUsers]);
+  }, [navigateToView, queryClient]);
 
   const appDataValue = useMemo(() => ({
     candidates, setCandidates, requisitions, interviews, talentPools,

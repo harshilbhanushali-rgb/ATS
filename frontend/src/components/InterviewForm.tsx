@@ -162,7 +162,7 @@ const InterviewForm: React.FC<InterviewFormProps> = ({ onSubmit, candidate, requ
         )}
       </div>
 
-      <div className="pt-5 border-t border-gray-200 mt-6 sticky bottom-0 bg-white pb-2 -mx-6 px-6">
+      <div className="pt-5 border-t border-gray-200 mt-6">
         <div className="flex justify-end space-x-3">
           <button type="button" onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
