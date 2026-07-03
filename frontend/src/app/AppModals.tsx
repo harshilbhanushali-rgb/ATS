@@ -1,4 +1,5 @@
 import React from 'react';
+import AddExistingCandidateForm from '../components/talentpools/AddExistingCandidateForm';
 import CandidateAIDashboardModal from '../components/CandidateAIDashboardModal';
 import CandidateForm from '../components/CandidateForm';
 import HiringHubView from '../components/hmhub/HiringHubView';
@@ -16,9 +17,9 @@ import { useModalState } from '../contexts/ModalStateContext';
 const AppModals: React.FC = () => {
   const { loggedInUser } = useAuthContext();
   const {
-    requisitions, interviews, scorecardTemplates,
+    candidates, requisitions, interviews, scorecardTemplates,
     saveCandidate, saveRequisition, saveInterview, saveTalentPool, saveOffer,
-    saveOutreachLog, saveCandidateAnalysis,
+    saveOutreachLog, saveCandidateAnalysis, addCandidateToPool,
     saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
   } = useAppData();
   const {
@@ -62,9 +63,9 @@ const AppModals: React.FC = () => {
         <TalentPoolForm onSubmit={saveTalentPool} initialData={editingTalentPool} onClose={closeTalentPoolFormModal} />
       </Modal>
 
-      <Modal isOpen={isAddCandidateToPoolModalOpen} onClose={closeAddCandidateToPoolModal} title={`Add Candidate to Pool: ${poolToAddTo?.name}`}>
+      <Modal isOpen={isAddCandidateToPoolModalOpen} onClose={closeAddCandidateToPoolModal} title={`Add Existing Candidate to Pool: ${poolToAddTo?.name}`}>
         {poolToAddTo && (
-          <CandidateForm onSubmit={(candidate) => saveCandidate(candidate, poolToAddTo.id)} requisitions={requisitions} defaultTalentPoolId={poolToAddTo.id} onClose={closeAddCandidateToPoolModal} />
+          <AddExistingCandidateForm pool={poolToAddTo} candidates={candidates} onAdd={addCandidateToPool} onClose={closeAddCandidateToPoolModal} />
         )}
       </Modal>
 

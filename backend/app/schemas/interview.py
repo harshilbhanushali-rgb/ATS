@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -10,7 +10,7 @@ class InterviewBase(BaseModel):
     requisition_id: str
     round: str
     interviewer_name: str
-    interview_date: str
+    interview_date: date
     decision: str
     scorecard_template_id: str | None = None
     results: list[dict]
@@ -25,7 +25,7 @@ class InterviewUpdate(BaseModel):
     requisition_id: str | None = None
     round: str | None = None
     interviewer_name: str | None = None
-    interview_date: str | None = None
+    interview_date: date | None = None
     decision: str | None = None
     scorecard_template_id: str | None = None
     results: list[dict] | None = None

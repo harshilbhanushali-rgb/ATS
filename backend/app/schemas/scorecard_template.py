@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict
 class ScorecardTemplateBase(BaseModel):
     name: str
     competencies: list[dict]
-    created_date: str
+    created_date: date
 
 
 class ScorecardTemplateCreate(ScorecardTemplateBase):
@@ -18,7 +18,7 @@ class ScorecardTemplateCreate(ScorecardTemplateBase):
 class ScorecardTemplateUpdate(BaseModel):
     name: str | None = None
     competencies: list[dict] | None = None
-    created_date: str | None = None
+    created_date: date | None = None
 
 
 class ScorecardTemplateOut(ScorecardTemplateBase):

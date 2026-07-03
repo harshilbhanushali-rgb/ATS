@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -12,7 +12,7 @@ class CandidateBase(BaseModel):
     name: str
     email: EmailStr
     phone: str | None = None
-    application_date: str
+    application_date: date
     stage: str
     source: str
     resume_url: str | None = None
@@ -22,7 +22,7 @@ class CandidateBase(BaseModel):
     resume_analysis: dict | None = None
     talent_pool_ids: list[str] | None = None
     sourced_by_user_id: str | None = None
-    sourced_date: str | None = None
+    sourced_date: date | None = None
     stage_history: list[dict] | None = None
     hiring_hub_comments: list[dict] | None = None
     ai_debrief_summary: dict | None = None
@@ -40,7 +40,7 @@ class CandidateUpdate(BaseModel):
     name: str | None = None
     email: EmailStr | None = None
     phone: str | None = None
-    application_date: str | None = None
+    application_date: date | None = None
     stage: str | None = None
     source: str | None = None
     resume_url: str | None = None
@@ -50,7 +50,7 @@ class CandidateUpdate(BaseModel):
     resume_analysis: dict | None = None
     talent_pool_ids: list[str] | None = None
     sourced_by_user_id: str | None = None
-    sourced_date: str | None = None
+    sourced_date: date | None = None
     stage_history: list[dict] | None = None
     hiring_hub_comments: list[dict] | None = None
     ai_debrief_summary: dict | None = None

@@ -66,6 +66,7 @@ const App: React.FC = () => {
     updateCandidateStage,
     saveCandidateAnalysis,
     removeCandidateFromPool,
+    addCandidateToPool,
     moveCandidateToRequisition,
   } = useCandidates({ loggedInUser, getCurrentUserId });
 
@@ -159,7 +160,7 @@ const App: React.FC = () => {
     candidateOutreachLogs, scorecardTemplates, aiMatchedCandidates,
     isLoadingAiMatches, currentRequisitionForAIMatches,
     saveCandidate, updateCandidateStage, saveCandidateAnalysis,
-    removeCandidateFromPool, moveCandidateToRequisition,
+    removeCandidateFromPool, addCandidateToPool, moveCandidateToRequisition,
     saveRequisition, refetchWithFilters, saveInterview,
     saveTalentPool, saveScorecardTemplate, saveOutreachLog,
     saveOffer, offerAccepted, offerDeclined, confirmJoined,
@@ -173,7 +174,7 @@ const App: React.FC = () => {
     candidateOutreachLogs, scorecardTemplates, aiMatchedCandidates,
     isLoadingAiMatches, currentRequisitionForAIMatches,
     saveCandidate, updateCandidateStage, saveCandidateAnalysis,
-    removeCandidateFromPool, moveCandidateToRequisition,
+    removeCandidateFromPool, addCandidateToPool, moveCandidateToRequisition,
     saveRequisition, refetchWithFilters, saveInterview,
     saveTalentPool, saveScorecardTemplate, saveOutreachLog,
     saveOffer, offerAccepted, offerDeclined, confirmJoined,

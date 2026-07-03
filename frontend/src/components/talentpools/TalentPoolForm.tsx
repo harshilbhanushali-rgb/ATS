@@ -55,7 +55,7 @@ const TalentPoolForm: React.FC<TalentPoolFormProps> = ({ onSubmit, initialData, 
     const finalPool: TalentPool = {
         ...poolToSubmit,
         id: initialData?.id || `TP-${Date.now().toString().slice(-7)}`,
-        createdDate: initialData?.createdDate || new Date().toISOString(),
+        createdDate: initialData?.createdDate || new Date().toISOString().split('T')[0],
     };
 
     onSubmit(finalPool);

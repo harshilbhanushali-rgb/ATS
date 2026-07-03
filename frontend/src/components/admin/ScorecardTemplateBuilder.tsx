@@ -77,7 +77,7 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
       id: editingTemplate?.id || `SCT-${Date.now().toString().slice(-7)}`,
       name: formData.name.trim(),
       competencies: formData.competencies.map(c => ({ ...c, name: c.name.trim(), description: c.description.trim() })),
-      createdDate: editingTemplate?.createdDate || new Date().toISOString(),
+      createdDate: editingTemplate?.createdDate || new Date().toISOString().split('T')[0],
     };
 
     onSave(templateToSave);

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict
 class TalentPoolBase(BaseModel):
     name: str
     description: str
-    created_date: str
+    created_date: date
     tags: list[str] | None = None
 
 
@@ -19,7 +19,7 @@ class TalentPoolCreate(TalentPoolBase):
 class TalentPoolUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
-    created_date: str | None = None
+    created_date: date | None = None
     tags: list[str] | None = None
 
 

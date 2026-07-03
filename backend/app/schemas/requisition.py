@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class RequisitionBase(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    req_approval_date: str
+    req_approval_date: date
     priority: str
     role: str
     hire_type: str
@@ -32,7 +32,7 @@ class RequisitionCreate(RequisitionBase):
 class RequisitionUpdate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    req_approval_date: str | None = None
+    req_approval_date: date | None = None
     priority: str | None = None
     role: str | None = None
     hire_type: str | None = None

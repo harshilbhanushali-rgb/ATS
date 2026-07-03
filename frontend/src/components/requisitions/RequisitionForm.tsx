@@ -207,7 +207,7 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
     const finalRequisition: Requisition = {
         ...requisitionToSubmit,
         id: initialData?.id || `REQ-${Date.now().toString().slice(-6)}`,
-        reqApprovalDate: initialData?.reqApprovalDate || new Date().toISOString(),
+        reqApprovalDate: initialData?.reqApprovalDate || new Date().toISOString().split('T')[0],
     };
 
     onSubmit(finalRequisition);

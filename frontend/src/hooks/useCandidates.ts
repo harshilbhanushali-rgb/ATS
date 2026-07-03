@@ -94,7 +94,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
         ];
         if (loggedInUser && sourcingRoles.includes(loggedInUser.role) && !existingCandidate) {
           toSave.sourcedByUserId = loggedInUser.id;
-          toSave.sourcedDate = new Date().toISOString();
+          toSave.sourcedDate = new Date().toISOString().split('T')[0];
         }
 
         if (defaultTalentPoolIdParam) {
@@ -135,9 +135,15 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
 
         crudApi
           .createCandidate(toSave)
-          .then((created) =>
-            setCandidates((curr) => curr.map((c) => c.id === toSave.id ? created : c))
-          )
+          .then((created) => {
+            if (created.id !== toSave.id) {
+              alert(`${created.name} already exists as a candidate (${created.email}) and has been added to this talent pool instead of creating a duplicate.`);
+            }
+            setCandidates((curr) => [
+              created,
+              ...curr.filter((c) => c.id !== toSave.id && c.id !== created.id),
+            ]);
+          })
           .catch((err) => {
             console.error(err);
             crudApi.listCandidates().then(setCandidates).catch(console.error);
@@ -213,6 +219,19 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
     );
   }, [setCandidates]);
 
+  const addCandidateToPool = useCallback((candidateId: string, poolId: string) => {
+    setCandidates((prev) =>
+      prev.map((candidate) => {
+        if (candidate.id === candidateId) {
+          const talentPoolIds = Array.from(new Set([...(candidate.talentPoolIds || []), poolId]));
+          crudApi.patchCandidate(candidateId, { talentPoolIds }).catch(console.error);
+          return { ...candidate, talentPoolIds };
+        }
+        return candidate;
+      })
+    );
+  }, [setCandidates]);
+
   const moveCandidateToRequisition = useCallback(
     (candidateId: string, newRequisitionId: string, talentPoolIdToRemoveFrom?: string) => {
       const userId = getCurrentUserId();
@@ -275,6 +294,7 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
     updateCandidateStage,
     saveCandidateAnalysis,
     removeCandidateFromPool,
+    addCandidateToPool,
     moveCandidateToRequisition,
     deleteCandidate,
     setIsCandidateModalOpen,

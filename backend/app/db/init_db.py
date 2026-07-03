@@ -15,7 +15,12 @@ from app.models.outreach_log import OutreachLog
 
 async def init_db() -> None:
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        # Once a database has been stamped by Alembic (see backend/migrations/),
+        # schema changes must go through reviewed migrations - create_all() only
+        # bootstraps a brand-new, never-migrated database (fresh local/test).
+        alembic_owns_schema = (await conn.exec_driver_sql("SELECT to_regclass('alembic_version')")).scalar()
+        if not alembic_owns_schema:
+            await conn.run_sync(Base.metadata.create_all)
 
     await _bootstrap_admin()
 

@@ -119,7 +119,7 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
       applicationDate: new Date(formData.applicationDate).toISOString(),
       stage: formData.stage,
       source: formData.source,
-      requisitionId: formData.requisitionId,
+      requisitionId: formData.requisitionId || undefined,
       resumeUrl: formData.resumeUrl,
       resumeText: formData.resumeText, // Save resumeText
       notes: formData.notes,

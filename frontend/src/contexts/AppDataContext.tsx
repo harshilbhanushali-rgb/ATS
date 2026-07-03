@@ -28,6 +28,7 @@ export interface AppDataContextValue {
   updateCandidateStage: (candidateId: string, newStage: CandidateStage) => void;
   saveCandidateAnalysis: (candidateId: string, analysis: ResumeMatchAnalysis | null) => void;
   removeCandidateFromPool: (candidateId: string, poolId: string) => void;
+  addCandidateToPool: (candidateId: string, poolId: string) => void;
   moveCandidateToRequisition: (candidateId: string, newRequisitionId: string, talentPoolIdToRemoveFrom?: string) => void;
   saveRequisition: (requisition: Requisition) => void;
   refetchWithFilters: (params: RequisitionFilterParams) => void;
