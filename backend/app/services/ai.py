@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import base64
+import re
 from typing import Any
 
 import anyio
@@ -24,6 +25,7 @@ from app.utils.prompts import (
     OUTREACH_DRAFT_PROMPT,
     DEBRIEF_SUMMARY_PROMPT,
     TEXT_EXTRACTION_PROMPT,
+    RESUME_CONTACT_EXTRACTION_PROMPT,
     build_requisition_context_prompt,
     build_candidates_prompt_part,
     build_feedback_context,
@@ -88,6 +90,28 @@ def _parse_json(text: str) -> Any:
     if start != -1 and end != -1 and end > start:
         cleaned = cleaned[start : end + 1]
     return json.loads(cleaned)
+
+
+_CONTACT_PLACEHOLDER_VALUES = {"n/a", "na", "none", "null", "unknown", "not found", "not available", ""}
+
+
+def _clean_contact_field(value: Any, max_length: int) -> str | None:
+    if not isinstance(value, str):
+        return None
+    cleaned = " ".join(value.strip().split())
+    if not cleaned or cleaned.lower() in _CONTACT_PLACEHOLDER_VALUES or len(cleaned) > max_length:
+        return None
+    return cleaned
+
+
+_EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
+def _clean_email_field(value: Any) -> str | None:
+    cleaned = _clean_contact_field(value, max_length=254)
+    if cleaned and _EMAIL_PATTERN.match(cleaned):
+        return cleaned
+    return None
 
 
 def _fallback_resume_analysis(message: str) -> ResumeMatchAnalysis:
@@ -246,7 +270,15 @@ async def text_to_speech(_text: str) -> str | None:
     raise NotImplementedError("Text-to-speech is not yet implemented")
 
 
-async def extract_text_from_file(_file_base64: str, _mime_type: str) -> str:
+def _no_contact_info(text: str) -> dict[str, str | None]:
+    return {"text": text, "name": None, "email": None, "phone": None}
+
+
+async def extract_text_from_file(
+    _file_base64: str,
+    _mime_type: str,
+    extract_contact_info: bool = False,
+) -> dict[str, str | None]:
     _ensure_client()
     if not _file_base64:
         raise AIServiceError("No file data provided for text extraction")
@@ -254,25 +286,60 @@ async def extract_text_from_file(_file_base64: str, _mime_type: str) -> str:
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     }:
-        return (
+        return _no_contact_info(
             "Error: Microsoft Word files (.doc, .docx) are not directly supported for text extraction. "
             "Please convert the file to a PDF or a plain text (.txt) file and upload again."
         )
 
-    prompt = TEXT_EXTRACTION_PROMPT
+    file_bytes = base64.b64decode(_file_base64)
 
-    def _extract_sync() -> str:
+    def _call(prompt: str, response_mime_type: str | None) -> str:
         client = _get_client()
-        file_bytes = base64.b64decode(_file_base64)
         file_part = types.Part.from_bytes(data=file_bytes, mime_type=_mime_type)
+        config = (
+            types.GenerateContentConfig(response_mime_type=response_mime_type, max_output_tokens=8192)
+            if response_mime_type
+            else None
+        )
         response = client.models.generate_content(
             model=DEFAULT_TEXT_MODEL,
             contents=[prompt, file_part],
+            config=config,
         )
         return (response.text or "").strip() or "(AI could not extract text from the file or the file is empty)"
 
-    try:
+    async def _run(prompt: str, response_mime_type: str | None) -> str:
         async with _gemini_semaphore:
-            return await anyio.to_thread.run_sync(_extract_sync)
+            return await anyio.to_thread.run_sync(_call, prompt, response_mime_type)
+
+    if not extract_contact_info:
+        try:
+            raw = await _run(TEXT_EXTRACTION_PROMPT, None)
+        except Exception as error:
+            raise AIServiceError(f"Error extracting text from file: {error}") from error
+        return _no_contact_info(raw)
+
+    try:
+        raw = await _run(RESUME_CONTACT_EXTRACTION_PROMPT, "application/json")
     except Exception as error:
         raise AIServiceError(f"Error extracting text from file: {error}") from error
+
+    try:
+        data = _parse_json(raw)
+        if isinstance(data, dict) and data.get("text"):
+            return {
+                "text": data["text"],
+                "name": _clean_contact_field(data.get("name"), max_length=100),
+                "email": _clean_email_field(data.get("email")),
+                "phone": _clean_contact_field(data.get("phone"), max_length=30),
+            }
+    except Exception:
+        pass
+
+    # JSON parsing failed or "text" was empty/missing (e.g. truncated output on a long
+    # resume) — fall back to a plain-text call rather than surfacing malformed JSON.
+    try:
+        fallback_text = await _run(TEXT_EXTRACTION_PROMPT, None)
+    except Exception as error:
+        raise AIServiceError(f"Error extracting text from file: {error}") from error
+    return _no_contact_info(fallback_text)

@@ -209,13 +209,36 @@ export const getAIOutreachMessageDraft = async (
   return data.draft;
 };
 
-export const extractTextFromFile = async (fileBase64: string, mimeType: string): Promise<string> => {
-  const data = await postJson<{ text: string }>(
+export interface ExtractedResumeData {
+  text: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+type ApiExtractTextResponse = {
+  text: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+};
+
+export const extractTextFromFile = async (
+  fileBase64: string,
+  mimeType: string,
+  extractContactInfo = false
+): Promise<ExtractedResumeData> => {
+  const data = await postJson<ApiExtractTextResponse>(
     '/api/v1/ai/extract-text',
-    { file_base64: fileBase64, mime_type: mimeType },
+    { file_base64: fileBase64, mime_type: mimeType, extract_contact_info: extractContactInfo },
     'Failed to extract text from file.'
   );
-  return data.text;
+  return {
+    text: data.text,
+    name: data.name ?? null,
+    email: data.email ?? null,
+    phone: data.phone ?? null,
+  };
 };
 
 export const getAIDebriefSummary = async (

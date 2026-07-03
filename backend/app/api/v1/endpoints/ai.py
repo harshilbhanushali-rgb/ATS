@@ -161,8 +161,10 @@ async def extract_text(
     _user=Depends(get_current_user),
 ):
     try:
-        text = await ai_service.extract_text_from_file(payload.file_base64, payload.mime_type)
-        return ExtractTextResponse(text=text)
+        result = await ai_service.extract_text_from_file(
+            payload.file_base64, payload.mime_type, payload.extract_contact_info
+        )
+        return ExtractTextResponse(**result)
     except Exception as error:
         raise _handle_ai_error(error)
 

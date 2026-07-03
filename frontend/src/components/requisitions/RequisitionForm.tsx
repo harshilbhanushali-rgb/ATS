@@ -80,8 +80,8 @@ const RequisitionForm: React.FC<RequisitionFormProps> = ({ onSubmit, initialData
             if (!base64String) {
                 throw new Error("Could not read file data.");
             }
-            const extractedText = await extractTextFromFile(base64String, file.type);
-            setFormData(prev => ({ ...prev, jobDescription: extractedText }));
+            const result = await extractTextFromFile(base64String, file.type);
+            setFormData(prev => ({ ...prev, jobDescription: result.text }));
         } catch (error) {
             console.error("Error during JD file extraction:", error);
             const errorMessage = `Failed to extract text. Error: ${(error as Error).message}`;

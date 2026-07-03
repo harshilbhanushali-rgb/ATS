@@ -234,6 +234,8 @@ SQLAlchemy `Base` has a class-level `metadata = MetaData()`. Our ORM models use 
 
 **Add Existing Candidate to Pool:** The "Add Existing" button in `SourcerHubView`/`TalentPoolListView` opens `AddExistingCandidateForm.tsx` — a searchable picker over the already-loaded `candidates` list (excludes candidates already linked to the target pool) — not `CandidateForm`. Selecting a candidate calls `addCandidateToPool(candidateId, poolId)` in `useCandidates`, which does a sparse `patchCandidate` on `talentPoolIds` only. This is distinct from `saveCandidate(candidate, poolId)` (used by the "New Candidate" button), which creates a brand-new candidate row and defers to the backend's email-based dedup/merge logic — that logic only merges pool-only candidates, so it must never be used to attach an *existing, requisition-linked* candidate to another pool.
 
+**Resume auto-fill (contact info):** `CandidateForm`'s "Upload CV & Extract Text" also parses Full Name/Email/Phone out of the resume in the *same* Gemini call used for text extraction — `extractTextFromFile(base64, mimeType, extractContactInfo=true)` sends `extract_contact_info: true`, and `backend/app/services/ai.py::extract_text_from_file` switches to the JSON-output prompt `RESUME_CONTACT_EXTRACTION_PROMPT` instead of making a second AI call, so it costs the same `_gemini_semaphore` slot and `30/minute` rate-limit budget as before. If the JSON response is malformed or truncated (e.g. a long resume), it falls back to one plain-text call rather than leaking raw JSON into the Resume Text field. A field is only auto-filled if it's currently blank or was itself auto-filled by a prior upload — it never overwrites a value the recruiter typed — tracked via `autoFilledFields` state in `CandidateForm.tsx`, which also drives a small "Auto-filled" badge next to the field until it's edited. `RequisitionForm`'s JD-upload path calls the same `extractTextFromFile` but omits the flag, so its behavior is unchanged.
+
 ---
 
 ## Database Schema Migration
@@ -412,6 +414,7 @@ All Gemini prompts are in `backend/app/utils/prompts.py` — edit there to tune 
 | Outreach draft | `POST /api/v1/ai/outreach-draft` | `useOutreachDraft` |
 | Debrief summary | `POST /api/v1/ai/debrief-summary` | `useHiringHub → generateAIDebriefSummary` |
 | Requisition suggestions | `POST /api/v1/ai/requisition-suggestions` | inline in `RequisitionForm` |
+| Resume/JD text extraction (+ contact info auto-fill) | `POST /api/v1/ai/extract-text` | `CandidateForm` (resume, `extract_contact_info: true`) / `RequisitionForm` (JD, flag omitted) |
 
 ---
 

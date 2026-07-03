@@ -3,6 +3,16 @@ import { Candidate, CandidateStage, CandidateSource, Requisition } from '../type
 import { extractTextFromFile } from '../services/aiApi';
 import { Upload as ArrowUpTrayIcon, Sparkles as SparklesIcon } from 'lucide-react';
 
+const CONTACT_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type AutoFillableField = 'name' | 'email' | 'phone';
+
+const AutoFilledBadge: React.FC = () => (
+  <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-[10px] font-bold uppercase tracking-wider px-2 py-0.5">
+    <SparklesIcon className="w-3 h-3" />
+    Auto-filled
+  </span>
+);
+
 interface CandidateFormProps {
   onSubmit: (candidate: Candidate, defaultTalentPoolId?: string) => void;
   initialData?: Candidate | null;
@@ -28,6 +38,11 @@ const emptyCandidateState = (requisitionId?: string | null) => ({
 const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, requisitions, defaultRequisitionId, defaultTalentPoolId, onClose }) => {
   const [formData, setFormData] = useState(emptyCandidateState(defaultRequisitionId));
   const [isExtracting, setIsExtracting] = useState(false);
+  const [autoFilledFields, setAutoFilledFields] = useState<Set<AutoFillableField>>(new Set());
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+  const autoFilledFieldsRef = useRef(autoFilledFields);
+  autoFilledFieldsRef.current = autoFilledFields;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -51,11 +66,20 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
         stage: isNewForPool ? CandidateStage.POOLED : CandidateStage.APPLIED,
       });
     }
+    setAutoFilledFields(new Set());
   }, [initialData, defaultRequisitionId, defaultTalentPoolId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'name' || name === 'email' || name === 'phone') {
+      setAutoFilledFields(prev => {
+        if (!prev.has(name)) return prev;
+        const next = new Set(prev);
+        next.delete(name);
+        return next;
+      });
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +104,31 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
             if (!base64String) {
                 throw new Error("Could not read file data.");
             }
-            const extractedText = await extractTextFromFile(base64String, file.type);
-            setFormData(prev => ({ ...prev, resumeText: extractedText }));
+            const result = await extractTextFromFile(base64String, file.type, true);
+            const validatedEmail = result.email && CONTACT_EMAIL_PATTERN.test(result.email) ? result.email : null;
+            const extractedByField: Record<AutoFillableField, string | null> = {
+                name: result.name,
+                email: validatedEmail,
+                phone: result.phone,
+            };
+            const currentFormData = formDataRef.current;
+            const currentAutoFilled = autoFilledFieldsRef.current;
+            const nextFormData = { ...currentFormData, resumeText: result.text };
+            const filledNow: AutoFillableField[] = [];
+            (Object.keys(extractedByField) as AutoFillableField[]).forEach((field) => {
+                const extracted = extractedByField[field];
+                if (!extracted) return;
+                const isCurrentlyEmpty = !currentFormData[field].trim();
+                const wasAutoFilled = currentAutoFilled.has(field);
+                if (isCurrentlyEmpty || wasAutoFilled) {
+                    nextFormData[field] = extracted;
+                    filledNow.push(field);
+                }
+            });
+            setFormData(nextFormData);
+            if (filledNow.length > 0) {
+                setAutoFilledFields(new Set([...currentAutoFilled, ...filledNow]));
+            }
         } catch (error) {
             console.error("Error during file extraction:", error);
             const errorMessage = `Failed to extract text. Error: ${(error as Error).message}`;
@@ -142,15 +189,24 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
         <div>
-          <label htmlFor="name" className={labelClass}>Full Name {requiredSpan}</label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="name" className={labelClass}>Full Name {requiredSpan}</label>
+            {autoFilledFields.has('name') && <AutoFilledBadge />}
+          </div>
           <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className={inputClass} required />
         </div>
         <div>
-          <label htmlFor="email" className={labelClass}>Email Address {requiredSpan}</label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="email" className={labelClass}>Email Address {requiredSpan}</label>
+            {autoFilledFields.has('email') && <AutoFilledBadge />}
+          </div>
           <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} className={inputClass} required />
         </div>
         <div>
-          <label htmlFor="phone" className={labelClass}>Phone (Optional)</label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="phone" className={labelClass}>Phone (Optional)</label>
+            {autoFilledFields.has('phone') && <AutoFilledBadge />}
+          </div>
           <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className={inputClass} />
         </div>
         <div>
@@ -220,6 +276,9 @@ const CandidateForm: React.FC<CandidateFormProps> = ({ onSubmit, initialData, re
               )}
             </button>
           </div>
+          <p className="text-xs text-slate-400 mt-1">
+            Tip: Uploading a resume will also try to auto-fill Full Name, Email, and Phone above.
+          </p>
           <textarea name="resumeText" id="resumeText" value={formData.resumeText} onChange={handleChange} rows={8} className={inputClass} placeholder="Upload a CV or paste the full text of the candidate's resume here." disabled={isExtracting}></textarea>
         </div>
         <div className="md:col-span-2">

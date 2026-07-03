@@ -134,10 +134,14 @@ class TranscribeResponse(BaseModel):
 class ExtractTextRequest(BaseModel):
     file_base64: str
     mime_type: str
+    extract_contact_info: bool = False
 
 
 class ExtractTextResponse(BaseModel):
     text: str
+    name: str | None = None
+    email: str | None = None
+    phone: str | None = None
 
 
 class InterviewResult(BaseModel):

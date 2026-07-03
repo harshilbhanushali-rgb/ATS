@@ -235,6 +235,21 @@ Output ONLY the JSON object. Do not include any other text.
 # Text Extraction Prompt
 TEXT_EXTRACTION_PROMPT = "You are an expert text extraction tool. Extract all text content from the provided document accurately. Output only the raw, unformatted text from the document. Do not add any commentary, labels, summaries, or formatting like markdown."
 
+# Resume Text + Contact Info Extraction Prompt
+RESUME_CONTACT_EXTRACTION_PROMPT = """
+You are an expert resume-parsing and text extraction tool.
+
+From the provided document, produce a single JSON object with exactly these four keys:
+- "text": the ENTIRE text content of the document, copied verbatim and completely. Do not summarize, paraphrase, truncate, or omit any part of it. Preserve line breaks by encoding them as "\\n" within the JSON string. Do not add commentary, labels, or markdown formatting.
+- "name": the candidate's own full name, exactly as written, or null if not confidently identifiable.
+- "email": the candidate's own primary email address, or null if not found. Do not use an email address belonging to a reference, referrer, or company.
+- "phone": the candidate's own primary phone number, exactly as written, or null if not found. Do not use a phone number belonging to a reference or company.
+
+If the document does not look like a resume/CV (e.g. it is a job description or an unrelated document), still extract the full text into "text" and use null for "name", "email", and "phone".
+
+Output ONLY the JSON object. Do not include any other text, commentary, or code fences before or after it.
+"""
+
 
 def build_candidates_prompt_part(candidates: List[Dict[str, Any]]) -> str:
     """Build the candidates prompt part for candidate matching."""
