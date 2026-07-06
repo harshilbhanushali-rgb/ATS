@@ -4,6 +4,7 @@ from app.api.v1.endpoints import (
 	admin,
 	auth,
 	ai,
+	candidate_bulk_import,
 	candidates,
 	imports,
 	interviews,
@@ -22,6 +23,9 @@ api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(imports.router, prefix="/admin/import", tags=["admin"])
 api_router.include_router(requisitions.router, prefix="/requisitions", tags=["requisitions"])
 api_router.include_router(candidates.router, prefix="/candidates", tags=["candidates"])
+api_router.include_router(
+    candidate_bulk_import.router, prefix="/candidates/bulk-import", tags=["candidates"]
+)
 api_router.include_router(interviews.router, prefix="/interviews", tags=["interviews"])
 api_router.include_router(talent_pools.router, prefix="/talent-pools", tags=["talent-pools"])
 api_router.include_router(scorecards.router, prefix="/scorecards", tags=["scorecards"])
