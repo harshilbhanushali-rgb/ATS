@@ -168,6 +168,8 @@ export interface InterviewScorecardTemplate {
   name: string;
   competencies: InterviewCompetency[];
   createdDate: string; // ISO Date string
+  createdBy?: string;
+  createdByName?: string;
 }
 
 export interface InterviewScorecardResult {

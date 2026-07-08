@@ -1,19 +1,17 @@
 
 import React, { useState } from 'react';
-import { User, InterviewScorecardTemplate } from '../../types';
 import Card from '../Card';
 import UserManagementView from './UserManagementView';
 import AdminImportView from './AdminImportView';
-import ScorecardTemplateBuilder from './ScorecardTemplateBuilder';
 import { Trash2 as TrashIcon } from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAppData } from '../../contexts/AppDataContext';
 
-type AdminTab = 'users' | 'scorecards' | 'imports' | 'system';
+type AdminTab = 'users' | 'imports' | 'system';
 
 const AdminView: React.FC = () => {
   const { users, setUsers, refreshUsers, createBackendUser, deleteBackendUser } = useAuthContext();
-  const { scorecardTemplates: templates, saveScorecardTemplate: onSaveTemplate, clearData: onClearData } = useAppData();
+  const { clearData: onClearData } = useAppData();
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
 
   const tabButtonClass = (tabName: AdminTab) =>
@@ -36,9 +34,6 @@ const AdminView: React.FC = () => {
           <button onClick={() => setActiveTab('users')} className={tabButtonClass('users')}>
             User Management
           </button>
-          <button onClick={() => setActiveTab('scorecards')} className={tabButtonClass('scorecards')}>
-            Scorecard Templates
-          </button>
           <button onClick={() => setActiveTab('imports')} className={tabButtonClass('imports')}>
             Imports
           </button>
@@ -56,9 +51,6 @@ const AdminView: React.FC = () => {
                 onCreateUser={createBackendUser}
                 onDeleteUser={deleteBackendUser}
               />
-            )}
-            {activeTab === 'scorecards' && (
-              <ScorecardTemplateBuilder templates={templates} onSave={onSaveTemplate} />
             )}
             {activeTab === 'imports' && <AdminImportView />}
             {activeTab === 'system' && (

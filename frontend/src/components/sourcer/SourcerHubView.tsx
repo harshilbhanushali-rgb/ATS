@@ -13,14 +13,15 @@ import {
   Eye as EyeIcon,
   BarChart3 as BarChartIcon,
   Search as SearchIcon,
-  X as XIcon,
   Layers as LayersIcon,
   Sparkles as SparklesIcon,
   ChevronDown as ChevronDownIcon,
+  Upload as UploadIcon,
 } from 'lucide-react';
 import AIRecommendationsDisplay from '../AIRecommendationsDisplay';
 import PencilSparklesIcon from '../icons/PencilSparklesIcon';
 import Modal from '../Modal';
+import BulkResumeUploadModal from '../BulkResumeUploadModal';
 import SourcerDashboardView from './SourcerDashboardView';
 import { useAppData } from '../../contexts/AppDataContext';
 import { useModalState } from '../../contexts/ModalStateContext';
@@ -77,6 +78,7 @@ const SourcerHubView: React.FC = () => {
     candidate: Candidate;
   } | null>(null);
   const [isPoolSelectorOpen, setIsPoolSelectorOpen] = useState(false);
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
   const [isAiPanelMinimized, setIsAiPanelMinimized] = useState(false);
   const [pendingMatchRequisition, setPendingMatchRequisition] = useState<Requisition | null>(null);
   const [selectedPoolIds, setSelectedPoolIds] = useState<string[]>([]);
@@ -482,6 +484,12 @@ const SourcerHubView: React.FC = () => {
                 >
                   <DatabaseIcon className="w-3.5 h-3.5 mr-1" /> Add Existing
                 </button>
+                <button
+                  onClick={() => setIsBulkUploadModalOpen(true)}
+                  className="flex items-center border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-indigo-600 font-bold py-2 px-3.5 rounded-xl text-xs transition-all whitespace-nowrap shrink-0 bg-white"
+                >
+                  <UploadIcon className="w-3.5 h-3.5 mr-1" /> Bulk Upload
+                </button>
               </div>
             )}
 
@@ -509,6 +517,12 @@ const SourcerHubView: React.FC = () => {
                   className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3.5 rounded-xl shadow-sm shadow-indigo-600/25 text-xs transition-all whitespace-nowrap shrink-0"
                 >
                   <UserPlusIcon className="w-3.5 h-3.5 mr-1" /> Add Candidate
+                </button>
+                <button
+                  onClick={() => setIsBulkUploadModalOpen(true)}
+                  className="flex items-center border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-indigo-600 font-bold py-2 px-3.5 rounded-xl text-xs transition-all whitespace-nowrap shrink-0 bg-white"
+                >
+                  <UploadIcon className="w-3.5 h-3.5 mr-1" /> Bulk Upload
                 </button>
               </div>
             )}
@@ -777,6 +791,17 @@ const SourcerHubView: React.FC = () => {
             </div>
           </div>
         </Modal>
+      )}
+
+      {(selectedRequisition || selectedTalentPool) && (
+        <BulkResumeUploadModal
+          isOpen={isBulkUploadModalOpen}
+          onClose={() => setIsBulkUploadModalOpen(false)}
+          requisitions={requisitions}
+          talentPools={talentPools}
+          defaultRequisitionId={selectedView === 'requisitions' ? selectedRequisition?.id : undefined}
+          defaultTalentPoolId={selectedView === 'talentPools' ? selectedTalentPool?.id : undefined}
+        />
       )}
     </div>
   );

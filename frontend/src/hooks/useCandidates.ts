@@ -9,6 +9,7 @@ import {
   UserRole,
 } from '../types';
 import * as crudApi from '../services/crudApi';
+import { ApiError } from '../services/crudApi';
 import { updateMetadata } from '../utils/metadata';
 
 interface UseCandidatesOptions {
@@ -146,6 +147,12 @@ export const useCandidates = ({ loggedInUser, getCurrentUserId }: UseCandidatesO
           })
           .catch((err) => {
             console.error(err);
+            const message =
+              err instanceof ApiError && err.status === 409
+                ? err.message
+                : `Failed to add candidate: ${(err as Error).message || 'Unknown error.'}`;
+            alert(message);
+            setCandidates((curr) => curr.filter((c) => c.id !== toSave.id));
             crudApi.listCandidates().then(setCandidates).catch(console.error);
           });
 

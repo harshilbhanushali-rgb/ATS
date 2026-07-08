@@ -86,7 +86,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, userRo
       {/* Footer */}
       <div className="p-4 border-t border-slate-100">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3 text-center border border-blue-100">
-          <div className="text-[10px] uppercase tracking-widest font-bold text-blue-400 mb-0.5">Powered by AI</div>
           <div className="text-[11px] font-medium text-slate-400">© {new Date().getFullYear()} {APP_TITLE}</div>
         </div>
       </div>

@@ -8,6 +8,7 @@ interface AuthGateProps {
   isCheckingAuth: boolean;
   users: User[];
   onLogin: (email: string, password: string) => Promise<boolean>;
+  onGoogleLogin: (credential: string) => Promise<boolean>;
   children: React.ReactNode;
 }
 
@@ -16,6 +17,7 @@ const AuthGate: React.FC<AuthGateProps> = ({
   isCheckingAuth,
   users,
   onLogin,
+  onGoogleLogin,
   children,
 }) => {
   if (isCheckingAuth) {
@@ -34,7 +36,7 @@ const AuthGate: React.FC<AuthGateProps> = ({
   }
 
   if (!loggedInUser) {
-    return <LoginScreen onLogin={onLogin} users={users} />;
+    return <LoginScreen onLogin={onLogin} onGoogleLogin={onGoogleLogin} users={users} />;
   }
 
   return <>{children}</>;

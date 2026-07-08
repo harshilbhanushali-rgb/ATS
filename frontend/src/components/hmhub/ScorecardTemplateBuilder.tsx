@@ -6,6 +6,9 @@ import { Plus as PlusIcon, Trash2 as TrashIcon, Pencil as PencilIcon } from 'luc
 interface ScorecardTemplateBuilderProps {
   templates: InterviewScorecardTemplate[];
   onSave: (template: InterviewScorecardTemplate) => void;
+  onDelete: (id: string) => void;
+  currentUserId: string;
+  isAdmin: boolean;
 }
 
 const emptyTemplateState = {
@@ -13,9 +16,11 @@ const emptyTemplateState = {
   competencies: [{ id: `COMP-NEW-${Date.now()}`, name: '', description: '' }],
 };
 
-const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ templates, onSave }) => {
+const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ templates, onSave, onDelete, currentUserId, isAdmin }) => {
   const [editingTemplate, setEditingTemplate] = useState<Partial<InterviewScorecardTemplate> | null>(null);
   const [formData, setFormData] = useState(emptyTemplateState);
+
+  const canEdit = (template: InterviewScorecardTemplate) => isAdmin || template.createdBy === currentUserId;
 
   const handleStartEditing = (template: InterviewScorecardTemplate) => {
     setEditingTemplate(template);
@@ -33,6 +38,16 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
   const handleCancel = () => {
     setEditingTemplate(null);
     setFormData(emptyTemplateState);
+  };
+
+  const handleDelete = (template: InterviewScorecardTemplate) => {
+    if (!window.confirm(`Delete "${template.name}"? This cannot be undone.`)) {
+      return;
+    }
+    if (editingTemplate?.id === template.id) {
+      handleCancel();
+    }
+    onDelete(template.id);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,14 +112,28 @@ const ScorecardTemplateBuilder: React.FC<ScorecardTemplateBuilderProps> = ({ tem
                 <div>
                   <p className="font-medium text-blue-600">{template.name}</p>
                   <p className="text-xs text-slate-400">{template.competencies.length} competencies</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {template.createdBy === currentUserId ? 'Created by you' : `by ${template.createdByName ?? 'Unknown'}`}
+                  </p>
                 </div>
-                <button
-                  onClick={() => handleStartEditing(template)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
-                  aria-label={`Edit ${template.name}`}
-                >
-                  <PencilIcon className="w-4 h-4" />
-                </button>
+                {canEdit(template) && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleStartEditing(template)}
+                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+                      aria-label={`Edit ${template.name}`}
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(template)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                      aria-label={`Delete ${template.name}`}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

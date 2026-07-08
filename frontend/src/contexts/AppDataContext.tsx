@@ -35,6 +35,7 @@ export interface AppDataContextValue {
   saveInterview: (interview: Interview) => void;
   saveTalentPool: (pool: TalentPool) => void;
   saveScorecardTemplate: (template: InterviewScorecardTemplate) => void;
+  deleteScorecardTemplate: (id: string) => void;
   saveOutreachLog: (candidateId: string, channel: string, outreachDate: string, notes?: string, responded?: boolean, responseDate?: string, clickedLink?: boolean) => void;
   saveOffer: (candidateId: string, offerDetails: OfferDetails) => void;
   offerAccepted: (candidateId: string) => void;

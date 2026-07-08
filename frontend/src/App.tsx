@@ -38,7 +38,7 @@ const App: React.FC = () => {
     [navigate]
   );
 
-  const { loggedInUser, isCheckingAuth, users, setUsers, handleLogin, handleLogout: authHandleLogout, refreshUsers, createBackendUser, deleteBackendUser } = useAuth({
+  const { loggedInUser, isCheckingAuth, users, setUsers, handleLogin, handleGoogleLogin, handleLogout: authHandleLogout, refreshUsers, createBackendUser, deleteBackendUser } = useAuth({
     onViewChange: navigateToView,
   });
 
@@ -96,7 +96,7 @@ const App: React.FC = () => {
   const { candidateOutreachLogs, isLogOutreachModalOpen, candidateForOutreachLog, openLogOutreachModal, closeLogOutreachModal, saveOutreachLog } =
     useOutreachLogs({ getCurrentUserId, loggedInUserId: loggedInUser?.id });
 
-  const { scorecardTemplates, saveScorecardTemplate, setScorecardTemplates } = useScorecards({ loggedInUserId: loggedInUser?.id });
+  const { scorecardTemplates, saveScorecardTemplate, deleteScorecardTemplate } = useScorecards({ loggedInUserId: loggedInUser?.id });
 
   const {
     isOfferModalOpen,
@@ -162,7 +162,7 @@ const App: React.FC = () => {
     saveCandidate, updateCandidateStage, saveCandidateAnalysis,
     removeCandidateFromPool, addCandidateToPool, moveCandidateToRequisition,
     saveRequisition, refetchWithFilters, saveInterview,
-    saveTalentPool, saveScorecardTemplate, saveOutreachLog,
+    saveTalentPool, saveScorecardTemplate, deleteScorecardTemplate, saveOutreachLog,
     saveOffer, offerAccepted, offerDeclined, confirmJoined,
     findAiCandidateMatches, assignCandidateFromAIPool,
     saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
@@ -176,7 +176,7 @@ const App: React.FC = () => {
     saveCandidate, updateCandidateStage, saveCandidateAnalysis,
     removeCandidateFromPool, addCandidateToPool, moveCandidateToRequisition,
     saveRequisition, refetchWithFilters, saveInterview,
-    saveTalentPool, saveScorecardTemplate, saveOutreachLog,
+    saveTalentPool, saveScorecardTemplate, deleteScorecardTemplate, saveOutreachLog,
     saveOffer, offerAccepted, offerDeclined, confirmJoined,
     findAiCandidateMatches, assignCandidateFromAIPool,
     saveHiringHubComment, generateAIDebriefSummary, recordFinalDecision,
@@ -222,6 +222,7 @@ const App: React.FC = () => {
       isCheckingAuth={isCheckingAuth}
       users={users}
       onLogin={handleLogin}
+      onGoogleLogin={handleGoogleLogin}
     >
       {loggedInUser && (
         <AuthContext.Provider value={{ loggedInUser, users, setUsers, handleLogout, refreshUsers, createBackendUser, deleteBackendUser }}>

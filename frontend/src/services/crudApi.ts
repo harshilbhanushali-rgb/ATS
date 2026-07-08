@@ -15,9 +15,17 @@ import {
 
 // ---- Shared helpers ----
 
-const parseError = async (response: Response, fallback: string): Promise<Error> => {
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+const parseError = async (response: Response, fallback: string): Promise<ApiError> => {
   const payload = await response.json().catch(() => null);
-  return new Error(payload?.detail || fallback);
+  return new ApiError(payload?.detail || fallback, response.status);
 };
 
 async function getJson<T>(path: string, fallback: string): Promise<T> {
@@ -361,6 +369,8 @@ type ApiScorecard = {
   name: string;
   competencies: InterviewScorecardTemplate['competencies'];
   created_date: string;
+  created_by: string | null;
+  created_by_name: string | null;
 };
 
 const fromScorecard = (s: ApiScorecard): InterviewScorecardTemplate => ({
@@ -368,6 +378,8 @@ const fromScorecard = (s: ApiScorecard): InterviewScorecardTemplate => ({
   name: s.name,
   competencies: s.competencies,
   createdDate: s.created_date,
+  createdBy: s.created_by ?? undefined,
+  createdByName: s.created_by_name ?? undefined,
 });
 
 const toScorecard = (s: InterviewScorecardTemplate): Record<string, unknown> => ({

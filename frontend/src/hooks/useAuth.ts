@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User, UserRole } from '../types';
 import { getViewForRole } from '../utils/viewUtils';
 import { View } from '../components/Navigation';
-import { createUser, fetchCurrentUser, fetchUsers, login, logout, deleteUser as apiDeleteUser } from '../services/authApi';
+import { createUser, fetchCurrentUser, fetchUsers, googleLogin, login, logout, deleteUser as apiDeleteUser } from '../services/authApi';
 
 interface UseAuthOptions {
   onViewChange?: (view: View) => void;
@@ -60,6 +60,21 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
     }
   }, [queryClient]);
 
+  const handleGoogleLogin = useCallback(async (credential: string): Promise<boolean> => {
+    try {
+      const user = await googleLogin(credential);
+      setLoggedInUser(user);
+      onViewChangeRef.current?.(getViewForRole(user.role));
+      if (user.role === UserRole.ADMIN) {
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }, [queryClient]);
+
   const handleLogout = useCallback(async () => {
     try {
       await logout();
@@ -93,6 +108,7 @@ export const useAuth = ({ onViewChange }: UseAuthOptions = {}) => {
     setUsers,
     setLoggedInUser,
     handleLogin,
+    handleGoogleLogin,
     handleLogout,
     refreshUsers,
     createBackendUser,

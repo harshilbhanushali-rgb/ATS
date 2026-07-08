@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 import { User } from '../types';
 import { APP_TITLE } from '../constants';
 import { forgotPassword, resetPassword } from '../services/authApi';
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<boolean>;
+  onGoogleLogin: (credential: string) => Promise<boolean>;
   users: User[];
 }
 
@@ -66,10 +68,6 @@ const pipeline = [
 
 const features = [
   {
-    title: 'Gemini AI Integration',
-    desc: 'Resume analysis, candidate matching and debrief synthesis',
-  },
-  {
     title: 'End-to-End Funnel',
     desc: 'Requisition to signed offer in one unified workspace',
   },
@@ -119,7 +117,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ leftIcon, rightElement, classNa
   </div>
 );
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, users: _users }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onGoogleLogin, users: _users }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -136,6 +134,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, users: _users }) => 
     setIsSubmitting(true);
     setError('');
     const success = await onLogin(email, password);
+    if (!success) setError('Invalid credentials or unauthorised email. Contact your administrator.');
+    setIsSubmitting(false);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) return;
+    setIsSubmitting(true);
+    setError('');
+    const success = await onGoogleLogin(credentialResponse.credential);
     if (!success) setError('Invalid credentials or unauthorised email. Contact your administrator.');
     setIsSubmitting(false);
   };
@@ -223,14 +230,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, users: _users }) => 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-2.5"
+            className="flex items-center"
           >
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
-              <svg className="w-4.5 h-4.5 text-white w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
-              </svg>
-            </div>
-            <span className="text-white font-bold text-lg font-display tracking-tight">Joveo</span>
+            <img src="/joveo-logo.png" alt="Joveo" className="h-8 w-auto" />
           </motion.div>
 
           {/* Headline */}
@@ -240,13 +242,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, users: _users }) => 
             animate="visible"
             className="flex-1 flex flex-col justify-center max-w-[420px]"
           >
-            <motion.div variants={itemVariants} className="mb-4">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1 tracking-wide">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                Powered by Gemini AI
-              </span>
-            </motion.div>
-
             <motion.h1
               variants={itemVariants}
               className="text-[2.6rem] xl:text-5xl font-bold text-white leading-[1.15] font-display mb-4"
@@ -379,6 +374,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, users: _users }) => 
                       Sign in with your{' '}
                       <span className="text-blue-600 font-semibold">@joveo.com</span> account
                     </p>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError('Google sign-in failed. Please try again.')}
+                      theme="outline"
+                      size="large"
+                      text="signin_with"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-slate-200" />
+                    <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider">or continue with email</span>
+                    <div className="h-px flex-1 bg-slate-200" />
                   </div>
 
                   <div className="space-y-3">

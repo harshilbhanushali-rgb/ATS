@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Requisition, Candidate, RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../../types';
+import { RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../../types';
 import Card from '../Card';
 import { CandidateList } from '../CandidateList';
 import {
@@ -11,10 +11,12 @@ import {
   SlidersHorizontal as FilterIcon,
   Sparkles as SparklesIcon,
   ChevronDown as ChevronDownIcon,
+  Upload as UploadIcon,
 } from 'lucide-react';
 import Modal from '../Modal';
 import ResumeAnalysisDisplay from '../ResumeAnalysisDisplay';
 import AIRecommendationsDisplay from '../AIRecommendationsDisplay';
+import BulkResumeUploadModal from '../BulkResumeUploadModal';
 import { useAppData } from '../../contexts/AppDataContext';
 import { useModalState } from '../../contexts/ModalStateContext';
 
@@ -38,6 +40,7 @@ export const RecruiterView: React.FC = () => {
 
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
   const [isAiPanelMinimized, setIsAiPanelMinimized] = useState(false);
   const [analysisForModal, setAnalysisForModal] = useState<ResumeMatchAnalysis | null>(null);
   const [contextForAnalysisModal, setContextForAnalysisModal] = useState<{
@@ -299,6 +302,15 @@ export const RecruiterView: React.FC = () => {
                 Add Candidate
               </button>
 
+              {/* Bulk Upload */}
+              <button
+                onClick={() => setIsBulkUploadModalOpen(true)}
+                className="flex items-center border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-indigo-600 font-bold py-2 px-3.5 rounded-xl text-xs transition-all whitespace-nowrap shrink-0 bg-white"
+              >
+                <UploadIcon className="w-3.5 h-3.5 mr-1" />
+                Bulk Upload
+              </button>
+
               {/* AI Matches */}
               <button
                 onClick={() => { setIsAiPanelMinimized(false); onFindAiCandidateMatches(selectedRequisition); }}
@@ -413,6 +425,16 @@ export const RecruiterView: React.FC = () => {
             requisitionRole={contextForAnalysisModal.requisitionRole}
           />
         </Modal>
+      )}
+
+      {selectedRequisition && (
+        <BulkResumeUploadModal
+          isOpen={isBulkUploadModalOpen}
+          onClose={() => setIsBulkUploadModalOpen(false)}
+          requisitions={requisitions}
+          talentPools={[]}
+          defaultRequisitionId={selectedRequisition.id}
+        />
       )}
     </div>
   );

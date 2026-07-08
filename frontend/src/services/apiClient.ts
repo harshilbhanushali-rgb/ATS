@@ -1,4 +1,4 @@
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
 export const API_BASE_URL =
   typeof window !== 'undefined' && window.location.protocol === 'https:' && rawApiUrl.startsWith('http:')
     ? rawApiUrl.replace('http:', 'https:')

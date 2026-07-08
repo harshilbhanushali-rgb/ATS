@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { CandidateStage } from '../../types';
+import { CandidateStage, UserRole } from '../../types';
 import Card from '../Card';
 import CandidateInterviewProgressCard from '../CandidateInterviewProgressCard';
+import ScorecardTemplateBuilder from './ScorecardTemplateBuilder';
 import { useAppData } from '../../contexts/AppDataContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useModalState } from '../../contexts/ModalStateContext';
 import {
   Search as SearchIcon,
@@ -10,6 +12,8 @@ import {
   User as UserIcon,
   ClipboardList as ClipboardListIcon,
 } from 'lucide-react';
+
+type HmHubTab = 'pipeline' | 'scorecards';
 
 const RELEVANT_HM_STAGES = [
   CandidateStage.SHORTLISTED,
@@ -21,7 +25,15 @@ const RELEVANT_HM_STAGES = [
 ];
 
 const HiringManagerView: React.FC = () => {
-  const { requisitions: allRequisitions, candidates: allCandidates, interviews: allInterviews } = useAppData();
+  const {
+    requisitions: allRequisitions,
+    candidates: allCandidates,
+    interviews: allInterviews,
+    scorecardTemplates,
+    saveScorecardTemplate,
+    deleteScorecardTemplate,
+  } = useAppData();
+  const { loggedInUser } = useAuthContext();
   const {
     openInterviewModal,
     openOfferModal,
@@ -29,6 +41,15 @@ const HiringManagerView: React.FC = () => {
     openOutreachDraftModal,
     openHiringHub,
   } = useModalState();
+
+  const [activeTab, setActiveTab] = useState<HmHubTab>('pipeline');
+
+  const tabButtonClass = (tabName: HmHubTab) =>
+    `px-5 py-2 text-sm font-bold rounded-xl transition-all duration-200 font-display ${
+      activeTab === tabName
+        ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
+        : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
+    }`;
 
   const uniqueHiringManagers = useMemo(
     () => Array.from(new Set(allRequisitions.map((r) => r.hiringManagerName))).sort(),
@@ -106,24 +127,55 @@ const HiringManagerView: React.FC = () => {
 
   const hasFilters = searchTerm !== '' || stageFilter !== '';
 
+  const tabBar = (
+    <div className="flex flex-wrap gap-2 mb-4">
+      <button onClick={() => setActiveTab('pipeline')} className={tabButtonClass('pipeline')}>
+        Interview Pipeline
+      </button>
+      <button onClick={() => setActiveTab('scorecards')} className={tabButtonClass('scorecards')}>
+        Scorecard Templates
+      </button>
+    </div>
+  );
+
+  if (activeTab === 'scorecards') {
+    return (
+      <div>
+        {tabBar}
+        <ScorecardTemplateBuilder
+          templates={scorecardTemplates}
+          onSave={saveScorecardTemplate}
+          onDelete={deleteScorecardTemplate}
+          currentUserId={loggedInUser?.id ?? ''}
+          isAdmin={loggedInUser?.role === UserRole.ADMIN}
+        />
+      </div>
+    );
+  }
+
   if (uniqueHiringManagers.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
-            <UserIcon className="w-8 h-8 text-slate-300" />
+      <div>
+        {tabBar}
+        <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <UserIcon className="w-8 h-8 text-slate-300" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-display mb-1">No Hiring Managers</h3>
+            <p className="text-slate-400 text-sm max-w-xs">
+              No hiring managers have active requisitions yet.
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 font-display mb-1">No Hiring Managers</h3>
-          <p className="text-slate-400 text-sm max-w-xs">
-            No hiring managers have active requisitions yet.
-          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-5 h-[calc(100vh-10rem)]">
+    <div>
+      {tabBar}
+      <div className="flex gap-5 h-[calc(100vh-10rem)]">
       {/* ── Left Panel ── */}
       <div style={{ width: '17rem' }} className="shrink-0 flex flex-col min-h-0">
         <Card className="flex-1 min-h-0 flex flex-col !p-0 overflow-hidden">
@@ -314,6 +366,7 @@ const HiringManagerView: React.FC = () => {
             </Card>
           </>
         )}
+      </div>
       </div>
     </div>
   );

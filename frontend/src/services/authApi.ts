@@ -56,6 +56,22 @@ export const login = async (payload: LoginRequest): Promise<User> => {
   return toUser(data.user);
 };
 
+export const googleLogin = async (credential: string): Promise<User> => {
+  const response = await apiFetch('/api/v1/auth/google-login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null);
+    throw new Error(errorPayload?.detail || 'Google sign-in failed.');
+  }
+
+  const data = (await response.json()) as { user: AuthUser };
+  return toUser(data.user);
+};
+
 export const forgotPassword = async (email: string): Promise<ForgotPasswordResponse> => {
   const response = await apiFetch('/api/v1/auth/forgot-password', {
     method: 'POST',
