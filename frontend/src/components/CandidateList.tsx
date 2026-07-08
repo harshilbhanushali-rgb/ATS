@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Candidate, CandidateStage, Requisition, CandidateAIDashboardData, OutreachDraftHandlerProps } from '../types';
 import Card from './Card';
-import { MessageCircle as ChatBubbleLeftEllipsisIcon, Eye as EyeIcon, ClipboardCheck as ClipboardDocumentCheckIcon } from 'lucide-react';
+import { MessageCircle as ChatBubbleLeftEllipsisIcon, Eye as EyeIcon, ClipboardCheck as ClipboardDocumentCheckIcon, FileText as FileTextIcon } from 'lucide-react';
 import PencilSparklesIcon from './icons/PencilSparklesIcon';
 
 const getStageChipClass = (stage: CandidateStage) => {
@@ -35,6 +35,7 @@ interface CandidateListItemProps extends OutreachDraftHandlerProps {
   onOpenCandidateAIDashboardModal: (data: CandidateAIDashboardData) => void;
   onOpenLogOutreachModal: (candidate: Candidate) => void;
   onOpenHiringHub: (candidate: Candidate, requisition: Requisition) => void;
+  onViewResume: (candidate: Candidate) => void;
 }
 
 const CandidateListItem: React.FC<CandidateListItemProps> = ({
@@ -45,7 +46,9 @@ const CandidateListItem: React.FC<CandidateListItemProps> = ({
     onOpenLogOutreachModal,
     onOpenOutreachDraftModal,
     onOpenHiringHub,
+    onViewResume,
 }) => {
+  const hasResume = !!candidate.resumeText?.trim() || !!candidate.resumeUrl?.trim();
   const canAIDraft = requisition && !!requisition.jobDescription?.trim();
 
   const getResumeAnalysisStatusText = () => {
@@ -129,6 +132,14 @@ const CandidateListItem: React.FC<CandidateListItemProps> = ({
           >
             <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => onViewResume(candidate)}
+            disabled={!hasResume}
+            className="p-2 bg-slate-50 text-slate-500 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors border border-slate-200 disabled:opacity-30"
+            title={hasResume ? 'View Resume' : 'No resume on file'}
+          >
+            <FileTextIcon className="w-4 h-4" />
+          </button>
           <div className="w-px h-5 bg-slate-200 mx-0.5 hidden lg:block" aria-hidden="true" />
           <motion.button
             onClick={() => onEditCandidate(candidate)}
@@ -150,6 +161,7 @@ interface CandidateListProps extends OutreachDraftHandlerProps {
   onOpenCandidateAIDashboardModal: (data: CandidateAIDashboardData) => void;
   onOpenLogOutreachModal: (candidate: Candidate) => void;
   onOpenHiringHub: (candidate: Candidate, requisition: Requisition) => void;
+  onViewResume: (candidate: Candidate) => void;
 }
 
 export const CandidateList: React.FC<CandidateListProps> = ({
@@ -160,6 +172,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
     onOpenLogOutreachModal,
     onOpenOutreachDraftModal,
     onOpenHiringHub,
+    onViewResume,
 }) => {
   return (
     <AnimatePresence>
@@ -180,6 +193,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
               onOpenLogOutreachModal={onOpenLogOutreachModal}
               onOpenOutreachDraftModal={onOpenOutreachDraftModal}
               onOpenHiringHub={onOpenHiringHub}
+              onViewResume={onViewResume}
             />
           </motion.div>
         ))}

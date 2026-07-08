@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_COOKIE_SAMESITE: str = "lax"
     ACCESS_TOKEN_COOKIE_DOMAIN: str | None = None
 
+    GOOGLE_CLIENT_ID: str | None = None
+    ALLOWED_EMAIL_DOMAIN: str = "joveo.com"
+
     SMTP_HOST: str | None = None
     SMTP_PORT: int = 587
     SMTP_USER: str | None = None

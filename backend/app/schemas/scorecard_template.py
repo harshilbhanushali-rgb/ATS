@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -23,6 +24,8 @@ class ScorecardTemplateUpdate(BaseModel):
 
 class ScorecardTemplateOut(ScorecardTemplateBase):
     id: str
+    created_by: UUID | None = None
+    created_by_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

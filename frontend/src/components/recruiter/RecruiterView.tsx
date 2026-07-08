@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { RequisitionStatus, ResumeMatchAnalysis, CandidateStage } from '../../types';
+import { RequisitionStatus, ResumeMatchAnalysis, CandidateStage, Candidate } from '../../types';
 import Card from '../Card';
 import { CandidateList } from '../CandidateList';
 import {
@@ -17,6 +17,7 @@ import Modal from '../Modal';
 import ResumeAnalysisDisplay from '../ResumeAnalysisDisplay';
 import AIRecommendationsDisplay from '../AIRecommendationsDisplay';
 import BulkResumeUploadModal from '../BulkResumeUploadModal';
+import ResumeViewModal from '../ResumeViewModal';
 import { useAppData } from '../../contexts/AppDataContext';
 import { useModalState } from '../../contexts/ModalStateContext';
 
@@ -41,6 +42,7 @@ export const RecruiterView: React.FC = () => {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+  const [viewingResumeCandidate, setViewingResumeCandidate] = useState<Candidate | null>(null);
   const [isAiPanelMinimized, setIsAiPanelMinimized] = useState(false);
   const [analysisForModal, setAnalysisForModal] = useState<ResumeMatchAnalysis | null>(null);
   const [contextForAnalysisModal, setContextForAnalysisModal] = useState<{
@@ -389,6 +391,7 @@ export const RecruiterView: React.FC = () => {
                   onOpenLogOutreachModal={onOpenLogOutreachModal}
                   onOpenOutreachDraftModal={onOpenOutreachDraftModal}
                   onOpenHiringHub={onOpenHiringHub}
+                  onViewResume={setViewingResumeCandidate}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -436,6 +439,14 @@ export const RecruiterView: React.FC = () => {
           defaultRequisitionId={selectedRequisition.id}
         />
       )}
+
+      <ResumeViewModal
+        isOpen={!!viewingResumeCandidate}
+        onClose={() => setViewingResumeCandidate(null)}
+        candidateName={viewingResumeCandidate?.name || ''}
+        resumeText={viewingResumeCandidate?.resumeText}
+        resumeUrl={viewingResumeCandidate?.resumeUrl}
+      />
     </div>
   );
 };

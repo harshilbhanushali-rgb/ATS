@@ -7,8 +7,10 @@ import {
   Sparkles as SparklesIcon,
   AlertTriangle as AlertTriangleIcon,
   CheckCircle2 as CheckCircleIcon,
+  Eye as EyeIcon,
 } from 'lucide-react';
 import Modal from './Modal';
+import ResumeViewModal from './ResumeViewModal';
 import { CandidateSource, Requisition, TalentPool } from '../types';
 import {
   BulkCommitResult,
@@ -70,6 +72,7 @@ const BulkResumeUploadModal: React.FC<BulkResumeUploadModalProps> = ({
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitError, setCommitError] = useState<string | null>(null);
   const [commitResult, setCommitResult] = useState<BulkCommitResult | null>(null);
+  const [previewRowIndex, setPreviewRowIndex] = useState<number | null>(null);
 
   const requisition = useMemo(
     () => requisitions.find((r) => r.id === defaultRequisitionId) || null,
@@ -91,6 +94,7 @@ const BulkResumeUploadModal: React.FC<BulkResumeUploadModalProps> = ({
     setIsCommitting(false);
     setCommitError(null);
     setCommitResult(null);
+    setPreviewRowIndex(null);
   };
 
   const handleClose = () => {
@@ -335,12 +339,24 @@ const BulkResumeUploadModal: React.FC<BulkResumeUploadModalProps> = ({
                       />
                       <span className="text-xs font-bold text-slate-500 truncate">{row.filename}</span>
                     </div>
-                    {row.existingCandidateWarning && (
-                      <span className="flex items-center gap-1 shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-                        <AlertTriangleIcon className="w-3 h-3" />
-                        Already exists
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {row.existingCandidateWarning && (
+                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                          <AlertTriangleIcon className="w-3 h-3" />
+                          Already exists
+                        </span>
+                      )}
+                      {!row.extractionError && row.resumeText && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewRowIndex(index)}
+                          className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-full px-2 py-0.5 transition-colors"
+                        >
+                          <EyeIcon className="w-3 h-3" />
+                          View
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {row.extractionError ? (
@@ -471,6 +487,17 @@ const BulkResumeUploadModal: React.FC<BulkResumeUploadModalProps> = ({
           </div>
         )}
       </div>
+
+      <ResumeViewModal
+        isOpen={previewRowIndex !== null}
+        onClose={() => setPreviewRowIndex(null)}
+        candidateName={
+          previewRowIndex !== null
+            ? rows[previewRowIndex]?.editedName || rows[previewRowIndex]?.filename || ''
+            : ''
+        }
+        resumeText={previewRowIndex !== null ? rows[previewRowIndex]?.resumeText : undefined}
+      />
     </Modal>
   );
 };

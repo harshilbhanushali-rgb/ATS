@@ -11,6 +11,7 @@ export default defineConfig(() => {
     const frontendSrc = path.resolve(frontendRoot, 'src');
     return {
       root: frontendRoot,
+      envDir: __dirname,
       server: {
         port: 3000,
         host: '0.0.0.0',
