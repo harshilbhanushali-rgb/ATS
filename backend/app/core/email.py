@@ -1,10 +1,25 @@
 from __future__ import annotations
 
 import smtplib
+import socket
 from email.message import EmailMessage
 from typing import Sequence
 
 from app.core.config import settings
+
+
+class _IPv4SMTP(smtplib.SMTP):
+    # Render's outbound network has no IPv6 route; smtplib's default connect
+    # can pick smtp.gmail.com's AAAA record first and fail with
+    # "[Errno 101] Network is unreachable" instead of falling back to IPv4.
+    def _get_socket(self, host, port, timeout):
+        if timeout is not None and not timeout:
+            raise OSError('nonblocking socket (timeout=0) is not supported')
+        family, socktype, proto, _, sockaddr = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)[0]
+        sock = socket.socket(family, socktype, proto)
+        sock.settimeout(timeout)
+        sock.connect(sockaddr)
+        return sock
 
 
 def send_email(subject: str, recipients: Sequence[str], text_body: str, html_body: str | None = None) -> None:
@@ -22,7 +37,7 @@ def send_email(subject: str, recipients: Sequence[str], text_body: str, html_bod
     if html_body:
         message.add_alternative(html_body, subtype='html')
 
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=5) as smtp:
+    with _IPv4SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=5) as smtp:
         if settings.SMTP_USE_TLS:
             smtp.starttls()
         if settings.SMTP_USER and settings.SMTP_PASSWORD:

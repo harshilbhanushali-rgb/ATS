@@ -13,6 +13,7 @@ engine = create_async_engine(
     max_overflow=settings.DB_MAX_OVERFLOW,
     pool_recycle=settings.DB_POOL_RECYCLE,
     pool_timeout=30,
+    connect_args={"timeout": 10},
 )
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
